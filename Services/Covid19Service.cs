@@ -1,15 +1,13 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using HtmlAgilityPack;
 using LiteDB;
 using Microsoft.Extensions.Logging;
 using System;
-using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
-using Discord;
 using UrfRiders.Data;
 
 namespace UrfRiders.Services

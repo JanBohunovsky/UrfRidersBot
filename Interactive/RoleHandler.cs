@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Discord;
+using Discord.Commands;
+using LiteDB;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using LiteDB;
 using UrfRiders.Data;
 
 namespace UrfRiders.Interactive
@@ -77,7 +75,7 @@ namespace UrfRiders.Interactive
             // normal -> remove role
             // once   -> nothing
             // remove -> nothing
-            if (data.Type == ReactionRoleType.Normal) 
+            if (data.Type == ReactionRoleType.Normal)
                 await RemoveRoleFromUser(user, data.RoleId);
         }
 

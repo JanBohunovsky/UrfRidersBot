@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using UrfRiders.Attributes.Preconditions;
 using UrfRiders.Data;

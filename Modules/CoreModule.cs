@@ -1,17 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using UrfRiders.Attributes.Preconditions;
 using UrfRiders.Data;
-using UrfRiders.Services;
-using UrfRiders.Util;
 
 namespace UrfRiders.Modules
 {
@@ -49,9 +45,43 @@ namespace UrfRiders.Modules
         }
 
         [Command("help")]
-        public async Task Help()
+        [Alias("techsupport")]
+        public async Task Help(IUser targetUser = null)
         {
-            await ReplyAsync("<:WeirdChamp:629355915149312010>");
+            var appInfo = await Context.Client.GetApplicationInfoAsync();
+            var embed = new EmbedBuilder()
+                .WithColor(Program.Color)
+                .WithThumbnailUrl("https://u.cubeupload.com/Bohush/tester.png")
+                .WithTitle("Tech Support")
+                .WithDescription("Feel free to contact our tech support:")
+                .AddField("Member", appInfo.Owner.Mention, true)
+                .AddField("Availability", "10 AM - 6 PM CEST", true)
+                .WithFooter("Member availability may not be guaranteed.")
+                .Build();
+
+            await ReplyAsync(targetUser?.Mention, embed: embed);
+        }
+
+        [Command("roles")]
+        [RequireLevel(PermissionLevel.Admin)]
+        public async Task Roles()
+        {
+            var embed = new EmbedBuilder()
+                .WithColor(Program.Color)
+                .WithTitle("Server roles")
+                .AddField("Admin", Settings.AdminRole.HasValue ? Context.Guild.GetRole(Settings.AdminRole.Value).Mention : "None")
+                .AddField("Moderator", Settings.ModeratorRole.HasValue ? Context.Guild.GetRole(Settings.ModeratorRole.Value).Mention : "None")
+                .AddField("Member", Settings.MemberRole.HasValue ? Context.Guild.GetRole(Settings.MemberRole.Value).Mention : "None")
+                .Build();
+
+            await ReplyAsync(embed: embed);
+        }
+
+        [Command("test")]
+        [RequireOwner]
+        public async Task Test(string emoji)
+        {
+            await ReplyAsync(embed: new EmbedBuilder().WithColor(Program.Color).WithDescription("Nothing is being tested right now.").Build());
         }
 
         [Command("embed")]
@@ -59,7 +89,7 @@ namespace UrfRiders.Modules
         public async Task CreateEmbed(SocketTextChannel channel, [Remainder] string json)
         {
             var embedBuilder = new EmbedBuilder();
-            
+
             try
             {
                 var embedJson = JObject.Parse(json);
@@ -137,43 +167,6 @@ namespace UrfRiders.Modules
 
             await channel.SendMessageAsync(embed: embedBuilder.Build());
             await ReplyAsync(embed: new EmbedBuilder().WithSuccess("Embed created.").Build());
-        }
-
-        [Command("roles")]
-        [RequireLevel(PermissionLevel.Admin)]
-        public async Task Roles()
-        {
-            var embed = new EmbedBuilder()
-                .WithColor(Program.Color)
-                .WithTitle("Server roles")
-                .AddField("Admin", Settings.AdminRole.HasValue ? Context.Guild.GetRole(Settings.AdminRole.Value).Mention : "None")
-                .AddField("Moderator", Settings.ModeratorRole.HasValue ? Context.Guild.GetRole(Settings.ModeratorRole.Value).Mention : "None")
-                .AddField("Member", Settings.MemberRole.HasValue ? Context.Guild.GetRole(Settings.MemberRole.Value).Mention : "None")
-                .Build();
-
-            await ReplyAsync(embed: embed);
-        }
-
-        [Command("test")]
-        [RequireOwner]
-        public async Task Test(string emoji)
-        {
-            IEmote emote = new Emoji(emoji);
-
-            if (Emote.TryParse(emoji, out var parsedEmote))
-                emote = parsedEmote;
-
-            try
-            {
-                await Context.Message.AddReactionAsync(emote);
-            }
-            catch (Exception e)
-            {
-                await ReplyAsync(e.ToString().ToCode(true));
-            }
-
-            //throw new NotImplementedException();
-            //await ReplyAsync(embed: new EmbedBuilder().WithColor(Program.Color).WithDescription("Nothing is being tested right now.").Build());
         }
     }
 }

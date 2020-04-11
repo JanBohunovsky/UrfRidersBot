@@ -1,21 +1,20 @@
-﻿using System;
-using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using LiteDB;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
 using UrfRiders.Services;
 
 namespace UrfRiders
 {
     class Program
     {
-        public const string Version = "1.3";
+        public const string Version = "1.3.1";
         public const uint Color = 0x05b3eb;
 
         //static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();

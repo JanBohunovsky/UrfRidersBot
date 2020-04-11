@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Globalization;
-using System.Linq;
-using Discord;
 
 namespace UrfRiders.Data
 {

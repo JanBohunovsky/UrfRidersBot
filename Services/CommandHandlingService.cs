@@ -1,15 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using LiteDB;
-using Microsoft.Extensions.Configuration;
-using UrfRiders.Data;
-using UrfRiders.Util;
+using System;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace UrfRiders.Services
 {

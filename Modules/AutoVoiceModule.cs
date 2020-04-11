@@ -1,13 +1,11 @@
-﻿using System.Text;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using LiteDB;
+using System.Text;
+using System.Threading.Tasks;
 using UrfRiders.Attributes.Preconditions;
 using UrfRiders.Data;
 using UrfRiders.Services;
-using UrfRiders.Util;
 
 namespace UrfRiders.Modules
 {

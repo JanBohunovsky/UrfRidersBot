@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using UrfRiders.Attributes;
-using UrfRiders.Interactive;
-
 namespace UrfRiders.Data
 {
     public class ServerData

@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 using UrfRiders.Attributes;
 using UrfRiders.Attributes.Preconditions;
 using UrfRiders.Data;
-using UrfRiders.Services;
-using UrfRiders.Util;
 
 namespace UrfRiders.Modules
 {
@@ -82,7 +80,7 @@ namespace UrfRiders.Modules
                     PropertyValueToString(Settings.GetPropertyValue(property)).ToCode(largeCode),
                     true)
                 .AddField("Update command", $"{Settings.Prefix}settings {property.Name.ToLower()} <{realType.Name}>".ToCode(largeCode));
-            
+
             // Description
             var description = property.GetCustomAttribute<DescriptionAttribute>();
             if (description != null)

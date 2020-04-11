@@ -1,6 +1,6 @@
 ﻿using Discord;
 
-namespace UrfRiders.Util
+namespace UrfRiders
 {
     public static class Extensions
     {

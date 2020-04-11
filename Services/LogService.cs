@@ -4,7 +4,6 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using UrfRiders.Util;
 
 namespace UrfRiders.Services
 {
@@ -30,9 +29,9 @@ namespace UrfRiders.Services
         private Task LogDiscord(LogMessage message)
         {
             _discordLogger.Log(
-                LogLevelFromSeverity(message.Severity), 
-                0, 
-                message, 
+                LogLevelFromSeverity(message.Severity),
+                0,
+                message,
                 message.Exception,
                 (m, e) => message.ToString(prependTimestamp: false));
             return Task.CompletedTask;

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using Discord;
+﻿using Discord;
 using UrfRiders.Util;
 
 namespace UrfRiders.Data

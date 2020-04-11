@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using LiteDB;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using UrfRiders.Interactive;
 
 namespace UrfRiders.Services
