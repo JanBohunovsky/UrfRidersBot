@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using UrfRiders.Data;
 using UrfRiders.Services;
@@ -11,20 +12,34 @@ namespace UrfRiders.Modules
         public Covid19Service Service { get; set; }
 
         [Command("corona")]
-        [Alias("korona")]
+        [Alias("korona", "coronavirus", "koronavirus", "covid19")]
         public async Task CoronaStats()
         {
+            bool usingCache = false;
+
             await Context.Channel.TriggerTypingAsync();
             var data = await Service.GetLatestData();
+            if (data == null)
+            {
+                data = Settings.Covid19CachedData;
+                usingCache = true;
+            }
+
+            EmbedBuilder embedBuilder;
             if (Context.Channel.Id == Settings.Covid19Channel)
             {
-                await ReplyAsync(embed: Covid19Data.CreateEmbed(data, Service.CachedData ?? data).Build());
-                Service.CachedData = data;
+                embedBuilder = Covid19Data.CreateEmbed(data, Settings.Covid19CachedData ?? data);
+                Settings.Covid19CachedData = data;
             }
             else
             {
-                await ReplyAsync(embed: Covid19Data.CreateEmbed(data).Build());
+                embedBuilder = Covid19Data.CreateEmbed(data);
             }
+
+            if (usingCache)
+                embedBuilder.WithFooter("Failed to update, using cached version", "https://u.cubeupload.com/Bohush/iconerror.png");
+
+            await ReplyAsync(embed: embedBuilder.Build());
         }
     }
 }

@@ -22,6 +22,9 @@ namespace UrfRiders.Data
         [Description("ID of text channel where COVID-19 Module posts updates.")]
         public ulong? Covid19Channel { get; set; }
 
+        [Hidden]
+        public Covid19Data Covid19CachedData { get; set; }
+
         [Description("Where to look for message.\nUsed by Reaction Roles Module.")]
         public ulong? ReactionRolesChannel { get; set; }
 

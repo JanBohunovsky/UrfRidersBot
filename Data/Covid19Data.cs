@@ -9,7 +9,9 @@ namespace UrfRiders.Data
         public const string Title = "Aktuální počty onemocnění koronavirem v ČR";
 
         public int Tests { get; set; }
-        public int Sick { get; set; }
+        public int SickTotal { get; set; }
+        public int SickActive { get; set; }
+        public int Hospitalized { get; set; }
         public int Recovered { get; set; }
         public int Deaths { get; set; }
         public DateTimeOffset LastUpdateTime { get; set; }
@@ -22,26 +24,34 @@ namespace UrfRiders.Data
         public static EmbedBuilder CreateEmbed(Covid19Data data)
         {
             return CreateEmbed(
-                FormatNumber(data.Sick),
+                FormatNumber(data.Tests),
+                FormatNumber(data.SickTotal),
+                FormatNumber(data.SickActive),
+                FormatNumber(data.Hospitalized),
                 FormatNumber(data.Recovered),
                 FormatNumber(data.Deaths),
-                FormatNumber(data.Tests),
                 data.LastUpdateTime
             );
         }
 
         public static EmbedBuilder CreateEmbed(Covid19Data latestData, Covid19Data oldData)
         {
-            if (latestData == oldData)
+            if (latestData == oldData || oldData == null)
                 return CreateEmbed(latestData);
 
-            var sick = FormatNumber(latestData.Sick);
+            var tests = FormatNumber(latestData.Tests);
+            var sickTotal = FormatNumber(latestData.SickTotal);
+            var sickActive = FormatNumber(latestData.SickActive);
+            var hospitalized = FormatNumber(latestData.Hospitalized);
             var recovered = FormatNumber(latestData.Recovered);
             var deaths = FormatNumber(latestData.Deaths);
-            var tests = FormatNumber(latestData.Tests);
 
-            if (latestData.Sick != oldData.Sick)
-                sick = $"{sick} ({FormatNumber(latestData.Sick - oldData.Sick, true)})";
+            if (latestData.SickTotal != oldData.SickTotal)
+                sickTotal = $"{sickTotal} ({FormatNumber(latestData.SickTotal - oldData.SickTotal, true)})";
+            if (latestData.SickActive != oldData.SickActive)
+                sickActive = $"{sickActive} ({FormatNumber(latestData.SickActive - oldData.SickActive, true)})";
+            if (latestData.Hospitalized != oldData.Hospitalized)
+                hospitalized = $"{hospitalized} ({FormatNumber(latestData.Hospitalized - oldData.Hospitalized, true)})";
             if (latestData.Recovered != oldData.Recovered)
                 recovered = $"{recovered} ({FormatNumber(latestData.Recovered - oldData.Recovered, true)})";
             if (latestData.Deaths != oldData.Deaths)
@@ -49,10 +59,11 @@ namespace UrfRiders.Data
             if (latestData.Tests != oldData.Tests)
                 tests = $"{tests} ({FormatNumber(latestData.Tests - oldData.Tests, true)})";
 
-            return CreateEmbed(sick, recovered, deaths, tests, latestData.LastUpdateTime);
+            return CreateEmbed(tests, sickTotal, sickActive, hospitalized, recovered, deaths, latestData.LastUpdateTime);
         }
 
-        private static EmbedBuilder CreateEmbed(string sick, string recovered, string deaths, string tests, DateTimeOffset updateTime)
+        private static EmbedBuilder CreateEmbed(string tests, string sickTotal, string sickActive, 
+            string hospitalized, string recovered, string deaths, DateTimeOffset updateTime)
         {
             return new EmbedBuilder()
                 .WithColor(0xd31145)
@@ -60,10 +71,12 @@ namespace UrfRiders.Data
                     "https://onemocneni-aktualne.mzcr.cz/images/favicon/favicon-196x196.png",
                     "https://onemocneni-aktualne.mzcr.cz/covid-19")
                 .WithTitle(Title)
-                .AddField("Celkový počet osob s prokázanou nákazou COVID-19", sick)
-                .AddField("Celkový počet vyléčených", recovered)
-                .AddField("Celkový počet úmrtí", deaths)
-                .AddField("Celkový počet provedených testů", tests)
+                .AddField("Celkový počet testů", tests, true)
+                .AddField("Celkem onemocněných", sickTotal, true)
+                .AddField("Aktuálně onemocněných", sickActive, true)
+                .AddField("Aktuálně hospitalizovaných", hospitalized, true)
+                .AddField("Počet vyléčených", recovered, true)
+                .AddField("Počet úmrtí", deaths, true)
                 .WithTimestamp(updateTime);
         }
 

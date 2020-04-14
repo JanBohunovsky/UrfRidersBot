@@ -65,6 +65,16 @@ namespace UrfRiders.Services
             }
         }
 
+        public Covid19Data Covid19CachedData
+        {
+            get => _data.Covid19CachedData;
+            set
+            {
+                _data.Covid19CachedData = value;
+                Save();
+            }
+        }
+
         public ulong? ReactionRolesChannel
         {
             get => _data.ReactionRolesChannel;

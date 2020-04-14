@@ -14,7 +14,7 @@ namespace UrfRiders
 {
     class Program
     {
-        public const string Version = "1.3.1";
+        public const string Version = "1.3.2";
         public const uint Color = 0x05b3eb;
 
         //static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
