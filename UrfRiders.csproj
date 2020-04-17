@@ -22,8 +22,10 @@
     <PackageReference Include="NReco.Logging.File" Version="1.0.5" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if $(ConfigurationName)==Debug (&#xD;&#xA;    copy &quot;$(ProjectDir)config.debug.json&quot; &quot;$(OutDir)&quot;config.json&#xD;&#xA;) else (&#xD;&#xA;    copy &quot;$(ProjectDir)config.release.json&quot; &quot;$(OutDir)&quot;config.json&#xD;&#xA;)" />
-  </Target>
+  <ItemGroup>
+    <None Update="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>
