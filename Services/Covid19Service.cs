@@ -7,6 +7,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UrfRiders.Data;
 
@@ -20,6 +21,7 @@ namespace UrfRiders.Services
         private readonly HttpClient _http;
 
         private bool _init;
+        private Regex _datetimePattern;
 
         public Covid19Service(DiscordSocketClient client, LiteDatabase database, ILogger<Covid19Service> logger,
             HttpClient http)
@@ -28,6 +30,8 @@ namespace UrfRiders.Services
             _database = database;
             _logger = logger;
             _http = http;
+
+            _datetimePattern = new Regex("(\\d{1,2}\\.) (\\d{1,2}\\.) (\\d{4}) v (\\d{1,2}\\.\\d{1,2})");
 
             // Run periodic update when the client is ready
             _client.Ready += () =>
@@ -73,8 +77,9 @@ namespace UrfRiders.Services
 
                 foreach (var xpath in updateFields)
                 {
-                    var text = html.DocumentNode.SelectSingleNode(xpath).InnerText.Replace("&nbsp;", " ").Trim();
-                    var time = DateTimeOffset.ParseExact(text, "\\k d. M. yyyy \\v H.mm \\h", CultureInfo.InvariantCulture);
+                    var rawText = html.DocumentNode.SelectSingleNode(xpath).InnerText.Replace("&nbsp;", " ");
+                    var text = _datetimePattern.Match(rawText).ToString();
+                    var time = DateTimeOffset.ParseExact(text, "d. M. yyyy \\v H.mm", CultureInfo.InvariantCulture);
                     if (time > data.LastUpdateTime)
                         data.LastUpdateTime = time;
                 }

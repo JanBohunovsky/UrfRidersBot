@@ -14,7 +14,7 @@ namespace UrfRiders
 {
     class Program
     {
-        public const string Version = "1.3.2";
+        public const string Version = "1.3.4";
         public const uint Color = 0x05b3eb;
 
         //static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
@@ -54,7 +54,7 @@ namespace UrfRiders
 #if DEBUG
                 .AddLogging(config => config.AddConsole().AddFile("bot.log").SetMinimumLevel(LogLevel.Debug))
 #else
-                .AddLogging(config => config.AddConsole().AddFile("bot.log").SetMinimumLevel(LogLevel.Debug))
+                .AddLogging(config => config.AddConsole().AddFile("bot.log").SetMinimumLevel(LogLevel.Information))
 #endif
                 .AddSingleton<LogService>()
                 // Extra

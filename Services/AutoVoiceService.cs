@@ -207,19 +207,23 @@ namespace UrfRiders.Services
             }
         }
 
-        private async Task UserVoiceStateUpdated(SocketUser user, SocketVoiceState before, SocketVoiceState after)
+        private Task UserVoiceStateUpdated(SocketUser user, SocketVoiceState before, SocketVoiceState after)
         {
+            // 2020-06-01: 
+
             if (before.VoiceChannel == after.VoiceChannel)
-                return;
+                return Task.CompletedTask;
 
             if (after.VoiceChannel != null)
             {
-                await UserJoined(after.VoiceChannel);
+                _ = Task.Run(async () => await UserJoined(after.VoiceChannel));
             }
             if (before.VoiceChannel != null)
             {
-                await UserLeft(before.VoiceChannel);
+                _ = Task.Run(async () => await UserLeft(before.VoiceChannel));
             }
+
+            return Task.CompletedTask;
         }
 
         private async Task UserJoined(SocketVoiceChannel voiceChannel)

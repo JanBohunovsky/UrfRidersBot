@@ -44,6 +44,22 @@ namespace UrfRiders.Modules
             await ReplyAsync(embed: embed);
         }
 
+        [Command("server")]
+        public async Task Server()
+        {
+            var embed = new EmbedBuilder()
+                .WithColor(Program.Color)
+                .WithTitle(Context.Guild.Name)
+                .WithThumbnailUrl(Context.Guild.IconUrl)
+                .AddField("ID", Context.Guild.Id.ToString().ToCode())
+                .AddField("Owner", Context.Guild.Owner.Mention)
+                .AddField("Members", Context.Guild.MemberCount)
+                .AddField("Created", Context.Guild.CreatedAt.ToString("dd MMMM yyyy, hh:mm:ss tt"))
+                .Build();
+
+            await ReplyAsync(embed: embed);
+        }
+
         [Command("help")]
         [Alias("techsupport")]
         public async Task Help(IUser targetUser = null)
