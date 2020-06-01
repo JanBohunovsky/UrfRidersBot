@@ -70,6 +70,14 @@ namespace UrfRiders.Modules
             foreach (var channelId in Settings.AutoVoiceChannels)
             {
                 var channel = Context.Guild.GetVoiceChannel(channelId);
+                // TODO: AutoVoiceChannels contains invalid channel ID, remove it in service.
+                if (channel == null)
+                {
+                    sbChannels.AppendLine($"`???`");
+                    sbIds.AppendLine(channelId.ToString().ToCode());
+                    continue;
+                }
+
                 var userCount = channel.Users.Count;
                 sbChannels.AppendLine($"`{channel.Name}` - {userCount} user{(userCount == 1 ? "" : "s")}");
                 sbIds.AppendLine(channel.Id.ToString().ToCode());
