@@ -1,4 +1,5 @@
 ﻿using Discord;
+using LiteDB;
 using UrfRiders.Util;
 
 namespace UrfRiders.Data
@@ -9,6 +10,7 @@ namespace UrfRiders.Data
         public ulong RoleId { get; set; }
         public ReactionRoleType Type { get; set; }
 
+        [BsonIgnore]
         public IEmote Emote => _emote ??= EmoteHelper.Parse(EmoteText);
         private IEmote _emote;
 

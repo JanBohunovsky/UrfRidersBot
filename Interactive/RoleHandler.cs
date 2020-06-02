@@ -11,7 +11,9 @@ namespace UrfRiders.Interactive
 {
     public class RoleHandler : IReactionHandler
     {
+        [BsonIgnore]
         public RunMode RunMode => RunMode.Sync;
+        [BsonIgnore]
         public bool HasRoles => Data.Count > 0;
 
         public List<RoleData> Data { get; private set; }
