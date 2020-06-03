@@ -18,6 +18,10 @@ namespace UrfRiders.Modules.Clash
         public DateTimeOffset StartTime { get; set; }
         public bool Cancelled { get; set; }
 
+        // ◇ ● ◈ ◆ ▪
+        public string FormattedName => $"{Name} Cup ◇ {SecondaryName}";
+        public string FormattedTime => $"{StartTime:d MMMM} ◇ {RegistrationTime:HH:mm} - {StartTime:HH:mm}";
+
         public static ClashTournamentData Parse(Tournament tournament)
         {
             var schedule = tournament.Schedule.FirstOrDefault();
@@ -30,10 +34,11 @@ namespace UrfRiders.Modules.Clash
                 ScheduleId = schedule.Id,
                 Name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(tournament.NameKey.Replace("_", " ")),
                 SecondaryName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(tournament.NameKeySecondary.Replace("_", " ")),
-                RegistrationTime = DateTimeOffset.FromUnixTimeMilliseconds(schedule.RegistrationTime),
-                StartTime = DateTimeOffset.FromUnixTimeMilliseconds(schedule.StartTime),
+                RegistrationTime = DateTimeOffset.FromUnixTimeMilliseconds(schedule.RegistrationTime).ToLocalTime(),
+                StartTime = DateTimeOffset.FromUnixTimeMilliseconds(schedule.StartTime).ToLocalTime(),
                 Cancelled = schedule.Cancelled
             };
         }
+
     }
 }
