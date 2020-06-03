@@ -1,10 +1,8 @@
-﻿using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
-using UrfRiders.Data;
-using UrfRiders.Services;
+using System.Threading.Tasks;
 
-namespace UrfRiders.Modules
+namespace UrfRiders.Modules.Covid19
 {
     [Name("COVID-19")]
     public class Covid19Module : BaseModule

@@ -4,9 +4,8 @@ using Discord.WebSocket;
 using LiteDB;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using UrfRiders.Interactive;
 
-namespace UrfRiders.Services
+namespace UrfRiders.Modules.Interactive
 {
     public class InteractiveService
     {

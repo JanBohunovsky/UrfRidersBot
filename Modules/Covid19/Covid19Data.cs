@@ -2,7 +2,7 @@
 using System;
 using System.Globalization;
 
-namespace UrfRiders.Data
+namespace UrfRiders.Modules.Covid19
 {
     public class Covid19Data
     {
@@ -62,7 +62,7 @@ namespace UrfRiders.Data
             return CreateEmbed(tests, sickTotal, sickActive, hospitalized, recovered, deaths, latestData.LastUpdateTime);
         }
 
-        private static EmbedBuilder CreateEmbed(string tests, string sickTotal, string sickActive, 
+        private static EmbedBuilder CreateEmbed(string tests, string sickTotal, string sickActive,
             string hospitalized, string recovered, string deaths, DateTimeOffset updateTime)
         {
             return new EmbedBuilder()

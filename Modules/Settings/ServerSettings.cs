@@ -1,19 +1,21 @@
-﻿using System;
+﻿using Discord.WebSocket;
+using LiteDB;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Discord.WebSocket;
-using LiteDB;
-using UrfRiders.Attributes;
-using UrfRiders.Data;
+using UrfRiders.Modules.Covid19;
+using UrfRiders.Util;
 
-namespace UrfRiders.Services
+namespace UrfRiders.Modules.Settings
 {
     public class ServerSettings
     {
         public static ServerData Default = new ServerData();
 
         public ulong GuildId { get; }
+
+        #region Core
 
         public string Prefix
         {
@@ -24,6 +26,10 @@ namespace UrfRiders.Services
                 Save();
             }
         }
+
+        #endregion
+
+        #region Server Roles
 
         public ulong? AdminRole
         {
@@ -55,6 +61,10 @@ namespace UrfRiders.Services
             }
         }
 
+        #endregion
+
+        #region COVID-19 Module
+
         public ulong? Covid19Channel
         {
             get => _data.Covid19Channel;
@@ -74,6 +84,10 @@ namespace UrfRiders.Services
                 Save();
             }
         }
+
+        #endregion
+
+        #region Reaction Roles Module
 
         public ulong? ReactionRolesChannel
         {
@@ -95,15 +109,9 @@ namespace UrfRiders.Services
             }
         }
 
-        public bool LargeCodeBlock
-        {
-            get => _data.LargeCodeBlock;
-            set
-            {
-                _data.LargeCodeBlock = value;
-                Save();
-            }
-        }
+        #endregion
+
+        #region Auto Voice Module
 
         public List<ulong> AutoVoiceChannels
         {
@@ -114,6 +122,36 @@ namespace UrfRiders.Services
                 Save();
             }
         }
+
+        #endregion
+
+        #region Clash Module
+
+        public ulong? ClashChannel
+        {
+            get => _data.ClashChannel;
+            set
+            {
+                _data.ClashChannel = value;
+                Save();
+            }
+        }
+
+        #endregion
+
+        #region Other
+
+        public bool LargeCodeBlock
+        {
+            get => _data.LargeCodeBlock;
+            set
+            {
+                _data.LargeCodeBlock = value;
+                Save();
+            }
+        }
+
+        #endregion
 
         private readonly ILiteCollection<ServerData> _collection;
         private ServerData _data;
@@ -145,7 +183,7 @@ namespace UrfRiders.Services
             {
                 if (propertyInfo.CustomAttributes.Any(x => x.AttributeType == typeof(HiddenAttribute)))
                     continue;
-                
+
                 yield return (propertyInfo.Name, propertyInfo.GetValue(_data));
             }
         }
@@ -169,7 +207,7 @@ namespace UrfRiders.Services
         {
             property.SetValue(_data, value);
         }
-                
+
         public object ResetProperty(PropertyInfo property)
         {
             var value = property.GetValue(Default);

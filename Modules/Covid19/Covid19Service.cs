@@ -9,9 +9,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using UrfRiders.Data;
+using UrfRiders.Modules.Settings;
 
-namespace UrfRiders.Services
+namespace UrfRiders.Modules.Covid19
 {
     public class Covid19Service
     {

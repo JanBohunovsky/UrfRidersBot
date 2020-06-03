@@ -1,12 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.WebSocket;
 using LiteDB;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using UrfRiders.Modules.Settings;
 
-namespace UrfRiders.Services
+namespace UrfRiders.Modules.AutoVoice
 {
     public class AutoVoiceService
     {

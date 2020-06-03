@@ -1,6 +1,6 @@
 ﻿using Discord.Commands;
 using LiteDB;
-using UrfRiders.Services;
+using UrfRiders.Modules.Settings;
 
 namespace UrfRiders.Modules
 {

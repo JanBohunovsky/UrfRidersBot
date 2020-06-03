@@ -1,4 +1,4 @@
-﻿namespace UrfRiders.Data
+﻿namespace UrfRiders.Modules.ReactionRoles
 {
     public enum ReactionRoleType
     {

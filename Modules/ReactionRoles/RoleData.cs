@@ -2,7 +2,7 @@
 using LiteDB;
 using UrfRiders.Util;
 
-namespace UrfRiders.Data
+namespace UrfRiders.Modules.ReactionRoles
 {
     public class RoleData
     {

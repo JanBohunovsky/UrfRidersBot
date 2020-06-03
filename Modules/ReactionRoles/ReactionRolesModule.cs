@@ -1,16 +1,13 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Microsoft.Extensions.Logging;
-using UrfRiders.Attributes.Preconditions;
-using UrfRiders.Data;
-using UrfRiders.Interactive;
-using UrfRiders.Services;
+using System;
+using System.Text;
+using System.Threading.Tasks;
+using UrfRiders.Modules.Interactive;
 using UrfRiders.Util;
 
-namespace UrfRiders.Modules
+namespace UrfRiders.Modules.ReactionRoles
 {
     [Name("Reaction Roles")]
     [RequireContext(ContextType.Guild)]

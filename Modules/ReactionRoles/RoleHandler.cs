@@ -1,13 +1,12 @@
 ﻿using Discord;
 using Discord.Commands;
 using LiteDB;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UrfRiders.Data;
+using UrfRiders.Modules.Interactive;
 
-namespace UrfRiders.Interactive
+namespace UrfRiders.Modules.ReactionRoles
 {
     public class RoleHandler : IReactionHandler
     {

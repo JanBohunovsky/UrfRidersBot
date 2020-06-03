@@ -1,4 +1,4 @@
-﻿namespace UrfRiders.Data
+﻿namespace UrfRiders.Util
 {
     public enum PermissionLevel
     {
