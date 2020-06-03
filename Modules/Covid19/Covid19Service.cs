@@ -23,8 +23,7 @@ namespace UrfRiders.Modules.Covid19
         private bool _init;
         private Regex _datetimePattern;
 
-        public Covid19Service(DiscordSocketClient client, LiteDatabase database, ILogger<Covid19Service> logger,
-            HttpClient http)
+        public Covid19Service(DiscordSocketClient client, LiteDatabase database, ILogger<Covid19Service> logger, HttpClient http)
         {
             _client = client;
             _database = database;
