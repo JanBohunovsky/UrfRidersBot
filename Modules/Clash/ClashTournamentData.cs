@@ -14,13 +14,29 @@ namespace UrfRiders.Modules.Clash
 
         public string Name { get; set; }
         public string SecondaryName { get; set; }
-        public DateTimeOffset RegistrationTime { get; set; }
-        public DateTimeOffset StartTime { get; set; }
+        //public DateTimeOffset RegistrationTime { get; set; }
+        //public DateTimeOffset StartTime { get; set; }
         public bool Cancelled { get; set; }
 
+        public DateTimeOffset RegistrationTime
+        {
+            get => _registrationTime;
+            set => _registrationTime = value.ToLocalTime();
+        }
+
+        public DateTimeOffset StartTime
+        {
+            get => _startTime;
+            set => _startTime = value.ToLocalTime();
+        }
+
         // ◇ ● ◈ ◆ ▪
+        [BsonIgnore]
         public string FormattedName => $"{Name} Cup ◇ {SecondaryName}";
-        public string FormattedTime => $"{StartTime:d MMMM} ◇ {RegistrationTime:HH:mm} - {StartTime:HH:mm}";
+        [BsonIgnore]
+        public string FormattedTime => $"{StartTime:d MMMM}, {RegistrationTime:HH:mm} - {StartTime:HH:mm}";
+
+        private DateTimeOffset _registrationTime, _startTime;
 
         public static ClashTournamentData Parse(Tournament tournament)
         {
@@ -34,8 +50,8 @@ namespace UrfRiders.Modules.Clash
                 ScheduleId = schedule.Id,
                 Name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(tournament.NameKey.Replace("_", " ")),
                 SecondaryName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(tournament.NameKeySecondary.Replace("_", " ")),
-                RegistrationTime = DateTimeOffset.FromUnixTimeMilliseconds(schedule.RegistrationTime).ToLocalTime(),
-                StartTime = DateTimeOffset.FromUnixTimeMilliseconds(schedule.StartTime).ToLocalTime(),
+                RegistrationTime = DateTimeOffset.FromUnixTimeMilliseconds(schedule.RegistrationTime),
+                StartTime = DateTimeOffset.FromUnixTimeMilliseconds(schedule.StartTime),
                 Cancelled = schedule.Cancelled
             };
         }
