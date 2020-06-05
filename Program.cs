@@ -8,8 +8,11 @@ using Microsoft.Extensions.Logging;
 using MingweiSamuel.Camille;
 using System;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using MingweiSamuel.Camille.Enums;
+using MingweiSamuel.Camille.Util;
 using UrfRiders.Modules.AutoVoice;
 using UrfRiders.Modules.Clash;
 using UrfRiders.Modules.Covid19;
@@ -41,6 +44,7 @@ namespace UrfRiders
             services.GetRequiredService<InteractiveService>();
             services.GetRequiredService<AutoVoiceService>();
             services.GetRequiredService<Covid19Service>();
+            services.GetRequiredService<ClashService>();
 
             // Start the bot
             await client.LoginAsync(TokenType.Bot, config["token"]);
