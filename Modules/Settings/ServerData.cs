@@ -50,6 +50,12 @@ namespace UrfRiders.Modules.Settings
         #region Clash Module
         [Description("ID of text channel where Clash Module posts upcoming tournaments and team builders.")]
         public ulong? ClashChannel { get; set; }
+
+        [Description("ID of pinned message where Clash Module shows upcoming tournaments. Updated automatically, please do not modify.")]
+        public ulong? ClashPinnedMessage { get; set; }
+
+        [Hidden]
+        public List<int> SeenTournaments { get; set; } = new List<int>();
         #endregion
 
         #region Other

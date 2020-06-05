@@ -28,6 +28,7 @@ namespace UrfRiders.Modules.Covid19
             {
                 embedBuilder = Covid19Data.CreateEmbed(data, Settings.Covid19CachedData ?? data);
                 Settings.Covid19CachedData = data;
+                Settings.Save();
             }
             else
             {

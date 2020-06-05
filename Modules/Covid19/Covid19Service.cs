@@ -138,6 +138,7 @@ namespace UrfRiders.Modules.Covid19
                     var embed = Covid19Data.CreateEmbed(data, settings.Covid19CachedData ?? data).Build();
                     await PostUpdate(channel, embed);
                     settings.Covid19CachedData = data;
+                    settings.Save();
                 }
             }
         }

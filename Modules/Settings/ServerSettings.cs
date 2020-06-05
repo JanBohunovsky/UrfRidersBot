@@ -20,11 +20,7 @@ namespace UrfRiders.Modules.Settings
         public string Prefix
         {
             get => _data.Prefix;
-            set
-            {
-                _data.Prefix = value;
-                Save();
-            }
+            set => _data.Prefix = value;
         }
 
         #endregion
@@ -34,31 +30,19 @@ namespace UrfRiders.Modules.Settings
         public ulong? AdminRole
         {
             get => _data.AdminRole;
-            set
-            {
-                _data.AdminRole = value;
-                Save();
-            }
+            set => _data.AdminRole = value;
         }
 
         public ulong? ModeratorRole
         {
             get => _data.ModeratorRole;
-            set
-            {
-                _data.ModeratorRole = value;
-                Save();
-            }
+            set => _data.ModeratorRole = value;
         }
 
         public ulong? MemberRole
         {
             get => _data.MemberRole;
-            set
-            {
-                _data.MemberRole = value;
-                Save();
-            }
+            set => _data.MemberRole = value;
         }
 
         #endregion
@@ -68,21 +52,13 @@ namespace UrfRiders.Modules.Settings
         public ulong? Covid19Channel
         {
             get => _data.Covid19Channel;
-            set
-            {
-                _data.Covid19Channel = value;
-                Save();
-            }
+            set => _data.Covid19Channel = value;
         }
 
         public Covid19Data Covid19CachedData
         {
             get => _data.Covid19CachedData;
-            set
-            {
-                _data.Covid19CachedData = value;
-                Save();
-            }
+            set => _data.Covid19CachedData = value;
         }
 
         #endregion
@@ -130,11 +106,19 @@ namespace UrfRiders.Modules.Settings
         public ulong? ClashChannel
         {
             get => _data.ClashChannel;
-            set
-            {
-                _data.ClashChannel = value;
-                Save();
-            }
+            set => _data.ClashChannel = value;
+        }
+
+        public ulong? ClashPinnedMessage
+        {
+            get => _data.ClashPinnedMessage;
+            set => _data.ClashPinnedMessage = value;
+        }
+
+        public List<int> SeenTournaments
+        {
+            get => _data.SeenTournaments;
+            set => _data.SeenTournaments = value;
         }
 
         #endregion
@@ -144,11 +128,7 @@ namespace UrfRiders.Modules.Settings
         public bool LargeCodeBlock
         {
             get => _data.LargeCodeBlock;
-            set
-            {
-                _data.LargeCodeBlock = value;
-                Save();
-            }
+            set => _data.LargeCodeBlock = value;
         }
 
         #endregion
@@ -166,9 +146,6 @@ namespace UrfRiders.Modules.Settings
         public static IEnumerable<ServerSettings> All(DiscordSocketClient client, LiteDatabase database) =>
             client.Guilds.Select(guild => new ServerSettings(guild.Id, database));
 
-        /// <summary>
-        /// Manual save. Useful for list properties.
-        /// </summary>
         public void Save() => _collection.Upsert(GuildId, _data);
 
         public void Delete()
