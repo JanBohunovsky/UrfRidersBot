@@ -116,15 +116,20 @@ namespace UrfRiders.Modules.Clash
 
             var now = DateTimeOffset.Now;
             var start = nextTournament.StartTime;
+            var today = new DateTimeOffset(now.Year, now.Month, now.Day, _morning.Hours, _morning.Minutes, _morning.Seconds, now.Offset);
             var target = new DateTimeOffset(start.Year, start.Month, start.Day, _morning.Hours, _morning.Minutes, _morning.Seconds, start.Offset);
-            var countdown = target - now;
+
+            // Calculate remaining days.
+            // If current time is less than `_morning` then add 1 day (because we are still in "yesterday").
+            var countdown = target - today;
+            var days = countdown.TotalDays + (now < today ? 1 : 0);
 
             var countdownText = target.ToString("M");
-            if (countdown.TotalDays <= 0)
+            if (days <= 0)
                 countdownText = "Today";
-            else if (countdown.TotalDays <= 1)
+            else if (days <= 1)
                 countdownText = "Tomorrow";
-            else if (countdown.TotalDays <= 14)
+            else if (days <= 14)
                 countdownText = $"In {countdown.Days} days";
 
             if (channel.Topic == countdownText)
@@ -148,6 +153,7 @@ namespace UrfRiders.Modules.Clash
                 // Wait until the morning
                 var now = DateTimeOffset.Now;
                 var target = new DateTimeOffset(now.Year, now.Month, now.Day, _morning.Hours, _morning.Minutes, _morning.Seconds, now.Offset);
+                target = target.AddSeconds(30);
 
                 var countdown = target - now;
                 if (countdown.TotalHours <= 0)

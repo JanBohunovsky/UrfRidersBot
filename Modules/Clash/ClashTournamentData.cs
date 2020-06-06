@@ -14,8 +14,6 @@ namespace UrfRiders.Modules.Clash
 
         public string Name { get; set; }
         public string SecondaryName { get; set; }
-        //public DateTimeOffset RegistrationTime { get; set; }
-        //public DateTimeOffset StartTime { get; set; }
         public bool Cancelled { get; set; }
 
         public DateTimeOffset RegistrationTime
