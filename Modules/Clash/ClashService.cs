@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
+using System.Text;
 using Discord.WebSocket;
 using LiteDB;
 using Microsoft.Extensions.Logging;
@@ -20,12 +21,21 @@ namespace UrfRiders.Modules.Clash
     {
         public const string TitleUpcomingTournaments = "Upcoming tournaments";
         public const string TitleNewTournaments = "New tournaments available";
+        public const string TitleThisWeekTournaments = "Tournaments this week";
+        public const string DescriptionTournamentToday = "Today's tournament:";
         public const string DescriptionNoTournaments = "No planned tournaments.";
 
         public ClashTournamentData[] Tournaments { get; private set; }
 
+        public EmbedBuilder BaseEmbed => new EmbedBuilder()
+            .WithColor(Color.Blue)
+            .WithThumbnailUrl("https://cdn.discordapp.com/attachments/717788228899307551/717788431006302218/Clash_Crest_icon.webp");
+
         // When does a day start.
-        private readonly TimeSpan _morning = new TimeSpan(6, 0, 0);
+        private readonly TimeSpan _newDay = new TimeSpan(6, 0, 0);
+        // When should service notify servers.
+        private readonly TimeSpan _morning = new TimeSpan(8, 0, 0);
+        private readonly TimeSpan _evening = new TimeSpan(22, 0, 0);
 
         private readonly DiscordSocketClient _client;
         private readonly LiteDatabase _database;
@@ -71,28 +81,19 @@ namespace UrfRiders.Modules.Clash
                     _init = true;
                 }
 
-                // API key is ok, start periodic updates
-                _ = Task.Run(PeriodicDownload);
-                _ = Task.Run(PeriodicMorningUpdate);
+                // API key is ok, start periodic update
+                _ = Task.Run(PeriodicUpdate);
 
             };
         }
 
-        public EmbedBuilder CreateTournamentListEmbed(string title, Func<ClashTournamentData, bool> predicate = null)
+        #region CreateTournamentListEmbed
+
+        public EmbedBuilder CreateTournamentListEmbed(string title, IEnumerable<ClashTournamentData> tournaments)
         {
-            var embedBuilder = new EmbedBuilder()
-                .WithColor(Color.Blue)
-                .WithTitle(title)
-                .WithThumbnailUrl("https://cdn.discordapp.com/attachments/717788228899307551/717788431006302218/Clash_Crest_icon.webp");
-
-            // Take every tournament by default
-            IEnumerable<ClashTournamentData> data = Tournaments;
-            // Filter tournaments
-            if (predicate != null)
-                data = Tournaments.Where(predicate);
-
-            // Add fields
-            foreach (var tournament in data)
+            var embedBuilder = BaseEmbed.WithTitle(title);
+            
+            foreach (var tournament in tournaments)
             {
                 embedBuilder.AddField(tournament.FormattedTime, tournament.FormattedName);
             }
@@ -100,37 +101,40 @@ namespace UrfRiders.Modules.Clash
             return embedBuilder;
         }
 
+        public EmbedBuilder CreateTournamentListEmbed(string title, Func<ClashTournamentData, bool> predicate) =>
+            CreateTournamentListEmbed(title, Tournaments.Where(predicate));
+
+        public EmbedBuilder CreateTournamentListEmbed(string title) => CreateTournamentListEmbed(title, Tournaments);
+
+        #endregion
+
         public async Task UpdateChannelTopic(SocketTextChannel channel)
         {
             if (channel == null)
                 return;
-            if (Tournaments.Length < 1)
+
+            // Get the first upcoming tournament (`Tournaments` array is sorted by registration time).
+            var now = DateTimeOffset.Now;
+            var nextTournament = Tournaments.FirstOrDefault(t => t.StartTime > now);
+            if (nextTournament == null)
             {
                 if (channel.Topic != DescriptionNoTournaments)
                     await channel.ModifyAsync(c => c.Topic = DescriptionNoTournaments);
                 return;
             }
 
-            // This array is always sorted by newest first.
-            var nextTournament = Tournaments[0];
-
-            var now = DateTimeOffset.Now;
-            var start = nextTournament.StartTime;
-            var today = new DateTimeOffset(now.Year, now.Month, now.Day, _morning.Hours, _morning.Minutes, _morning.Seconds, now.Offset);
-            var target = new DateTimeOffset(start.Year, start.Month, start.Day, _morning.Hours, _morning.Minutes, _morning.Seconds, start.Offset);
-
             // Calculate remaining days.
-            // If current time is less than `_morning` then add 1 day (because we are still in "yesterday").
-            var countdown = target - today;
-            var days = countdown.TotalDays + (now < today ? 1 : 0);
+            var start = nextTournament.StartTime;
+            var target = new DateTimeOffset(start.Year, start.Month, start.Day, _newDay.Hours, _newDay.Minutes, _newDay.Seconds, start.Offset);
+            var countdown = target - now;
 
             var countdownText = target.ToString("M");
-            if (days <= 0)
+            if (countdown.TotalDays <= 0)
                 countdownText = "Today";
-            else if (days <= 1)
+            else if (countdown.TotalDays <= 1)
                 countdownText = "Tomorrow";
-            else if (days <= 14)
-                countdownText = $"In {countdown.Days} days";
+            else if (countdown.TotalDays <= 14)
+                countdownText = $"In {countdown.Days + 1} days";
 
             if (channel.Topic == countdownText)
                 return;
@@ -144,42 +148,11 @@ namespace UrfRiders.Modules.Clash
         }
 
         /// <summary>
-        /// Updates channel topic every morning and posts important updates.
-        /// </summary>
-        private async Task PeriodicMorningUpdate()
-        {
-            while (true)
-            {
-                // Wait until the morning
-                var now = DateTimeOffset.Now;
-                var target = new DateTimeOffset(now.Year, now.Month, now.Day, _morning.Hours, _morning.Minutes, _morning.Seconds, now.Offset);
-                target = target.AddSeconds(30);
-
-                var countdown = target - now;
-                if (countdown.TotalHours <= 0)
-                {
-                    target = target.AddDays(1);
-                    countdown = target - now;
-                }
-                _logger.LogDebug($"Next morning update at {target:T}");
-                await Task.Delay(countdown);
-
-                // Update channel topic
-                foreach (var settings in ServerSettings.All(_client, _database))
-                {
-                    if (!settings.ClashChannel.HasValue)
-                        continue;
-                    if (!(_client.GetChannel(settings.ClashChannel.Value) is SocketTextChannel channel))
-                        continue;
-                    await UpdateChannelTopic(channel);
-                }
-            }
-        }
-
-        /// <summary>
         /// Downloads tournaments every full hour, then notifies servers about new tournaments available.
+        /// Every day at <see cref="_newDay"/> updates channel topics to update countdown.
+        /// Every day at <see cref="_morning"/> posts notifications about upcoming tournaments (if valid, i.e. at the start of the week and the day of tournament)
         /// </summary>
-        private async Task PeriodicDownload()
+        private async Task PeriodicUpdate()
         {
             while (true)
             {
@@ -191,6 +164,8 @@ namespace UrfRiders.Modules.Clash
                 _logger.LogDebug($"Next download at {target:T}");
                 await Task.Delay(target - now);
 
+                now = DateTimeOffset.Now;
+                
                 // Download data
                 try
                 {
@@ -206,42 +181,109 @@ namespace UrfRiders.Modules.Clash
                 _collection.DeleteMany(t => true);
                 _collection.InsertBulk(Tournaments);
 
-                // Update servers
-                var tournamentIds = Tournaments.Select(t => t.TournamentId).ToList();
-                foreach (var settings in ServerSettings.All(_client, _database))
+                if (now.Hour >= _morning.Hours && now.Hour <= _evening.Hours)
+                    await NotifyServersAboutNewTournaments();
+                if (now.Hour == _newDay.Hours)
+                    await NewDayUpdate();
+                if (now.Hour == _morning.Hours)
+                    await MorningNotifications();
+            }
+        }
+
+        private async Task NotifyServersAboutNewTournaments()
+        {
+            // Notify servers about new tournaments that are available
+            var tournamentIds = Tournaments.Select(t => t.TournamentId).ToList();
+            foreach (var settings in ServerSettings.All(_client, _database))
+            {
+                if (!settings.ClashChannel.HasValue)
+                    continue;
+                if (!(_client.GetChannel(settings.ClashChannel.Value) is SocketTextChannel channel))
+                    continue;
+                // Nothing changed => skip
+                if (settings.SeenTournaments.SequenceEqual(tournamentIds))
+                    continue;
+
+                var embed = CreateTournamentListEmbed(TitleNewTournaments, t => !settings.SeenTournaments.Contains(t.TournamentId));
+
+                // Send message if there are new upcoming tournaments
+                if (embed.Fields.Count > 0)
                 {
-                    if (!settings.ClashChannel.HasValue)
-                        continue;
-                    if (!(_client.GetChannel(settings.ClashChannel.Value) is SocketTextChannel channel))
-                        continue;
-                    // Nothing changed => skip
-                    if (settings.SeenTournaments.SequenceEqual(tournamentIds))
-                        continue;
+                    await channel.SendMessageAsync(embed: embed.Build());
+                }
 
-                    var embed = CreateTournamentListEmbed(TitleNewTournaments, t => !settings.SeenTournaments.Contains(t.TournamentId));
+                // Update seen tournaments
+                settings.SeenTournaments = tournamentIds;
+                settings.Save();
 
-                    // Send message if there are new upcoming tournaments
-                    if (embed.Fields.Count > 0)
-                    {
-                        await channel.SendMessageAsync(embed: embed.Build());
-                    }
+                // Update "Upcoming Tournaments" Message
+                if (!settings.ClashPinnedMessage.HasValue)
+                    continue;
+                if (!(await channel.GetMessageAsync(settings.ClashPinnedMessage.Value) is IUserMessage message))
+                    continue;
+                if (message.Author.Id != _client.CurrentUser.Id)
+                {
+                    _logger.LogInformation("Pinned message about upcoming tournaments is not mine.");
+                    continue;
+                }
 
-                    // Update seen tournaments
-                    settings.SeenTournaments = tournamentIds;
-                    settings.Save();
+                await message.ModifyAsync(m => m.Embed = CreateTournamentListEmbed(TitleUpcomingTournaments).Build());
+            }
+        }
 
-                    // Update "Upcoming Tournaments" Message
-                    if (!settings.ClashPinnedMessage.HasValue)
-                        continue;
-                    if (!(await channel.GetMessageAsync(settings.ClashPinnedMessage.Value) is IUserMessage message))
-                        continue;
-                    if (message.Author.Id != _client.CurrentUser.Id)
-                    {
-                        _logger.LogInformation("Pinned message about upcoming tournaments is not mine.");
-                        continue;
-                    }
+        private async Task NewDayUpdate()
+        {
+            // At the start of the day, update channel topics
+            foreach (var settings in ServerSettings.All(_client, _database))
+            {
+                if (!settings.ClashChannel.HasValue)
+                    continue;
+                if (!(_client.GetChannel(settings.ClashChannel.Value) is SocketTextChannel channel))
+                    continue;
 
-                    await message.ModifyAsync(m => m.Embed = CreateTournamentListEmbed(TitleUpcomingTournaments).Build());
+                await UpdateChannelTopic(channel);
+            }
+        }
+
+        private async Task MorningNotifications()
+        {
+            // Notify servers about upcoming tournaments that are happening this week and today.
+            var now = DateTimeOffset.Now;
+            Embed embedThisWeek = null, embedToday = null;
+            if (now.DayOfWeek == DayOfWeek.Monday)
+            {
+                var start = now;
+                var end = now.AddDays(6);
+                var tournamentsThisWeek = Tournaments.Where(t => t.StartTime.Date >= start.Date && t.StartTime.Date <= end.Date).ToArray();
+
+                if (tournamentsThisWeek.Length > 0)
+                    embedThisWeek = CreateTournamentListEmbed(TitleThisWeekTournaments, tournamentsThisWeek).Build();
+            }
+
+            var tournamentToday = Tournaments.FirstOrDefault(t => t.StartTime.Date == now.Date);
+            if (tournamentToday != null)
+            {
+                var description = new StringBuilder();
+                description.AppendLine($"Registration at **{tournamentToday.RegistrationTime:h\\:mm tt}**");
+                description.AppendLine($"Start at **{tournamentToday.StartTime:h\\:mm tt}**");
+                embedToday = BaseEmbed.WithTitle(tournamentToday.FormattedName).WithDescription(description.ToString()).Build();
+            }
+
+            foreach (var settings in ServerSettings.All(_client, _database))
+            {
+                if (!settings.ClashChannel.HasValue)
+                    continue;
+                if (!(_client.GetChannel(settings.ClashChannel.Value) is SocketTextChannel channel))
+                    continue;
+
+                if (embedThisWeek != null)
+                {
+                    await channel.SendMessageAsync(embed: embedThisWeek);
+                }
+
+                if (embedToday != null)
+                {
+                    await channel.SendMessageAsync(DescriptionTournamentToday, embed: embedToday);
                 }
             }
         }
