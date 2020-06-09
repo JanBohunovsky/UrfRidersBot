@@ -106,11 +106,17 @@ namespace UrfRiders.Modules.AutoVoice
                 {
                     foreach (var settings in ServerSettings.All(_client, _database))
                     {
-                        foreach (var channelId in settings.AutoVoiceChannels)
+                        // Update channel names and remove invalid channels
+                        var countBefore = settings.AutoVoiceChannels.Count;
+                        for (int i = settings.AutoVoiceChannels.Count - 1; i >= 0; i--)
                         {
-                            if (_client.GetChannel(channelId) is SocketVoiceChannel channel)
+                            if (_client.GetChannel(settings.AutoVoiceChannels[i]) is SocketVoiceChannel channel)
                                 await UpdateChannelName(channel);
+                            else
+                                settings.AutoVoiceChannels.RemoveAt(i);
                         }
+                        if (settings.AutoVoiceChannels.Count != countBefore)
+                            settings.Save();
                     }
                 }
                 catch (Exception e)
@@ -210,8 +216,6 @@ namespace UrfRiders.Modules.AutoVoice
 
         private Task UserVoiceStateUpdated(SocketUser user, SocketVoiceState before, SocketVoiceState after)
         {
-            // 2020-06-01: 
-
             if (before.VoiceChannel == after.VoiceChannel)
                 return Task.CompletedTask;
 
