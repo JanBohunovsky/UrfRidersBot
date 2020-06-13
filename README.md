@@ -8,7 +8,7 @@ The contents of the file should look like this:
 }
 ```
 To run this bot, you need to create [Discord bot token](https://discord.com/developers/applications) and optionally, 
-if you want [Clash module](/tree/master/Modules/Clash) enabled, 
+if you want [Clash module](../../tree/master/Modules/Clash) enabled, 
 you also need [Riot API key](https://developer.riotgames.com/).
 
 # Changelog
