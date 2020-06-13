@@ -28,7 +28,6 @@ namespace UrfRiders.Modules.Clash
             set => _startTime = value.ToLocalTime();
         }
 
-        // ◇ ● ◈ ◆ ▪
         [BsonIgnore]
         public string FormattedName => $"{Name} Cup ◇ {SecondaryName}";
         [BsonIgnore]
