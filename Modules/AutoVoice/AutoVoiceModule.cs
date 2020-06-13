@@ -3,11 +3,9 @@ using Discord.Commands;
 using Discord.WebSocket;
 using System.Text;
 using System.Threading.Tasks;
-using UrfRiders.Attributes.Preconditions;
-using UrfRiders.Data;
-using UrfRiders.Services;
+using UrfRiders.Util;
 
-namespace UrfRiders.Modules
+namespace UrfRiders.Modules.AutoVoice
 {
     [Name("Auto Voice")]
     [Group("autovoice")]

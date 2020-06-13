@@ -6,10 +6,9 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using UrfRiders.Attributes.Preconditions;
-using UrfRiders.Data;
+using UrfRiders.Util;
 
-namespace UrfRiders.Modules
+namespace UrfRiders.Modules.Core
 {
     [Name("Core")]
     public class CoreModule : BaseModule
@@ -29,7 +28,8 @@ namespace UrfRiders.Modules
             var appInfo = await Context.Client.GetApplicationInfoAsync();
             var modules = CommandService.Modules
                 .Where(m => m.Name != "BaseModule")
-                .Select(m => m.Name.Replace("Module", ""));
+                .Select(m => m.Name.Replace("Module", ""))
+                .OrderBy(s => s);
 
             var embed = new EmbedBuilder()
                 .WithColor(Program.Color)

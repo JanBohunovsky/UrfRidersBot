@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Discord.WebSocket;
+using LiteDB;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Discord.WebSocket;
-using LiteDB;
-using UrfRiders.Attributes;
-using UrfRiders.Data;
+using UrfRiders.Modules.Covid19;
+using UrfRiders.Util;
 
-namespace UrfRiders.Services
+namespace UrfRiders.Modules.Settings
 {
     public class ServerSettings
     {
@@ -15,65 +15,55 @@ namespace UrfRiders.Services
 
         public ulong GuildId { get; }
 
+        #region Core
+
         public string Prefix
         {
             get => _data.Prefix;
-            set
-            {
-                _data.Prefix = value;
-                Save();
-            }
+            set => _data.Prefix = value;
         }
+
+        #endregion
+
+        #region Server Roles
 
         public ulong? AdminRole
         {
             get => _data.AdminRole;
-            set
-            {
-                _data.AdminRole = value;
-                Save();
-            }
+            set => _data.AdminRole = value;
         }
 
         public ulong? ModeratorRole
         {
             get => _data.ModeratorRole;
-            set
-            {
-                _data.ModeratorRole = value;
-                Save();
-            }
+            set => _data.ModeratorRole = value;
         }
 
         public ulong? MemberRole
         {
             get => _data.MemberRole;
-            set
-            {
-                _data.MemberRole = value;
-                Save();
-            }
+            set => _data.MemberRole = value;
         }
+
+        #endregion
+
+        #region COVID-19 Module
 
         public ulong? Covid19Channel
         {
             get => _data.Covid19Channel;
-            set
-            {
-                _data.Covid19Channel = value;
-                Save();
-            }
+            set => _data.Covid19Channel = value;
         }
 
         public Covid19Data Covid19CachedData
         {
             get => _data.Covid19CachedData;
-            set
-            {
-                _data.Covid19CachedData = value;
-                Save();
-            }
+            set => _data.Covid19CachedData = value;
         }
+
+        #endregion
+
+        #region Reaction Roles Module
 
         public ulong? ReactionRolesChannel
         {
@@ -95,15 +85,9 @@ namespace UrfRiders.Services
             }
         }
 
-        public bool LargeCodeBlock
-        {
-            get => _data.LargeCodeBlock;
-            set
-            {
-                _data.LargeCodeBlock = value;
-                Save();
-            }
-        }
+        #endregion
+
+        #region Auto Voice Module
 
         public List<ulong> AutoVoiceChannels
         {
@@ -114,6 +98,40 @@ namespace UrfRiders.Services
                 Save();
             }
         }
+
+        #endregion
+
+        #region Clash Module
+
+        public ulong? ClashChannel
+        {
+            get => _data.ClashChannel;
+            set => _data.ClashChannel = value;
+        }
+
+        public ulong? ClashPinnedMessage
+        {
+            get => _data.ClashPinnedMessage;
+            set => _data.ClashPinnedMessage = value;
+        }
+
+        public List<int> SeenTournaments
+        {
+            get => _data.SeenTournaments;
+            set => _data.SeenTournaments = value;
+        }
+
+        #endregion
+
+        #region Other
+
+        public bool LargeCodeBlock
+        {
+            get => _data.LargeCodeBlock;
+            set => _data.LargeCodeBlock = value;
+        }
+
+        #endregion
 
         private readonly ILiteCollection<ServerData> _collection;
         private ServerData _data;
@@ -128,9 +146,6 @@ namespace UrfRiders.Services
         public static IEnumerable<ServerSettings> All(DiscordSocketClient client, LiteDatabase database) =>
             client.Guilds.Select(guild => new ServerSettings(guild.Id, database));
 
-        /// <summary>
-        /// Manual save. Useful for list properties.
-        /// </summary>
         public void Save() => _collection.Upsert(GuildId, _data);
 
         public void Delete()
@@ -145,7 +160,7 @@ namespace UrfRiders.Services
             {
                 if (propertyInfo.CustomAttributes.Any(x => x.AttributeType == typeof(HiddenAttribute)))
                     continue;
-                
+
                 yield return (propertyInfo.Name, propertyInfo.GetValue(_data));
             }
         }
@@ -169,7 +184,7 @@ namespace UrfRiders.Services
         {
             property.SetValue(_data, value);
         }
-                
+
         public object ResetProperty(PropertyInfo property)
         {
             var value = property.GetValue(Default);

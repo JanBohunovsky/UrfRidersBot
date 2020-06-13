@@ -9,9 +9,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using UrfRiders.Data;
+using UrfRiders.Modules.Settings;
 
-namespace UrfRiders.Services
+namespace UrfRiders.Modules.Covid19
 {
     public class Covid19Service
     {
@@ -23,8 +23,7 @@ namespace UrfRiders.Services
         private bool _init;
         private Regex _datetimePattern;
 
-        public Covid19Service(DiscordSocketClient client, LiteDatabase database, ILogger<Covid19Service> logger,
-            HttpClient http)
+        public Covid19Service(DiscordSocketClient client, LiteDatabase database, ILogger<Covid19Service> logger, HttpClient http)
         {
             _client = client;
             _database = database;
@@ -98,20 +97,25 @@ namespace UrfRiders.Services
 
         private async Task PeriodicUpdate()
         {
-            // How long should we wait (in minutes, max 60)
-            const int minutes = 15;
+            // Check for update every X minutes, starting from full hour.
+            // Choose X here:
+            const int minute = 15;
             while (true)
             {
                 var now = DateTimeOffset.Now;
+                var target = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, 0, 30, now.Offset);
 
-                // Ignore seconds and milliseconds
-                var target = now.Subtract(TimeSpan.FromSeconds(now.Second))
-                    .Subtract(TimeSpan.FromMilliseconds(now.Millisecond));
-
-                // Waits every x minutes starting from full hour
-                target = target.AddMinutes(minutes - (target.Minute % minutes));
+                // Calculate next iteration of `minute`.
+                // Example:
+                //   now = 9:37
+                //   minute = 15
+                // 37 / 15 = 2.466 (round up => 3)
+                // 3 * 15 = 45
+                // Now we know we should wait until it's 9:45.
+                target = target.AddMinutes(minute * Math.Ceiling(now.Minute / (double)minute));
                 _logger.LogDebug($"Next update check at {target:T}");
                 await Task.Delay(target - now);
+
 
                 // Download data
                 var data = await GetLatestData();
@@ -134,6 +138,7 @@ namespace UrfRiders.Services
                     var embed = Covid19Data.CreateEmbed(data, settings.Covid19CachedData ?? data).Build();
                     await PostUpdate(channel, embed);
                     settings.Covid19CachedData = data;
+                    settings.Save();
                 }
             }
         }

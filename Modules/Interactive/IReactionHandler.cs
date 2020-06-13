@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
+using System.Threading.Tasks;
 
-namespace UrfRiders.Interactive
+namespace UrfRiders.Modules.Interactive
 {
     public interface IReactionHandler
     {

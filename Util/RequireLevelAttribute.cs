@@ -1,16 +1,15 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using LiteDB;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using UrfRiders.Data;
-using UrfRiders.Services;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using UrfRiders.Modules.Settings;
 
-namespace UrfRiders.Attributes.Preconditions
+namespace UrfRiders.Util
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     public class RequireLevelAttribute : PreconditionAttribute

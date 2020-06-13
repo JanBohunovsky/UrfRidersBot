@@ -1,4 +1,13 @@
-﻿[1.3.5]
+﻿[1.4]
+Refactored code structure.
+- Moved modules and its components into specific folders (from Data, Modules and Services).
+- This should be more readable now and in the future with more modules.
+- `Services` folder now contains basic services that can be used by all modules (e.g. LogService).
+
+
+
+
+[1.3.5]
 Auto Voice Module
 - Temporary solution for invalid channel ID in voice channel list
 

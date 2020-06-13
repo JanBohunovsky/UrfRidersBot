@@ -7,11 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using UrfRiders.Attributes;
-using UrfRiders.Attributes.Preconditions;
-using UrfRiders.Data;
+using UrfRiders.Util;
 
-namespace UrfRiders.Modules
+namespace UrfRiders.Modules.Settings
 {
     [Name("Settings")]
     [Group("settings")]

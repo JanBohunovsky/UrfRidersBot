@@ -5,6 +5,7 @@ using LiteDB;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using UrfRiders.Modules.Settings;
 
 namespace UrfRiders.Services
 {
