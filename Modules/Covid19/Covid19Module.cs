@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 namespace UrfRiders.Modules.Covid19
 {
     [Name("COVID-19")]
+    [DontAutoLoad] // Temporary disable this module until it's updated
     public class Covid19Module : BaseModule
     {
         public Covid19Service Service { get; set; }

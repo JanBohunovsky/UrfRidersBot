@@ -34,16 +34,12 @@ namespace UrfRiders
             var client = services.GetRequiredService<DiscordSocketClient>();
             var config = services.GetRequiredService<IConfiguration>();
 
-            //client.Ready += async () =>
-            //{
-            //};
-
             // Initialize logic for services
             services.GetRequiredService<LogService>();
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
             services.GetRequiredService<InteractiveService>();
             services.GetRequiredService<AutoVoiceService>();
-            services.GetRequiredService<Covid19Service>();
+            //services.GetRequiredService<Covid19Service>();
             services.GetRequiredService<ClashService>();
 
             // Start the bot
@@ -77,7 +73,7 @@ namespace UrfRiders
                 // My Services
                 .AddSingleton<InteractiveService>()
                 .AddSingleton<AutoVoiceService>()
-                .AddSingleton<Covid19Service>()
+                //.AddSingleton<Covid19Service>()
                 .AddSingleton<ClashService>()
                 .BuildServiceProvider();
         }
