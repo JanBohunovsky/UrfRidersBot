@@ -5,7 +5,7 @@
 
 # Custom
 config.json
-
+.idea/
 
 # User-specific files
 *.rsuser
