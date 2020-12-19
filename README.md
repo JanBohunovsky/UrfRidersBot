@@ -1,3 +1,5 @@
+![build](https://github.com/JanBohunovsky/UrfRidersBot/workflows/build/badge.svg?branch=v2.0)
+
 # Configuration
 TODO
 
