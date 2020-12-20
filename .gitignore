@@ -4,8 +4,9 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # Custom
-config.json
 .idea/
+config.json
+appsettings.*.json
 
 # User-specific files
 *.rsuser
