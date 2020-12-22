@@ -9,6 +9,8 @@ namespace UrfRidersBot.Library
         public IEmote Cancel { get; set; }
         public IEmote Yes { get; set; }
         public IEmote No { get; set; }
+        public IEmote ThumbsUp { get; set; }
+        public IEmote ThumbsDown { get; set; }
         
         public IEmote Error { get; set; }
         public IEmote Critical { get; set; }
@@ -26,6 +28,8 @@ namespace UrfRidersBot.Library
             Cancel = (emotes[nameof(Cancel)] ?? "❌").ToEmote();
             Yes = (emotes[nameof(Yes)] ?? "✅").ToEmote();
             No = (emotes[nameof(No)] ?? "❌").ToEmote();
+            ThumbsUp = (emotes[nameof(ThumbsUp)] ?? "👍").ToEmote();
+            ThumbsDown = (emotes[nameof(ThumbsDown)] ?? "👎").ToEmote();
 
             Error = (emotes[nameof(Error)] ?? "⚠").ToEmote();
             Critical = (emotes[nameof(Critical)] ?? "❌").ToEmote();

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Raven.Client.Documents;
 using Serilog;
 using UrfRidersBot.Library;
 
@@ -40,6 +43,7 @@ namespace UrfRidersBot.ConsoleUI
                 _shouldRestart = false;
                 
                 var host = CreateHostBuilder(args).Build();
+                await host.InitializeServices(Assembly.GetEntryAssembly());
                 await host.RunAsync(_hostCts.Token);
                 
             } while (_shouldRestart);
@@ -50,6 +54,7 @@ namespace UrfRidersBot.ConsoleUI
             return Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostingContext, services) =>
                 {
+                    services.AddDiscord();
                     services.AddUrfRidersBot(hostingContext.Configuration);
                 })
                 .UseSerilog((hostingContext, serviceProvider, loggerConfiguration) =>
@@ -58,6 +63,11 @@ namespace UrfRidersBot.ConsoleUI
                         .ReadFrom.Configuration(hostingContext.Configuration)
                         .Enrich.FromLogContext()
                         .WriteTo.Console();
+                    
+                    if (hostingContext.HostingEnvironment.IsProduction())
+                    {
+                        loggerConfiguration.WriteTo.RavenDB(serviceProvider.GetRequiredService<IDocumentStore>());
+                    }
                 });
         }
     }
