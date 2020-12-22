@@ -16,14 +16,14 @@ namespace UrfRidersBot.ConsoleUI.Modules
         [Command("ping")]
         public async Task Ping()
         {
-            var embedBuilder = Embed.Basic(title: "Pong!");
+            var embed = Embed.Basic(title: "Pong!");
             
             var stopwatch = Stopwatch.StartNew();
-            var message = await ReplyAsync(embed: embedBuilder.Build());
+            var message = await ReplyAsync(embed: embed.Build());
             stopwatch.Stop();
 
-            embedBuilder.WithFooter($"{stopwatch.ElapsedMilliseconds} ms");
-            await message.ModifyAsync(x => x.Embed = embedBuilder.Build());
+            embed.WithFooter($"{stopwatch.ElapsedMilliseconds} ms");
+            await message.ModifyAsync(x => x.Embed = embed.Build());
         }
         
         [Command("ask")]
