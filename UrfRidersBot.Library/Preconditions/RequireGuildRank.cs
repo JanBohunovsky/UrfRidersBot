@@ -43,7 +43,7 @@ namespace UrfRidersBot.Library.Preconditions
             var guildSettings = new object();
 
             // Check user's rank
-            var userRank = GetUserRank(user, context.Guild, guildSettings);
+            var userRank = GetUserRank(user, guildSettings);
             if (userRank >= _rank)
                 return Permitted;
             
@@ -59,7 +59,7 @@ namespace UrfRidersBot.Library.Preconditions
             }
         }
 
-        private static GuildRank GetUserRank(SocketGuildUser user, IGuild guild, object guildSettings)
+        private static GuildRank GetUserRank(SocketGuildUser user, object guildSettings)
         {
             var rank = GuildRank.Everyone;
             if (UserHasRole(user, null) ?? true)
@@ -68,7 +68,7 @@ namespace UrfRidersBot.Library.Preconditions
                 rank = GuildRank.Moderator;
             if (UserHasRole(user, null) ?? false)
                 rank = GuildRank.Admin;
-            if (guild.OwnerId == user.Id)
+            if (user.Guild.OwnerId == user.Id)
                 rank = GuildRank.Owner;
 
             return rank;
