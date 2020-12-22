@@ -64,9 +64,9 @@ namespace UrfRidersBot.Library.Preconditions
             var rank = GuildRank.Everyone;
             if (UserHasRole(user, null) ?? true)
                 rank = GuildRank.Member;
-            if (UserHasRole(user, null) ?? user.GuildPermissions.Has(GuildPermission.ManageChannels))
+            if (UserHasRole(user, null) ?? user.GuildPermissions.ManageChannels)
                 rank = GuildRank.Moderator;
-            if (UserHasRole(user, null) ?? false)
+            if (UserHasRole(user, null) ?? user.GuildPermissions.Administrator)
                 rank = GuildRank.Admin;
             if (user.Guild.OwnerId == user.Id)
                 rank = GuildRank.Owner;

@@ -26,7 +26,7 @@
         /// <summary>
         /// Usually the guild owners.
         /// <para>
-        /// If guild didn't specify a role for this rank, then we assume that only the guild owner is an admin.
+        /// If guild didn't specify a role for this rank, then we assume that everyone that has "Administrator" permission is an admin.
         /// </para>
         /// <para>
         /// Note: This rank gives them the ability to configure and control this bot.
