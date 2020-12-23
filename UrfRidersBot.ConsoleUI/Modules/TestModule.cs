@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using Microsoft.Extensions.Logging;
 using UrfRidersBot.Library;
-using UrfRidersBot.Library.Preconditions;
 
 namespace UrfRidersBot.ConsoleUI.Modules
 {

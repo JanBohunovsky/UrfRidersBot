@@ -5,7 +5,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 
-namespace UrfRidersBot.Library.Preconditions
+namespace UrfRidersBot.Library
 {
     /// <summary>
     /// Requires the user invoking the command to have this guild rank or higher.
