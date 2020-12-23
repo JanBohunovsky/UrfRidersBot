@@ -7,7 +7,7 @@ namespace UrfRidersBot.Library
         [Key]
         public ulong GuildId { get; set; }
         
-        public string? RandomValue { get; set; }
+        public string? CustomPrefix { get; set; }
 
         public GuildData(ulong guildId)
         {

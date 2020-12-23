@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 
 namespace UrfRidersBot.Library.Internal.Services
@@ -16,9 +17,11 @@ namespace UrfRidersBot.Library.Internal.Services
         private readonly IEmbedService _embed;
         private readonly IServiceProvider _provider;
         private readonly IHostEnvironment _environment;
+        private readonly IDbContextFactory<UrfRidersContext> _dbContextFactory;
 
         public CommandHandlingService(DiscordSocketClient discord, CommandService command, BotConfiguration botConfig,
-            IEmbedService embed, IServiceProvider provider, IHostEnvironment environment)
+            IEmbedService embed, IServiceProvider provider, IHostEnvironment environment,
+            IDbContextFactory<UrfRidersContext> dbContextFactory)
         {
             _discord = discord;
             _command = command;
@@ -26,6 +29,7 @@ namespace UrfRidersBot.Library.Internal.Services
             _embed = embed;
             _provider = provider;
             _environment = environment;
+            _dbContextFactory = dbContextFactory;
 
             _discord.MessageReceived += MessageReceived;
             _command.CommandExecuted += CommandExecuted;
@@ -43,7 +47,23 @@ namespace UrfRidersBot.Library.Internal.Services
             if (message.Source != MessageSource.User)
                 return;
 
+            // Default prefix.
             var prefix = _botConfig.Prefix;
+            
+            // Use guild's custom prefix if they have one.
+            if (message.Channel is SocketGuildChannel channel)
+            {
+                await using (var dbContext = _dbContextFactory.CreateDbContext())
+                {
+                    var guildData = await dbContext.GuildData.FindAsync(channel.Guild.Id);
+                    if (guildData?.CustomPrefix != null)
+                    {
+                        prefix = guildData.CustomPrefix;
+                    }
+                }
+            }
+            
+            // Check if message uses a valid prefix and try to execute a command.
             int argPos = 0;
             if (message.HasMentionPrefix(_discord.CurrentUser, ref argPos) ||
                 message.HasStringPrefix(prefix, ref argPos))

@@ -73,24 +73,29 @@ namespace UrfRidersBot.ConsoleUI.Modules
         }
 
         [Command("database")]
-        [Alias("db")]
-        public async Task Database(string? value = null)
+        [Alias("db", "prefix")]
+        public async Task Database(string? newPrefix = null)
         {
-            Logger.LogInformation("Database access test");
             var guildData = await DbContext.GuildData.FindOrCreateAsync(Context.Guild.Id);
 
-            var embed = Embed.Basic(title: "Database test");
-            if (value != null)
+            var embed = Embed.Basic(title: "Custom prefix");
+            if (newPrefix == null)
             {
-                embed
-                    .AddField("Before", guildData.RandomValue ?? "*<null>*", true)
-                    .AddField("After", value, true);
-                
-                guildData.RandomValue = value;
+                embed.WithDescription(guildData.CustomPrefix == null
+                    ? "This server doesn't have custom prefix set"
+                    : $"Current custom prefix: `{guildData.CustomPrefix}`");
             }
             else
             {
-                embed.AddField("Value", guildData.RandomValue ?? "*<null>*");
+                if (newPrefix.ToLower() == "reset")
+                    newPrefix = null;
+                
+                embed
+                    .WithDescription("Custom prefix on this server has been updated.")
+                    .AddField("Before", guildData.CustomPrefix.ToCode() ?? "*None*", true)
+                    .AddField("After", newPrefix.ToCode() ?? "*None*", true);
+                
+                guildData.CustomPrefix = newPrefix;
             }
             
             await DbContext.SaveChangesAsync();
