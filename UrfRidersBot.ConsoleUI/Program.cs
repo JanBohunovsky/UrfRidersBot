@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Raven.Client.Documents;
+using NpgsqlTypes;
 using Serilog;
+using Serilog.Sinks.PostgreSQL;
 using UrfRidersBot.Library;
 
 namespace UrfRidersBot.ConsoleUI
@@ -52,21 +54,38 @@ namespace UrfRidersBot.ConsoleUI
         private static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
-                .ConfigureServices((hostingContext, services) =>
+                .ConfigureServices((context, services) =>
                 {
                     services.AddDiscord();
-                    services.AddUrfRidersBot(hostingContext.Configuration);
+                    services.AddUrfRidersBot(context.Configuration);
                 })
-                .UseSerilog((hostingContext, serviceProvider, loggerConfiguration) =>
+                .UseSerilog((context, provider, logger) =>
                 {
-                    loggerConfiguration
-                        .ReadFrom.Configuration(hostingContext.Configuration)
+                    logger
+                        .ReadFrom.Configuration(context.Configuration)
                         .Enrich.FromLogContext()
                         .WriteTo.Console();
                     
-                    if (hostingContext.HostingEnvironment.IsProduction())
+                    if (context.HostingEnvironment.IsProduction())
                     {
-                        loggerConfiguration.WriteTo.RavenDB(serviceProvider.GetRequiredService<IDocumentStore>());
+                        var columnWriters = new Dictionary<string, ColumnWriterBase>
+                        {
+                            { "timestamp", new TimestampColumnWriter(NpgsqlDbType.TimestampTz) },
+                            { "level", new LevelColumnWriter() },
+                            { "level_name", new LevelColumnWriter(true, NpgsqlDbType.Text) },
+                            { "message", new RenderedMessageColumnWriter() },
+                            { "message_template", new MessageTemplateColumnWriter() },
+                            { "properties", new PropertiesColumnWriter() },
+                            { "exception", new ExceptionColumnWriter() },
+                        };
+
+                        logger.WriteTo.PostgreSQL(
+                            context.Configuration.GetConnectionString("UrfRidersData"),
+                            "log",
+                            columnWriters,
+                            useCopy: false,
+                            needAutoCreateTable: true
+                        );
                     }
                 });
         }

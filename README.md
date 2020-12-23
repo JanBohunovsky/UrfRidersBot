@@ -3,6 +3,16 @@
 # Configuration
 TODO
 
+### EF Core Migrations
+To add new migrations, use the following command in the solution root:
+```
+dotnet ef migrations add <migration_name> --project "UrfRidersBot.Library" --startup-project "UrfRidersBot.ConsoleUI" -o "Data/Migrations"
+```
+And to update the database use:
+```
+dotnet ef database update --project "UrfRidersBot.Library" --startup-project "UrfRidersBot.ConsoleUI"
+```
+
 # Changelog
 ## 2.0
 TODO

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
-using Raven.Client.Documents;
+using Microsoft.Extensions.Logging;
 using UrfRidersBot.Library;
 using UrfRidersBot.Library.Preconditions;
 
@@ -12,7 +10,8 @@ namespace UrfRidersBot.ConsoleUI.Modules
     [Group("test")]
     public class TestModule : BaseModule
     {
-        public IDocumentStore Store { get; set; } = null!;
+        public UrfRidersContext DbContext { get; set; } = null!;
+        public ILogger<TestModule> Logger { get; set; } = null!;
         
         [Command("exception")]
         public Task Exception()
@@ -77,21 +76,24 @@ namespace UrfRidersBot.ConsoleUI.Modules
         [Alias("db")]
         public async Task Database(string? value = null)
         {
-            using var db = Store.OpenAsyncSession();
-            var guildData = await db.LoadAsync<GuildData>(GuildData.GetId(Context.Guild));
-            // var guildData = await db.Query<GuildData>().FirstOrDefaultAsync(x => x.GuildId == Context.Guild.Id);
-            if (guildData == null)
+            Logger.LogInformation("Database access test");
+            var guildData = await DbContext.GuildData.FindOrCreateAsync(Context.Guild.Id);
+
+            var embed = Embed.Basic(title: "Database test");
+            if (value != null)
             {
-                guildData = GuildData.FromGuild(Context.Guild);
-                await db.StoreAsync(guildData);
+                embed
+                    .AddField("Before", guildData.RandomValue ?? "*<null>*", true)
+                    .AddField("After", value, true);
+                
+                guildData.RandomValue = value;
             }
-
-            var embed = Embed.Basic(title: "Database test")
-                .AddField("Before", guildData.RandomValue ?? "`null`", true)
-                .AddField("After", value ?? "`null`", true);
-
-            guildData.RandomValue = value;
-            await db.SaveChangesAsync();
+            else
+            {
+                embed.AddField("Value", guildData.RandomValue ?? "*<null>*");
+            }
+            
+            await DbContext.SaveChangesAsync();
 
             await ReplyAsync(embed: embed.Build());
         }

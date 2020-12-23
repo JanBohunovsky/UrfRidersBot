@@ -1,10 +1,9 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using UrfRidersBot.Library.Internal.Configuration;
-using UrfRidersBot.Library.Internal.DataAccess;
 using UrfRidersBot.Library.Internal.HostedServices;
 using UrfRidersBot.Library.Internal.Services;
 
@@ -18,19 +17,24 @@ namespace UrfRidersBot.Library
             services
                 .AddSingleton<BotConfiguration>()
                 .AddSingleton<EmoteConfiguration>()
-                .AddSingleton<RavenDbConfiguration>()
                 .AddSingleton<SecretsConfiguration>();
 
             // Data Access
-            services.AddSingleton(RavenDb.Configure);
-            
+            services.AddDbContext<UrfRidersContext>(options =>
+                    options.UseNpgsql(configuration.GetConnectionString("UrfRidersData")),
+                ServiceLifetime.Transient,
+                ServiceLifetime.Transient
+            );
+            services.AddDbContextFactory<UrfRidersContext>(options =>
+                options.UseNpgsql(configuration.GetConnectionString("UrfRidersData")));
+
             // Services
             services
                 .AddTransient<IEmbedService, EmbedService>();
-            
+
             return services;
         }
-        
+
         public static IServiceCollection AddDiscord(this IServiceCollection services)
         {
             var discordClient = new DiscordSocketClient(new DiscordSocketConfig
@@ -66,7 +70,7 @@ namespace UrfRidersBot.Library
                 .AddSingleton<DiscordLogService>();
 
             services.AddHostedService<DiscordHostedService>();
-            
+
             return services;
         }
     }
