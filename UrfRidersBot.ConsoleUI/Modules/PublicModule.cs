@@ -28,7 +28,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
         
         [Command("ask")]
         [Alias("yn", "question")]
-        public async Task<RuntimeResult> Ask([Remainder]string question)
+        public async Task Ask([Remainder]string question)
         {
             var sb = new StringBuilder();
             foreach (var mentionedRole in Context.Message.MentionedRoles)
@@ -43,11 +43,17 @@ namespace UrfRidersBot.ConsoleUI.Modules
                 .WithAuthor($"{Context.User.Username} has asked a question:", Context.User.GetAvatarUrl())
                 .WithDescription(question);
 
+            // Send message and add reactions
             var message = await ReplyAsync(sb.ToString(), embed: embed.Build());
-            _ = message.AddReactionAsync(Emotes.ThumbsUp);
-            _ = message.AddReactionAsync(Emotes.ThumbsDown);
+            var emoteAgree = Emotes.Yes;
+            var emoteDisagree = Emotes.No;
+            _ = message.AddReactionAsync(emoteAgree);
+            _ = message.AddReactionAsync(emoteDisagree);
 
-            // Just a test - do not use
+            // Delete the original message to keep it clean.
+            _ = Context.Message.DeleteAsync();
+
+            // Just a test - refactor later
             var yesList = new List<IUser>();
             var noList = new List<IUser>();
             Context.Client.ReactionAdded += async (msg, channel, reaction) =>
@@ -56,9 +62,9 @@ namespace UrfRidersBot.ConsoleUI.Modules
                     return;
                 if (reaction.UserId == Context.Client.CurrentUser.Id)
                     return;
-                if (reaction.Emote.Equals(Emotes.ThumbsUp))
+                if (reaction.Emote.Equals(emoteAgree))
                     yesList.Add(reaction.User.Value);
-                else if (reaction.Emote.Equals(Emotes.ThumbsDown))
+                else if (reaction.Emote.Equals(emoteDisagree))
                     noList.Add(reaction.User.Value);
                 
                 var embed = Embed.Basic()
@@ -66,9 +72,9 @@ namespace UrfRidersBot.ConsoleUI.Modules
                     .WithDescription(question);
 
                 if (yesList.Count > 0)
-                    embed.AddField(Emotes.ThumbsUp.ToString(), string.Join("\n", yesList.Select(x => x.Mention)), true);
+                    embed.AddField(emoteAgree.ToString(), string.Join("\n", yesList.Select(x => x.Mention)), true);
                 if (noList.Count > 0)
-                    embed.AddField(Emotes.ThumbsDown.ToString(), string.Join("\n", noList.Select(x => x.Mention)), true);
+                    embed.AddField(emoteDisagree.ToString(), string.Join("\n", noList.Select(x => x.Mention)), true);
 
                 await message.ModifyAsync(x => x.Embed = embed.Build());
             };
@@ -78,9 +84,9 @@ namespace UrfRidersBot.ConsoleUI.Modules
                     return;
                 if (reaction.UserId == Context.Client.CurrentUser.Id)
                     return;
-                if (reaction.Emote.Equals(Emotes.ThumbsUp))
+                if (reaction.Emote.Equals(emoteAgree))
                     yesList.Remove(reaction.User.Value);
-                else if (reaction.Emote.Equals(Emotes.ThumbsDown))
+                else if (reaction.Emote.Equals(emoteDisagree))
                     noList.Remove(reaction.User.Value);
 
                 var embed = Embed.Basic()
@@ -88,14 +94,12 @@ namespace UrfRidersBot.ConsoleUI.Modules
                     .WithDescription(question);
 
                 if (yesList.Count > 0)
-                    embed.AddField(Emotes.ThumbsUp.ToString(), string.Join("\n", yesList.Select(x => x.Mention)), true);
+                    embed.AddField(emoteAgree.ToString(), string.Join("\n", yesList.Select(x => x.Mention)), true);
                 if (noList.Count > 0)
-                    embed.AddField(Emotes.ThumbsDown.ToString(), string.Join("\n", noList.Select(x => x.Mention)), true);
+                    embed.AddField(emoteDisagree.ToString(), string.Join("\n", noList.Select(x => x.Mention)), true);
 
                 await message.ModifyAsync(x => x.Embed = embed.Build());
             };
-
-            return CommandResult.FromEmpty(true);
         }
 
     }

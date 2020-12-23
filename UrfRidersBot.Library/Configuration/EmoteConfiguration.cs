@@ -7,6 +7,8 @@ namespace UrfRidersBot.Library
     {
         public IEmote Ok { get; set; }
         public IEmote Cancel { get; set; }
+        public IEmote Checkmark { get; set; }
+        public IEmote Cross { get; set; }
         public IEmote Yes { get; set; }
         public IEmote No { get; set; }
         public IEmote ThumbsUp { get; set; }
@@ -26,6 +28,8 @@ namespace UrfRidersBot.Library
             var emotes = configuration.GetSection("Bot:Emotes");
             Ok = (emotes[nameof(Ok)] ?? "✅").ToEmote();
             Cancel = (emotes[nameof(Cancel)] ?? "❌").ToEmote();
+            Checkmark = (emotes[nameof(Checkmark)] ?? "✅").ToEmote();
+            Cross = (emotes[nameof(Cross)] ?? "❌").ToEmote();
             Yes = (emotes[nameof(Yes)] ?? "✅").ToEmote();
             No = (emotes[nameof(No)] ?? "❌").ToEmote();
             ThumbsUp = (emotes[nameof(ThumbsUp)] ?? "👍").ToEmote();

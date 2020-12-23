@@ -17,7 +17,8 @@ namespace UrfRidersBot.Library.Internal.Services
         private readonly IServiceProvider _provider;
         private readonly IHostEnvironment _environment;
 
-        public CommandHandlingService(DiscordSocketClient discord, CommandService command, BotConfiguration botConfig, IEmbedService embed, IServiceProvider provider, IHostEnvironment environment)
+        public CommandHandlingService(DiscordSocketClient discord, CommandService command, BotConfiguration botConfig,
+            IEmbedService embed, IServiceProvider provider, IHostEnvironment environment)
         {
             _discord = discord;
             _command = command;
@@ -56,62 +57,41 @@ namespace UrfRidersBot.Library.Internal.Services
         {
             if (!command.IsSpecified)
                 return;
+            if (result.IsSuccess)
+                return;
 
-            // TODO: Maybe scrap the `IResult` system.. cuz it's ugly as fuck here.
-            EmbedBuilder? embedBuilder = null;
-            switch (result)
+            EmbedBuilder? embedBuilder;
+            if (result.Error == CommandError.Exception)
             {
-                case CommandResult commandResult:
-                    embedBuilder = commandResult.ResultType switch
-                    {
-                        CommandResultType.Success     => _embed.Success(commandResult.Reason),
-                        CommandResultType.Error       => _embed.Error(commandResult.Reason),
-                        CommandResultType.Information => _embed.Basic(commandResult.Reason, commandResult.Title),
-                        _                             => embedBuilder
-                    };
-                    
-                    if (commandResult.DeleteUserMessage)
-                    {
-                        _ = context.Message.DeleteAsync();
-                    }
-                    break;
-                default:
-                    if (result.IsSuccess)
-                        return;
+                embedBuilder = _embed
+                    .CriticalError($"An exception has occured.")
+                    .WithFooter("The bot owner has been notified.");
 
-                    if (result.Error == CommandError.Exception)
-                    {
-                        embedBuilder = _embed.CriticalError($"An exception has occured, the bot owner has been notified.\nError: {result.ErrorReason}");
+                // Send a message to bot owner
+                if (_environment.IsProduction())
+                {
+                    var embed = _embed.CriticalError("Check logs for more information.", "An exception has occured")
+                        .AddField("Guild", $"{context.Guild.Name}", true)
+                        .AddField("Channel", $"{context.Channel.Name}", true)
+                        .AddField("Message", $"`{context.Message.Content}` - [link]({context.Message.GetJumpUrl()})",
+                            true)
+                        .WithFooter(context.User.ToString(), context.User.GetAvatarUrl())
+                        .WithTimestamp(context.Message.Timestamp)
+                        .Build();
 
-                        // Send owner a message
-                        if (_environment.IsProduction())
-                        {
-                            var embed = _embed.CriticalError("Check logs for more information.", "An exception has occured")
-                                .AddField("Guild", $"{context.Guild.Name}", true)
-                                .AddField("Channel", $"{context.Channel.Name}", true)
-                                .AddField("Message", $"`{context.Message.Content}` - [link]({context.Message.GetJumpUrl()})", true)
-                                .WithFooter(context.User.ToString(), context.User.GetAvatarUrl())
-                                .WithTimestamp(context.Message.Timestamp)
-                                .Build();
-                        
-                            _ = Task.Run(async () =>
-                            {
-                                var appInfo = await _discord.GetApplicationInfoAsync();
-                                await appInfo.Owner.SendMessageAsync(embed: embed);
-                            });
-                        }
-                    }
-                    else
+                    _ = Task.Run(async () =>
                     {
-                        embedBuilder = _embed.Error(result.ErrorReason);
-                    }
-                    break;
+                        var appInfo = await _discord.GetApplicationInfoAsync();
+                        await appInfo.Owner.SendMessageAsync(embed: embed);
+                    });
+                }
+            }
+            else
+            {
+                embedBuilder = _embed.Error(result.ErrorReason);
             }
 
-            if (embedBuilder != null)
-            {
-                await context.Channel.SendMessageAsync(embed: embedBuilder.Build());
-            }
+            await context.Channel.SendMessageAsync(embed: embedBuilder.Build());
         }
     }
 }

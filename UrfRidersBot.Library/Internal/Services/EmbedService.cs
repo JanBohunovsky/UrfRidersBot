@@ -28,7 +28,7 @@ namespace UrfRidersBot.Library.Internal.Services
         {
             var builder = new EmbedBuilder()
                 .WithColor(Color.Green)
-                .WithTitle($"{title} {_botConfig.Emotes.Ok}");
+                .WithAuthor(title, "https://cdn.discordapp.com/attachments/717788228899307551/791314528280641546/icons8-checkmark-96.png");
             
             if (description != null)
                 builder.WithDescription(description);
@@ -40,7 +40,7 @@ namespace UrfRidersBot.Library.Internal.Services
         {
             var builder = new EmbedBuilder()
                 .WithColor(Color.Gold)
-                .WithTitle($"{title} {_botConfig.Emotes.Error}");
+                .WithAuthor(title, "https://cdn.discordapp.com/attachments/717788228899307551/791314543917006928/icons8-error-96.png");
             
             if (description != null)
                 builder.WithDescription(description);
@@ -52,7 +52,7 @@ namespace UrfRidersBot.Library.Internal.Services
         {
             var builder = new EmbedBuilder()
                 .WithColor(Color.Red)
-                .WithTitle($"{title} {_botConfig.Emotes.Critical}");
+                .WithAuthor(title, "https://cdn.discordapp.com/attachments/717788228899307551/791314550561570876/icons8-high-priority-96.png");
             
             if (description != null)
                 builder.WithDescription(description);

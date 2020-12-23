@@ -20,56 +20,56 @@ namespace UrfRidersBot.ConsoleUI.Modules
         }
 
         [Command("success")]
-        public async Task<RuntimeResult> Success()
+        public async Task Success()
         {
-            return CommandResult.FromSuccess("Yay, everything went well!");
+            await ReplyAsync(embed: Embed.Success("Yay, everything went well!").Build());
         }
 
         [Command("error")]
-        public async Task<RuntimeResult> Error()
+        public async Task Error()
         {
-            return CommandResult.FromError("Something went wrong.");
+            await ReplyAsync(embed: Embed.Error("Something went wrong.").Build());
         }
 
         [Command("info")]
-        public async Task<RuntimeResult> Information()
+        public async Task Information()
         {
-            return CommandResult.FromInformation(null, "Hello world!");
+            await ReplyAsync(embed: Embed.Basic(title: "Hello world!").Build());
         }
 
         [Command("everyone")]
         [RequireGuildRank(GuildRank.Everyone)]
-        public async Task<RuntimeResult> Everyone()
+        public async Task Everyone()
         {
-            return CommandResult.FromSuccess("Yay, everyone can use this command!");
+            await ReplyAsync(embed: Embed.Success("Yay, everyone can use this command!").Build());
         }
 
         [Command("member")]
         [RequireGuildRank(GuildRank.Member)]
-        public async Task<RuntimeResult> Member()
+        public async Task Member()
         {
-            return CommandResult.FromSuccess("Yay, you're a verified user on this server!");
+            await ReplyAsync(embed: Embed.Success("Yay, you're a verified user on this server!").Build());
         }
 
         [Command("moderator")]
         [RequireGuildRank(GuildRank.Moderator)]
-        public async Task<RuntimeResult> Moderator()
+        public async Task Moderator()
         {
-            return CommandResult.FromSuccess("You're a moderator! Congrats!");
+            await ReplyAsync(embed: Embed.Success("You're a moderator! Congrats!").Build());
         }
 
         [Command("admin")]
         [RequireGuildRank(GuildRank.Admin)]
-        public async Task<RuntimeResult> Admin()
+        public async Task Admin()
         {
-            return CommandResult.FromSuccess("Damn look at this admin right here!");
+            await ReplyAsync(embed: Embed.Success("Damn look at this admin right here!").Build());
         }
 
         [Command("owner")]
         [RequireGuildRank(GuildRank.Owner)]
-        public async Task<RuntimeResult> Owner()
+        public async Task Owner()
         {
-            return CommandResult.FromSuccess("The king of the castle! eh.. I mean the owner of this server!");
+            await ReplyAsync(embed: Embed.Success("The king of the castle! eh.. I mean the owner of this server!").Build());
         }
 
         [Command("database")]
