@@ -9,7 +9,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
     [Group("test")]
     public class TestModule : BaseModule
     {
-        public UrfRidersContext DbContext { get; set; } = null!;
+        public UrfRidersDbContext DbContext { get; set; } = null!;
         public ILogger<TestModule> Logger { get; set; } = null!;
         
         [Command("exception")]

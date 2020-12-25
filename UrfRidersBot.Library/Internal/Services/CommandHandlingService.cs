@@ -17,11 +17,11 @@ namespace UrfRidersBot.Library.Internal.Services
         private readonly IEmbedService _embed;
         private readonly IServiceProvider _provider;
         private readonly IHostEnvironment _environment;
-        private readonly IDbContextFactory<UrfRidersContext> _dbContextFactory;
+        private readonly IDbContextFactory<UrfRidersDbContext> _dbContextFactory;
 
         public CommandHandlingService(DiscordSocketClient discord, CommandService command, BotConfiguration botConfig,
             IEmbedService embed, IServiceProvider provider, IHostEnvironment environment,
-            IDbContextFactory<UrfRidersContext> dbContextFactory)
+            IDbContextFactory<UrfRidersDbContext> dbContextFactory)
         {
             _discord = discord;
             _command = command;

@@ -20,12 +20,12 @@ namespace UrfRidersBot.Library
                 .AddSingleton<SecretsConfiguration>();
 
             // Data Access
-            services.AddDbContext<UrfRidersContext>(options =>
-                    options.UseNpgsql(configuration.GetConnectionString("UrfRidersData")),
+            services.AddDbContext<UrfRidersDbContext>(
+                options => options.UseNpgsql(configuration.GetConnectionString("UrfRidersData")),
                 ServiceLifetime.Transient,
                 ServiceLifetime.Transient
             );
-            services.AddDbContextFactory<UrfRidersContext>(options =>
+            services.AddDbContextFactory<UrfRidersDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("UrfRidersData")));
 
             // Services
@@ -44,10 +44,10 @@ namespace UrfRidersBot.Library
                     GatewayIntents.Guilds |
                     GatewayIntents.GuildMembers |
                     GatewayIntents.GuildBans |
-                    // GatewayIntents.GuildEmojis |
-                    // GatewayIntents.GuildIntegrations |
-                    // GatewayIntents.GuildWebhooks |
-                    // GatewayIntents.GuildInvites |
+                    GatewayIntents.GuildEmojis |
+                    GatewayIntents.GuildIntegrations |
+                    GatewayIntents.GuildWebhooks |
+                    GatewayIntents.GuildInvites |
                     GatewayIntents.GuildVoiceStates |
                     GatewayIntents.GuildPresences |
                     GatewayIntents.GuildMessages |

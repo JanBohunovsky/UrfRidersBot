@@ -7,7 +7,7 @@ using UrfRidersBot.Library;
 
 namespace UrfRidersBot.Library.Data.Migrations
 {
-    [DbContext(typeof(UrfRidersContext))]
+    [DbContext(typeof(UrfRidersDbContext))]
     partial class UrfRidersContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

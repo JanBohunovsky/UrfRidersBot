@@ -2,11 +2,11 @@
 
 namespace UrfRidersBot.Library
 {
-    public class UrfRidersContext : DbContext
+    public class UrfRidersDbContext : DbContext
     {
         public DbSet<GuildData> GuildData => Set<GuildData>();
         
-        public UrfRidersContext(DbContextOptions<UrfRidersContext> options) : base(options)
+        public UrfRidersDbContext(DbContextOptions<UrfRidersDbContext> options) : base(options)
         {
         }
     }

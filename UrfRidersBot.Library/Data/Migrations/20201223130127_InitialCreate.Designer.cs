@@ -8,7 +8,7 @@ using UrfRidersBot.Library;
 
 namespace UrfRidersBot.Library.Data.Migrations
 {
-    [DbContext(typeof(UrfRidersContext))]
+    [DbContext(typeof(UrfRidersDbContext))]
     [Migration("20201223130127_InitialCreate")]
     partial class InitialCreate
     {

@@ -8,7 +8,7 @@ using UrfRidersBot.Library;
 
 namespace UrfRidersBot.Library.Data.Migrations
 {
-    [DbContext(typeof(UrfRidersContext))]
+    [DbContext(typeof(UrfRidersDbContext))]
     [Migration("20201223153645_AddCustomPrefixToGuildData")]
     partial class AddCustomPrefixToGuildData
     {
