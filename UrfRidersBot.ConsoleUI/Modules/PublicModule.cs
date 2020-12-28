@@ -9,11 +9,16 @@ using UrfRidersBot.Library;
 
 namespace UrfRidersBot.ConsoleUI.Modules
 {
+    [Name("Public")]
+    [Summary("Basic commands available to everyone.")]
     public class PublicModule : BaseModule
     {
         public EmoteConfiguration Emotes { get; set; } = null!;
+        public IHelpService HelpService { get; set; } = null!;
         
         [Command("ping")]
+        [Name("Ping")]
+        [Summary("Tests bot's ping.")]
         public async Task Ping()
         {
             var embed = Embed.Basic(title: "Pong!");
@@ -25,9 +30,26 @@ namespace UrfRidersBot.ConsoleUI.Modules
             embed.WithFooter($"{stopwatch.ElapsedMilliseconds} ms");
             await message.ModifyAsync(x => x.Embed = embed.Build());
         }
+
+        [Command("help")]
+        [Name("Help")]
+        [Summary("Gives you a list of commands or a command detail.")]
+        public async Task Help([Remainder]string? command = null)
+        {
+            if (command == null)
+            {
+                await ReplyAsync(embed: await HelpService.GetAllCommands(Context));
+            }
+            else
+            {
+                await ReplyAsync(embed: await HelpService.GetCommandDetails(Context, command));
+            }
+        }
         
         [Command("ask")]
         [Alias("yn", "question")]
+        [Name("Ask")]
+        [Summary("Ask a question! This will send a message with your question and with two reactions to respond 'yes' or 'no'.")]
         public async Task Ask([Remainder]string question)
         {
             var sb = new StringBuilder();

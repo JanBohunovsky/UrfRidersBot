@@ -6,9 +6,11 @@ namespace UrfRidersBot.Library
 {
     public class UrfRidersContext : SocketCommandContext
     {
-        public UrfRidersContext(DiscordSocketClient client, SocketUserMessage msg) : base(client, msg)
+        public string Prefix { get; set; }
+        
+        public UrfRidersContext(DiscordSocketClient client, SocketUserMessage msg, string prefix) : base(client, msg)
         {
-            
+            Prefix = prefix;
         }
     }
 }

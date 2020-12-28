@@ -21,18 +21,12 @@ namespace UrfRidersBot.Library
 
         /// <summary>
         /// Returns back the <see cref="text"/> in an in-line code block.
-        /// <para>
-        /// You can specify custom null text if the <see cref="text"/> is null. If you don't then this method returns null.
-        /// </para>
         /// </summary>
         /// <param name="text">The text to be wrapped in an in-line code block.</param>
-        /// <param name="nullText">Which text to use if <see cref="text"/> is null.</param>
-        /// <returns>Text in a code block or null if both <see cref="text"/> and <see cref="nullText"/> are null.</returns>
-        public static string? ToCode(this string? text, string? nullText = null)
+        /// <returns>Text in a code block or null if <see cref="text"/> is null.</returns>
+        public static string? ToCode(this string? text)
         {
-            if (text == null && nullText == null)
-                return null;
-            return $"`{text ?? nullText}`";
+            return text == null ? null : $"`{text}`";
         }
     }
 }

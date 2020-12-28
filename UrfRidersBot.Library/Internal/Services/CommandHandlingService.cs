@@ -68,7 +68,7 @@ namespace UrfRidersBot.Library.Internal.Services
             if (message.HasMentionPrefix(_discord.CurrentUser, ref argPos) ||
                 message.HasStringPrefix(prefix, ref argPos))
             {
-                var context = new UrfRidersContext(_discord, message);
+                var context = new UrfRidersContext(_discord, message, prefix);
                 await _command.ExecuteAsync(context, argPos, _provider);
             }
         }

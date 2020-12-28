@@ -30,7 +30,8 @@ namespace UrfRidersBot.Library
 
             // Services
             services
-                .AddTransient<IEmbedService, EmbedService>();
+                .AddTransient<IEmbedService, EmbedService>()
+                .AddTransient<IHelpService, HelpService>();
 
             return services;
         }
@@ -60,7 +61,7 @@ namespace UrfRidersBot.Library
 
             var commandService = new CommandService(new CommandServiceConfig
             {
-                IgnoreExtraArgs = true,
+                IgnoreExtraArgs = false,
             });
 
             services
