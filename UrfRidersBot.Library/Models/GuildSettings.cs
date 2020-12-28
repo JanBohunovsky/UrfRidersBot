@@ -2,14 +2,14 @@
 
 namespace UrfRidersBot.Library
 {
-    public class GuildData
+    public class GuildSettings
     {
         [Key]
         public ulong GuildId { get; set; }
         
         public string? CustomPrefix { get; set; }
 
-        public GuildData(ulong guildId)
+        public GuildSettings(ulong guildId)
         {
             GuildId = guildId;
         }

@@ -55,10 +55,10 @@ namespace UrfRidersBot.Library.Internal.Services
             {
                 await using (var dbContext = _dbContextFactory.CreateDbContext())
                 {
-                    var guildData = await dbContext.GuildData.FindAsync(channel.Guild.Id);
-                    if (guildData?.CustomPrefix != null)
+                    var settings = await dbContext.GuildSettings.FindAsync(channel.Guild.Id);
+                    if (settings?.CustomPrefix != null)
                     {
-                        prefix = guildData.CustomPrefix;
+                        prefix = settings.CustomPrefix;
                     }
                 }
             }

@@ -5,13 +5,13 @@ namespace UrfRidersBot.Library
 {
     public static class DbSetExtensions
     {
-        public static async ValueTask<GuildData> FindOrCreateAsync(this DbSet<GuildData> guildData, ulong guildId)
+        public static async ValueTask<GuildSettings> FindOrCreateAsync(this DbSet<GuildSettings> settings, ulong guildId)
         {
-            var result = await guildData.FindAsync(guildId);
+            var result = await settings.FindAsync(guildId);
             if (result == null)
             {
-                result = new GuildData(guildId);
-                await guildData.AddAsync(result);
+                result = new GuildSettings(guildId);
+                await settings.AddAsync(result);
             }
 
             return result;
