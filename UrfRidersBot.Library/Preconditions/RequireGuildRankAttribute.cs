@@ -9,35 +9,27 @@ namespace UrfRidersBot.Library
 {
     /// <summary>
     /// Requires the user invoking the command to have this guild rank or higher.
+    /// This precondition automatically applies <see cref="RequireContextAttribute"/>.
     /// <para>
     /// Example: If you select <see cref="GuildRank.Member"/> then users that are at least that rank
     /// or higher (e.g. <see cref="GuildRank.Moderator"/>) can invoke this command.
     /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = false)]
-    public class RequireGuildRank : PreconditionAttribute
+    public class RequireGuildRankAttribute : RequireContextAttribute
     {
-        private static readonly Task<PreconditionResult> NotGuild =
-            Task.FromResult(PreconditionResult.FromError("You must be in a guild to run this command."));
-
-        private static readonly Task<PreconditionResult> NotOwner =
-            Task.FromResult(PreconditionResult.FromError("Only the guild owner is permitted to run this command."));
-        
-        private static Task<PreconditionResult> NotPermitted(string missingRank) =>
-            Task.FromResult(PreconditionResult.FromError($"You must be {missingRank} to run this command."));
-
-        private static readonly Task<PreconditionResult> Permitted =
-            Task.FromResult(PreconditionResult.FromSuccess());
-        
         private readonly GuildRank _rank;
         
-        public RequireGuildRank(GuildRank rank) => _rank = rank;
+        public RequireGuildRankAttribute(GuildRank rank) : base(ContextType.Guild) => _rank = rank;
 
-        public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider provider)
+        public override async Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider provider)
         {
-            // Only valid in guild.
-            if (!(context.User is SocketGuildUser user))
-                return NotGuild;
+            // Check if this is invoked in a guild
+            var baseResult = await base.CheckPermissionsAsync(context, command, provider);
+            if (!baseResult.IsSuccess)
+                return baseResult;
+            
+            var user = (SocketGuildUser) context.User;
 
             // TODO: Get guild settings
             var guildSettings = new object();
@@ -45,17 +37,17 @@ namespace UrfRidersBot.Library
             // Check user's rank
             var userRank = GetUserRank(user, guildSettings);
             if (userRank >= _rank)
-                return Permitted;
+                return PreconditionResult.FromSuccess();
             
             // Not permitted - find out the best error message.
             if (_rank == GuildRank.Owner)
             {
-                return NotOwner;
+                return PreconditionResult.FromError("Only the guild owner is permitted to run this command.");
             }
             else
             {
                 var missingRank = GetRankName(_rank, context.Guild, guildSettings);
-                return NotPermitted(missingRank);
+                return PreconditionResult.FromError($"You must be {missingRank} to run this command.");
             }
         }
 
