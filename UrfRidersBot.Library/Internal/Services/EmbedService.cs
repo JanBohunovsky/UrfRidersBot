@@ -11,7 +11,7 @@ namespace UrfRidersBot.Library.Internal.Services
             _botConfig = botConfig;
         }
 
-        public EmbedBuilder Basic(string? description = null, string? title = null)
+        public EmbedBuilder CreateBasic(string? description = null, string? title = null)
         {
             var builder = new EmbedBuilder()
                 .WithColor(_botConfig.EmbedColor);
@@ -24,7 +24,7 @@ namespace UrfRidersBot.Library.Internal.Services
             return builder;
         }
 
-        public EmbedBuilder Success(string? description = null, string title = "Success")
+        public EmbedBuilder CreateSuccess(string? description = null, string title = "Success")
         {
             var builder = new EmbedBuilder()
                 .WithColor(Color.Green)
@@ -36,7 +36,7 @@ namespace UrfRidersBot.Library.Internal.Services
             return builder;
         }
 
-        public EmbedBuilder Error(string? description = null, string? title = "Error")
+        public EmbedBuilder CreateError(string? description = null, string? title = "Error")
         {
             var builder = new EmbedBuilder()
                 .WithColor(Color.Gold)
@@ -48,7 +48,7 @@ namespace UrfRidersBot.Library.Internal.Services
             return builder;
         }
 
-        public EmbedBuilder CriticalError(string? description = null, string? title = "Critical Error")
+        public EmbedBuilder CreateCriticalError(string? description = null, string? title = "Critical Error")
         {
             var builder = new EmbedBuilder()
                 .WithColor(Color.Red)

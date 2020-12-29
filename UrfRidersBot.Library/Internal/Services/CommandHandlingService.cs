@@ -84,17 +84,17 @@ namespace UrfRidersBot.Library.Internal.Services
             if (result.Error == CommandError.Exception)
             {
                 embedBuilder = _embed
-                    .CriticalError($"An exception has occured.")
+                    .CreateCriticalError($"An exception has occured.")
                     .WithFooter("The bot owner has been notified.");
 
                 // Send a message to bot owner
                 if (_environment.IsProduction())
                 {
-                    var embed = _embed.CriticalError("Check logs for more information.", "An exception has occured")
+                    var embed = _embed
+                        .CreateCriticalError("Check logs for more information.", "An exception has occured")
                         .AddField("Guild", $"{context.Guild.Name}", true)
                         .AddField("Channel", $"{context.Channel.Name}", true)
-                        .AddField("Message", $"`{context.Message.Content}` - [link]({context.Message.GetJumpUrl()})",
-                            true)
+                        .AddField("Message", $"`{context.Message.Content}` - [link]({context.Message.GetJumpUrl()})", true)
                         .WithFooter(context.User.ToString(), context.User.GetAvatarUrl())
                         .WithTimestamp(context.Message.Timestamp)
                         .Build();
@@ -108,7 +108,7 @@ namespace UrfRidersBot.Library.Internal.Services
             }
             else
             {
-                embedBuilder = _embed.Error(result.ErrorReason);
+                embedBuilder = _embed.CreateError(result.ErrorReason);
             }
 
             await context.Channel.SendMessageAsync(embed: embedBuilder.Build());
