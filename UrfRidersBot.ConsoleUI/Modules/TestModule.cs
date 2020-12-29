@@ -54,38 +54,5 @@ namespace UrfRidersBot.ConsoleUI.Modules
         {
             await ReplyAsync(embed: EmbedService.CreateBasic(title: "Hello world!").Build());
         }
-
-        [Command("database")]
-        [Alias("db", "prefix")]
-        [Name("Database test")]
-        [Summary("Gets or sets this server's custom prefix.")]
-        public async Task Database(string? newPrefix = null)
-        {
-            var settings = await DbContext.GuildSettings.FindOrCreateAsync(Context.Guild.Id);
-
-            var embed = EmbedService.CreateBasic(title: "Custom prefix");
-            if (newPrefix == null)
-            {
-                embed.WithDescription(settings.CustomPrefix == null
-                    ? "This server doesn't have custom prefix set"
-                    : $"Current custom prefix: `{settings.CustomPrefix}`");
-            }
-            else
-            {
-                if (newPrefix.ToLower() == "reset")
-                    newPrefix = null;
-                
-                embed
-                    .WithDescription("Custom prefix on this server has been updated.")
-                    .AddField("Before", settings.CustomPrefix.ToCode() ?? "*None*", true)
-                    .AddField("After", newPrefix.ToCode() ?? "*None*", true);
-                
-                settings.CustomPrefix = newPrefix;
-            }
-            
-            await DbContext.SaveChangesAsync();
-
-            await ReplyAsync(embed: embed.Build());
-        }
     }
 }

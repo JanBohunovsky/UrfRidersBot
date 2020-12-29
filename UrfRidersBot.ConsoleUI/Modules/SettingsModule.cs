@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using UrfRidersBot.Library;
@@ -128,25 +127,25 @@ namespace UrfRidersBot.ConsoleUI.Modules
         [Command("reset")]
         [Priority(1)]
         [Name("Reset a specific setting")]
-        public async Task ResetSetting(string key)
+        public async Task ResetSetting(string setting)
         {
-            switch (key.ToLower())
+            switch (setting.ToLower())
             {
                 case CustomPrefixKey:
                     _settings.CustomPrefix = null;
-                    key = "Custom prefix";
+                    setting = "Custom prefix";
                     break;
                 case MemberRoleKey:
                     _settings.MemberRoleId = null;
-                    key = "Member role";
+                    setting = "Member role";
                     break;
                 case ModeratorRoleKey:
                     _settings.ModeratorRoleId = null;
-                    key = "Moderator role";
+                    setting = "Moderator role";
                     break;
                 case AdminRoleKey:
                     _settings.AdminRoleId = null;
-                    key = "Admin role";
+                    setting = "Admin role";
                     break;
                 default:
                     await ReplyAsync(embed: EmbedService.CreateError("Setting not found.").Build());
@@ -155,7 +154,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
 
             await DbContext.SaveChangesAsync();
 
-            var embed = EmbedService.CreateSuccess($"{key} has been reset.").Build();
+            var embed = EmbedService.CreateSuccess($"{setting} has been reset.").Build();
             await ReplyAsync(embed: embed);
         }
 

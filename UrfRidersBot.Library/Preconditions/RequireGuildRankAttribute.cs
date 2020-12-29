@@ -28,8 +28,9 @@ namespace UrfRidersBot.Library
             var baseResult = await base.CheckPermissionsAsync(context, command, provider);
             if (!baseResult.IsSuccess)
                 return baseResult;
-            
-            var user = (SocketGuildUser) context.User;
+
+            // Get guild user. We already checked if the context is in guild so this should never fail.
+            var user = (SocketGuildUser)context.User;
 
             // TODO: Get guild settings
             var guildSettings = new object();
