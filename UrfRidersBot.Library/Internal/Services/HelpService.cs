@@ -73,7 +73,7 @@ namespace UrfRidersBot.Library.Internal.Services
 
             foreach (var module in GetModules())
             {
-                var field = await GetModuleDetails(module, context);
+                var field = await FormatModule(module, context);
                 if (field != null)
                     result.AddField(field);
             }
@@ -84,9 +84,9 @@ namespace UrfRidersBot.Library.Internal.Services
         }
 
         /// <summary>
-        /// Adds a module and its commands as a field to <see cref="EmbedBuilder"/>.
+        /// Formats <see cref="module"/> as an <see cref="EmbedField"/> with its description and a list of commands.
         /// </summary>
-        private async ValueTask<EmbedFieldBuilder?> GetModuleDetails(ModuleInfo module, UrfRidersContext context)
+        private async ValueTask<EmbedFieldBuilder?> FormatModule(ModuleInfo module, UrfRidersContext context)
         {
             var descriptionBuilder = new StringBuilder();
             if (module.Summary != null)
@@ -100,7 +100,7 @@ namespace UrfRidersBot.Library.Internal.Services
             }
 
             var commands = await GetExecutableCommandList(module, context).ToListAsync();
-            // User can't invoke even a single command -> don't show this module in help
+            // User can't invoke a single command -> don't show this module in help
             if (commands.Count <= 0)
                 return null;
             

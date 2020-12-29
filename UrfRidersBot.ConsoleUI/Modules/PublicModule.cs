@@ -18,7 +18,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
         
         [Command("ping")]
         [Name("Ping")]
-        [Summary("Tests bot's ping.")]
+        [Summary("Test bot's response time.")]
         public async Task Ping()
         {
             var embed = Embed.Basic(title: "Pong!");
@@ -33,17 +33,14 @@ namespace UrfRidersBot.ConsoleUI.Modules
 
         [Command("help")]
         [Name("Help")]
-        [Summary("Gives you a list of commands or a command detail.")]
+        [Summary("Gives you a list of commands or a more information about specific command.")]
         public async Task Help([Remainder]string? command = null)
         {
-            if (command == null)
-            {
-                await ReplyAsync(embed: await HelpService.GetAllCommands(Context));
-            }
-            else
-            {
-                await ReplyAsync(embed: await HelpService.GetCommandDetails(Context, command));
-            }
+            var embedTask = command == null
+                ? HelpService.GetAllCommands(Context)
+                : HelpService.GetCommandDetails(Context, command);
+            
+            await ReplyAsync(embed: await embedTask);
         }
         
         [Command("ask")]
