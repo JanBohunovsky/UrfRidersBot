@@ -49,7 +49,7 @@ namespace UrfRidersBot.Library.Internal.Services
                 return notFound;
             
             // Build the embed
-            result.WithTitle($"{command.Name} command");
+            result.WithTitle(command.Name);
 
             if (command.Summary != null)
                 result.WithDescription(command.Summary);
