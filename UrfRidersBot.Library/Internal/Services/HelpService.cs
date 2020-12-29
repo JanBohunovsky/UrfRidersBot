@@ -83,6 +83,11 @@ namespace UrfRidersBot.Library.Internal.Services
             return result.Build();
         }
 
+        public string GetCommandUsage(CommandInfo command, string? prefix = null)
+        {
+            return $"`{prefix}{command.Aliases.First()}{GetCommandParameters(command)}`";
+        }
+
         /// <summary>
         /// Formats <see cref="module"/> as an <see cref="EmbedField"/> with its description and a list of commands.
         /// </summary>
@@ -135,11 +140,6 @@ namespace UrfRidersBot.Library.Internal.Services
             
                 yield return command.ToCode()!;
             }
-        }
-
-        private string GetCommandUsage(CommandInfo command, string prefix)
-        {
-            return $"`{prefix}{command.Aliases.First()}{GetCommandParameters(command)}`";
         }
         
         private string GetCommandParameters(CommandInfo command)

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 
 namespace UrfRidersBot.Library
 {
@@ -20,5 +21,10 @@ namespace UrfRidersBot.Library
         /// </summary>
         /// <param name="context">Command context is required to filter out the commands that the user can execute.</param>
         ValueTask<Embed> GetAllCommands(UrfRidersContext context);
+
+        /// <summary>
+        /// Returns a command's syntax
+        /// </summary>
+        string GetCommandUsage(CommandInfo command, string prefix);
     }
 }

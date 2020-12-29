@@ -18,10 +18,17 @@ namespace UrfRidersBot.Library.Internal.Services
         private readonly IServiceProvider _provider;
         private readonly IHostEnvironment _environment;
         private readonly IDbContextFactory<UrfRidersDbContext> _dbContextFactory;
+        private readonly IHelpService _helpService;
 
-        public CommandHandlingService(DiscordSocketClient discord, CommandService command, BotConfiguration botConfig,
-            IEmbedService embed, IServiceProvider provider, IHostEnvironment environment,
-            IDbContextFactory<UrfRidersDbContext> dbContextFactory)
+        public CommandHandlingService(
+            DiscordSocketClient discord,
+            CommandService command,
+            BotConfiguration botConfig,
+            IEmbedService embed,
+            IServiceProvider provider,
+            IHostEnvironment environment,
+            IDbContextFactory<UrfRidersDbContext> dbContextFactory,
+            IHelpService helpService)
         {
             _discord = discord;
             _command = command;
@@ -30,6 +37,7 @@ namespace UrfRidersBot.Library.Internal.Services
             _provider = provider;
             _environment = environment;
             _dbContextFactory = dbContextFactory;
+            _helpService = helpService;
 
             _discord.MessageReceived += MessageReceived;
             _command.CommandExecuted += CommandExecuted;
@@ -73,16 +81,22 @@ namespace UrfRidersBot.Library.Internal.Services
             }
         }
 
-        private async Task CommandExecuted(Optional<CommandInfo> command, ICommandContext context, IResult result)
+        private async Task CommandExecuted(Optional<CommandInfo> command, ICommandContext rawContext, IResult result)
         {
             if (!command.IsSpecified)
                 return;
             if (result.IsSuccess)
                 return;
 
+            // Context should always be of type UrfRidersContext and if not then something must've gone terribly wrong
+            // or someone just forgot to use the correct one.
+            // In both cases, it's good to throw a InvalidCastException.
+            var context = (UrfRidersContext)rawContext;
+
             EmbedBuilder? embedBuilder;
             if (result.Error == CommandError.Exception)
             {
+                // Show a special message on command exception.
                 embedBuilder = _embed
                     .CreateCriticalError($"An exception has occured.")
                     .WithFooter("The bot owner has been notified.");
@@ -108,7 +122,14 @@ namespace UrfRidersBot.Library.Internal.Services
             }
             else
             {
+                // Show generic error message based on the error type.
                 embedBuilder = _embed.CreateError(result.ErrorReason);
+            }
+
+            // If the command syntax wasn't correct, show proper command usage.
+            if (result.Error == CommandError.BadArgCount)
+            {
+                embedBuilder.AddField("Usage", _helpService.GetCommandUsage(command.Value, context.Prefix));
             }
 
             await context.Channel.SendMessageAsync(embed: embedBuilder.Build());
