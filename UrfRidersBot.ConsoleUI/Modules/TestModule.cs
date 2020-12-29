@@ -20,7 +20,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
         [Summary("This will do a simple test.")]
         public async Task Test()
         {
-            await ReplyAsync(embed: Embed.CreateBasic(title: "Test completed").Build());
+            await ReplyAsync(embed: EmbedService.CreateBasic(title: "Test completed").Build());
         }
         
         [Command("exception")]
@@ -36,7 +36,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
         [Summary("Responds with a success message.")]
         public async Task Success()
         {
-            await ReplyAsync(embed: Embed.CreateSuccess("Yay, everything went well!").Build());
+            await ReplyAsync(embed: EmbedService.CreateSuccess("Yay, everything went well!").Build());
         }
 
         [Command("error")]
@@ -44,7 +44,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
         [Summary("Responds with an error message.")]
         public async Task Error()
         {
-            await ReplyAsync(embed: Embed.CreateError("Something went wrong.").Build());
+            await ReplyAsync(embed: EmbedService.CreateError("Something went wrong.").Build());
         }
 
         [Command("info")]
@@ -52,7 +52,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
         [Summary("Responds with basic message.")]
         public async Task Information()
         {
-            await ReplyAsync(embed: Embed.CreateBasic(title: "Hello world!").Build());
+            await ReplyAsync(embed: EmbedService.CreateBasic(title: "Hello world!").Build());
         }
 
         [Command("database")]
@@ -63,7 +63,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
         {
             var settings = await DbContext.GuildSettings.FindOrCreateAsync(Context.Guild.Id);
 
-            var embed = Embed.CreateBasic(title: "Custom prefix");
+            var embed = EmbedService.CreateBasic(title: "Custom prefix");
             if (newPrefix == null)
             {
                 embed.WithDescription(settings.CustomPrefix == null

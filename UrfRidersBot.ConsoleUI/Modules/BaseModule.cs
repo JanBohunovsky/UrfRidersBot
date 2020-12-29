@@ -5,6 +5,6 @@ namespace UrfRidersBot.ConsoleUI.Modules
 {
     public class BaseModule : ModuleBase<UrfRidersContext>
     {
-        public IEmbedService Embed { get; set; } = null!;
+        public IEmbedService EmbedService { get; set; } = null!;
     }
 }

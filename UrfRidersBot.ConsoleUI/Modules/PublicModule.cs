@@ -21,7 +21,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
         [Summary("Test bot's response time.")]
         public async Task Ping()
         {
-            var embed = Embed.CreateBasic(title: "Pong!");
+            var embed = EmbedService.CreateBasic(title: "Pong!");
             
             var stopwatch = Stopwatch.StartNew();
             var message = await ReplyAsync(embed: embed.Build());
@@ -58,7 +58,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
 
             question = question.Trim();
 
-            var embed = Embed
+            var embed = EmbedService
                 .CreateBasic()
                 .WithAuthor($"{Context.User.Username} has asked a question:", Context.User.GetAvatarUrl())
                 .WithDescription(question);
@@ -87,7 +87,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
                 else if (reaction.Emote.Equals(emoteDisagree))
                     noList.Add(reaction.User.Value);
                 
-                var embed = Embed
+                var embed = EmbedService
                     .CreateBasic()
                     .WithAuthor($"{Context.User.Username} has asked a question:", Context.User.GetAvatarUrl())
                     .WithDescription(question);
@@ -110,7 +110,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
                 else if (reaction.Emote.Equals(emoteDisagree))
                     noList.Remove(reaction.User.Value);
 
-                var embed = Embed
+                var embed = EmbedService
                     .CreateBasic()
                     .WithAuthor($"{Context.User.Username} has asked a question:", Context.User.GetAvatarUrl())
                     .WithDescription(question);
