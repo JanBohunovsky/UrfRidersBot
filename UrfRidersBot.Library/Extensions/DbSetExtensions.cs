@@ -16,5 +16,17 @@ namespace UrfRidersBot.Library
 
             return result;
         }
+        
+        public static GuildSettings FindOrCreate(this DbSet<GuildSettings> settings, ulong guildId)
+        {
+            var result = settings.Find(guildId);
+            if (result == null)
+            {
+                result = new GuildSettings(guildId);
+                settings.Add(result);
+            }
+
+            return result;
+        }
     }
 }
