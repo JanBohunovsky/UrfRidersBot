@@ -109,7 +109,7 @@ namespace UrfRidersBot.Library
             if (commands.Count <= 0)
                 return null;
             
-            descriptionBuilder.AppendJoin(", ", commands);
+            descriptionBuilder.AppendJoin(" ", commands);
             
             return new EmbedFieldBuilder
             {
