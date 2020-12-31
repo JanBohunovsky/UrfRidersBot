@@ -4,8 +4,6 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using UrfRidersBot.Library.Internal.HostedServices;
-using UrfRidersBot.Library.Internal.Services;
 
 namespace UrfRidersBot.Library
 {

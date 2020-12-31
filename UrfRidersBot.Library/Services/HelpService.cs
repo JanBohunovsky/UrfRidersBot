@@ -7,7 +7,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 
-namespace UrfRidersBot.Library.Internal.Services
+namespace UrfRidersBot.Library
 {
     internal class HelpService : IHelpService
     {

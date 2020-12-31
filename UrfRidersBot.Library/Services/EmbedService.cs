@@ -1,6 +1,6 @@
 ﻿using Discord;
 
-namespace UrfRidersBot.Library.Internal.Services
+namespace UrfRidersBot.Library
 {
     internal class EmbedService : IEmbedService
     {

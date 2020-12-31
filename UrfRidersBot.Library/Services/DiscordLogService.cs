@@ -5,7 +5,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 
-namespace UrfRidersBot.Library.Internal.Services
+namespace UrfRidersBot.Library
 {
     internal class DiscordLogService
     {

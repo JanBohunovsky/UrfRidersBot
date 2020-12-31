@@ -9,9 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using UrfRidersBot.Library.Internal.Models;
 
-namespace UrfRidersBot.Library.Internal.HostedServices
+namespace UrfRidersBot.Library
 {
     internal class InteractiveHostedService : IHostedService
     {
@@ -37,8 +36,8 @@ namespace UrfRidersBot.Library.Internal.HostedServices
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _discord.ReactionAdded += ReactionAddedEventHandler;
-            _discord.ReactionRemoved += ReactionRemovedEventHandler;
+            _discord.ReactionAdded += ReactionAdded;
+            _discord.ReactionRemoved += ReactionRemoved;
             
             // Create reaction handler instances for each active handler.
             await using var dbContext = _dbContextFactory.CreateDbContext();
@@ -59,8 +58,8 @@ namespace UrfRidersBot.Library.Internal.HostedServices
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _discord.ReactionAdded -= ReactionAddedEventHandler;
-            _discord.ReactionRemoved -= ReactionRemovedEventHandler;
+            _discord.ReactionAdded -= ReactionAdded;
+            _discord.ReactionRemoved -= ReactionRemoved;
             
             // TODO: Move this shit to InteractiveService.cs
             
@@ -96,7 +95,7 @@ namespace UrfRidersBot.Library.Internal.HostedServices
             await dbContext.SaveChangesAsync(CancellationToken.None);
         }
 
-        private async Task ReactionAddedEventHandler(Cacheable<IUserMessage, ulong> cachedMessage, ISocketMessageChannel channel, SocketReaction reaction)
+        private async Task ReactionAdded(Cacheable<IUserMessage, ulong> cachedMessage, ISocketMessageChannel channel, SocketReaction reaction)
         {
             if (reaction.UserId == _discord.CurrentUser.Id)
                 return;
@@ -114,7 +113,7 @@ namespace UrfRidersBot.Library.Internal.HostedServices
             _ = Task.Run(async () => await handler.ReactionAdded(message, user, reaction.Emote));
         }
 
-        private async Task ReactionRemovedEventHandler(Cacheable<IUserMessage, ulong> cachedMessage, ISocketMessageChannel channel, SocketReaction reaction)
+        private async Task ReactionRemoved(Cacheable<IUserMessage, ulong> cachedMessage, ISocketMessageChannel channel, SocketReaction reaction)
         {
             if (reaction.UserId == _discord.CurrentUser.Id)
                 return;

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UrfRidersBot.Library.Internal.Models;
 
 namespace UrfRidersBot.Library
 {

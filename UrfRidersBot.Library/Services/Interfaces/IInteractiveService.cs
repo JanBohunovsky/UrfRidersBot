@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace UrfRidersBot.Library
 {
@@ -27,6 +25,5 @@ namespace UrfRidersBot.Library
         /// Checks if the message has a reaction handler of type <see cref="T"/>.
         /// </summary>
         bool HasReactionHandler<T>(ulong messageId) where T : IReactionHandler;
-
     }
 }

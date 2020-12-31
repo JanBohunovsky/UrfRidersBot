@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace UrfRidersBot.Library.Internal.Models
+namespace UrfRidersBot.Library
 {
     internal class ReactionHandlerInfo
     {

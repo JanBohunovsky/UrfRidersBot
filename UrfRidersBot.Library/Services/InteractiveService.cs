@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace UrfRidersBot.Library.Internal.Services
+namespace UrfRidersBot.Library
 {
     internal class InteractiveService : IInteractiveService
     {
@@ -39,7 +37,5 @@ namespace UrfRidersBot.Library.Internal.Services
         {
             return _reactionHandlers.GetValueOrDefault(messageId) is T;
         }
-        
-        
     }
 }

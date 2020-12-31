@@ -4,7 +4,7 @@ using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 
-namespace UrfRidersBot.Library.Internal.HostedServices
+namespace UrfRidersBot.Library
 {
     internal class DiscordHostedService : IHostedService
     {

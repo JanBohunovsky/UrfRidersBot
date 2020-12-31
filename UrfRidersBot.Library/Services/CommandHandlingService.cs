@@ -7,7 +7,7 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 
-namespace UrfRidersBot.Library.Internal.Services
+namespace UrfRidersBot.Library
 {
     internal class CommandHandlingService
     {
@@ -90,7 +90,7 @@ namespace UrfRidersBot.Library.Internal.Services
 
             // Context should always be of type UrfRidersContext and if not then something must've gone terribly wrong
             // or someone just forgot to use the correct one.
-            // In both cases, it's good to throw a InvalidCastException.
+            // In both cases, it's good to throw an InvalidCastException.
             var context = (UrfRidersContext)rawContext;
 
             EmbedBuilder? embedBuilder;
