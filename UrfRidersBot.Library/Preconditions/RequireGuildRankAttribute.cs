@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace UrfRidersBot.Library
 {
@@ -32,8 +34,10 @@ namespace UrfRidersBot.Library
             // Get guild user. We already checked if the context is in guild so this should never fail.
             var user = (SocketGuildUser)context.User;
 
-            // TODO: Get guild settings
-            var guildSettings = new object();
+            // Get guild settings
+            var dbContextFactory = provider.GetRequiredService<IDbContextFactory<UrfRidersDbContext>>();
+            await using var dbContext = dbContextFactory.CreateDbContext();
+            var guildSettings = await dbContext.GuildSettings.FindOrCreateAsync(context.Guild.Id);
 
             // Check user's rank
             var userRank = GetUserRank(user, guildSettings);
@@ -52,14 +56,14 @@ namespace UrfRidersBot.Library
             }
         }
 
-        private static GuildRank GetUserRank(SocketGuildUser user, object guildSettings)
+        private static GuildRank GetUserRank(SocketGuildUser user, GuildSettings guildSettings)
         {
             var rank = GuildRank.Everyone;
-            if (UserHasRole(user, null) ?? true)
+            if (UserHasRole(user, guildSettings.MemberRoleId) ?? true)
                 rank = GuildRank.Member;
-            if (UserHasRole(user, null) ?? user.GuildPermissions.ManageChannels)
+            if (UserHasRole(user, guildSettings.ModeratorRoleId) ?? user.GuildPermissions.ManageChannels)
                 rank = GuildRank.Moderator;
-            if (UserHasRole(user, null) ?? user.GuildPermissions.Administrator)
+            if (UserHasRole(user, guildSettings.AdminRoleId) ?? user.GuildPermissions.Administrator)
                 rank = GuildRank.Admin;
             if (user.Guild.OwnerId == user.Id)
                 rank = GuildRank.Owner;
@@ -67,14 +71,14 @@ namespace UrfRidersBot.Library
             return rank;
         }
 
-        private static string GetRankName(GuildRank rank, IGuild guild, object guildSettings)
+        private static string GetRankName(GuildRank rank, IGuild guild, GuildSettings guildSettings)
         {
             return rank switch
             {
                 GuildRank.Everyone   => "everyone",
-                GuildRank.Member     => GetRoleMention(guild, null) ?? "a member",
-                GuildRank.Moderator  => GetRoleMention(guild, null) ?? "a moderator",
-                GuildRank.Admin      => GetRoleMention(guild, null) ?? "an admin",
+                GuildRank.Member     => GetRoleMention(guild, guildSettings.MemberRoleId) ?? "a member",
+                GuildRank.Moderator  => GetRoleMention(guild, guildSettings.ModeratorRoleId) ?? "a moderator",
+                GuildRank.Admin      => GetRoleMention(guild, guildSettings.AdminRoleId) ?? "an admin",
                 GuildRank.Owner      => "the guild owner",
                 _                    => throw new ArgumentOutOfRangeException(nameof(rank))
             };
