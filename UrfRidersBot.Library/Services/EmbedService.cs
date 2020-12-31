@@ -1,14 +1,17 @@
 ﻿using Discord;
+using Discord.WebSocket;
 
 namespace UrfRidersBot.Library
 {
     internal class EmbedService : IEmbedService
     {
         private readonly BotConfiguration _botConfig;
+        private readonly DiscordSocketClient _discord;
 
-        public EmbedService(BotConfiguration botConfig)
+        public EmbedService(BotConfiguration botConfig, DiscordSocketClient discord)
         {
             _botConfig = botConfig;
+            _discord = discord;
         }
 
         public EmbedBuilder CreateBasic(string? description = null, string? title = null)
@@ -20,6 +23,17 @@ namespace UrfRidersBot.Library
                 builder.WithDescription(description);
             if (title != null)
                 builder.WithTitle(title);
+
+            return builder;
+        }
+
+        public EmbedBuilder CreateBotInfo(string? nameSuffix = null)
+        {
+            var name = nameSuffix == null ? _botConfig.Name : $"{_botConfig.Name} {nameSuffix}";
+
+            var builder = new EmbedBuilder()
+                .WithColor(_botConfig.EmbedColor)
+                .WithAuthor(name, _discord.CurrentUser.GetAvatarUrl());
 
             return builder;
         }

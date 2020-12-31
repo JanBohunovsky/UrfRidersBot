@@ -10,6 +10,12 @@ namespace UrfRidersBot.Library
         EmbedBuilder CreateBasic(string? description = null, string? title = null);
         
         /// <summary>
+        /// Creates a basic embed with bot's <see cref="BotConfiguration.Name"/> and icon in the author field.
+        /// </summary>
+        /// <param name="nameSuffix">Optional suffix in the author field.</param>
+        EmbedBuilder CreateBotInfo(string? nameSuffix = null);
+        
+        /// <summary>
         /// Creates a success embed with green color and sets the <see cref="title"/> as embed's author with a green checkmark image as icon.
         /// </summary>
         EmbedBuilder CreateSuccess(string? description = null, string title = "Success");

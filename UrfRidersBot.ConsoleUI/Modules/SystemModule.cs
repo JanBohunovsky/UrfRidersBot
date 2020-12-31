@@ -10,10 +10,14 @@ namespace UrfRidersBot.ConsoleUI.Modules
     {
         [Command("shutdown")]
         [Name("Shutdown")]
-        [Summary("Shutdowns the bot.")]
+        [Summary("Stops the application the bot is running on.")]
         public async Task Shutdown()
         {
-            var embed = EmbedService.CreateBasic("Shutting down...", "System").Build();
+            var embed = EmbedService
+                .CreateBotInfo()
+                .WithDescription("Shutting down...")
+                .Build();
+            
             await ReplyAsync(embed: embed);
             
             Program.Shutdown();
@@ -21,10 +25,16 @@ namespace UrfRidersBot.ConsoleUI.Modules
 
         [Command("restart")]
         [Name("Restart")]
-        [Summary("Soft restarts the bot. This will only stop the host and rebuild all services. This will **not** stop the application.")]
+        [Summary("Soft-restarts the application the bot is running on.\n" +
+                 "This won't actually restart the application, it will only stop the application [host](https://docs.microsoft.com/en-us/dotnet/core/extensions/generic-host) and do the start-up sequence once again.\n" + 
+                 "This process should be equivalent to an application restart, including getting rid of memory leaks if there are any (hopefully).")]
         public async Task Restart()
         {
-            var embed = EmbedService.CreateBasic("Restarting...", "System").Build();
+            var embed = EmbedService
+                .CreateBotInfo()
+                .WithDescription("Restarting...")
+                .Build();
+            
             await ReplyAsync(embed: embed);
             
             Program.Restart();

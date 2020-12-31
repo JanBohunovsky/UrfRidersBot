@@ -34,9 +34,7 @@ namespace UrfRidersBot.Library
         public async ValueTask<Embed> GetCommandDetails(UrfRidersContext context, string name)
         {
             var notFound = _embed.CreateError("Could not find specified command.").Build();
-            var result = _embed
-                .CreateBasic()
-                .WithAuthor(_botConfig.Name, _discord.CurrentUser.GetAvatarUrl());
+            var result = _embed.CreateBotInfo("Documentation");
             
             // Find the command
             var command = _command.Commands.FirstOrDefault(x => x.Aliases.Any(alias => string.Equals(alias, name, StringComparison.InvariantCultureIgnoreCase)));
@@ -67,9 +65,7 @@ namespace UrfRidersBot.Library
 
         public async ValueTask<Embed> GetAllCommands(UrfRidersContext context)
         {
-            var result = _embed
-                .CreateBasic()
-                .WithAuthor(_botConfig.Name, _discord.CurrentUser.GetAvatarUrl());
+            var result = _embed.CreateBotInfo("Documentation");
 
             foreach (var module in GetModules())
             {

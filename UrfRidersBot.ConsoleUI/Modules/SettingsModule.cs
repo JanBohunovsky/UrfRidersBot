@@ -34,8 +34,8 @@ namespace UrfRidersBot.ConsoleUI.Modules
         public async Task ShowAllSettings()
         {
             var embed = EmbedService
-                .CreateBasic(title: "Settings")
-                .WithAuthor(BotConfig.Name, Context.Client.CurrentUser.GetAvatarUrl())
+                .CreateBotInfo()
+                .WithTitle("Settings")
                 .WithDescription($"Current settings for {Context.Guild.Name}.")
                 .AddField(f =>
                 {
