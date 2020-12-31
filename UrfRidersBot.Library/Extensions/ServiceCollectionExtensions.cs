@@ -33,6 +33,12 @@ namespace UrfRidersBot.Library
                 .AddTransient<IEmbedService, EmbedService>()
                 .AddTransient<IHelpService, HelpService>();
 
+            services
+                .AddSingleton<IInteractiveService, InteractiveService>();
+            
+            // Hosted Services
+            services.AddHostedService<InteractiveHostedService>();
+
             return services;
         }
 
