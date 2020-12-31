@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace UrfRidersBot.Library
 {
@@ -12,9 +13,9 @@ namespace UrfRidersBot.Library
         /// Warning: This will replace any existing handlers!
         /// </para>
         /// </summary>
-        void AddReactionHandler<T>(ulong messageId) where T : IReactionHandler;
+        Task AddReactionHandlerAsync<T>(ulong messageId) where T : IReactionHandler;
 
-        void RemoveReactionHandler(ulong messageId);
+        Task RemoveReactionHandlerAsync(ulong messageId);
         
         /// <summary>
         /// Checks if the message has a reaction handler of any type.

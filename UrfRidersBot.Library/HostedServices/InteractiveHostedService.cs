@@ -56,43 +56,12 @@ namespace UrfRidersBot.Library
             }
         }
 
-        public async Task StopAsync(CancellationToken cancellationToken)
+        public Task StopAsync(CancellationToken cancellationToken)
         {
             _discord.ReactionAdded -= ReactionAdded;
             _discord.ReactionRemoved -= ReactionRemoved;
             
-            // TODO: Move this shit to InteractiveService.cs
-            
-            // Save all active handlers to the database so that we can create them on the next start.
-            await using var dbContext = _dbContextFactory.CreateDbContext();
-
-            // Store a collection of new reaction handlers (compared with database).
-            var newHandlers = _interactiveService.ReactionHandlers.Keys.ToHashSet();
-            
-            // Delete any saved handlers from db if they are no longer active.
-            await foreach (var info in dbContext.ActiveReactionHandlers)
-            {
-                if (_interactiveService.ReactionHandlers.ContainsKey(info.MessageId))
-                {
-                    // This message already has stored reaction handler in the database, so we'll remove it from the "new handlers" list.
-                    newHandlers.Remove(info.MessageId);
-                }
-                else
-                {
-                    // This message no longer has a reaction handler so we need to remove it from the database.
-                    dbContext.ActiveReactionHandlers.Remove(info);
-                }
-            }
-            
-            // Insert new handlers.
-            foreach (var messageId in newHandlers)
-            {
-                var typeName = _interactiveService.ReactionHandlers[messageId].GetType().FullName;
-                var info = new ReactionHandlerInfo(messageId, typeName!);
-                await dbContext.ActiveReactionHandlers.AddAsync(info);
-            }
-
-            await dbContext.SaveChangesAsync(CancellationToken.None);
+            return Task.CompletedTask;
         }
 
         private async Task ReactionAdded(Cacheable<IUserMessage, ulong> cachedMessage, ISocketMessageChannel channel, SocketReaction reaction)

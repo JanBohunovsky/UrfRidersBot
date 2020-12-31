@@ -76,7 +76,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
             else
             {
                 // Create new reaction handler and create persistent data for it.
-                InteractiveService.AddReactionHandler<ReactionTrackerHandler>(messageId);
+                await InteractiveService.AddReactionHandlerAsync<ReactionTrackerHandler>(messageId);
                 await DbContext.ReactionTrackerData.AddAsync(new ReactionTrackerData(messageId, Context.User.Id));
                 await DbContext.SaveChangesAsync();
 
@@ -102,7 +102,7 @@ namespace UrfRidersBot.ConsoleUI.Modules
             else
             {
                 // Remove the reaction handler and its persistent data.
-                InteractiveService.RemoveReactionHandler(messageId);
+                await InteractiveService.RemoveReactionHandlerAsync(messageId);
                 var data = await DbContext.ReactionTrackerData.FindAsync(messageId);
                 DbContext.ReactionTrackerData.Remove(data);
                 await DbContext.SaveChangesAsync();
