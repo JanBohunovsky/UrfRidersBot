@@ -3,6 +3,33 @@
 # Configuration
 TODO
 
+This application uses `appsettings.json` (including environment versions) to get the configuration.
+
+Example configuration:  
+```json
+{
+    "Bot": {
+        "Name": "Official UrfRiders Bot",
+        "Prefix": "!",
+        "EmbedColor": "#1abc9c"
+    },
+    "Serilog": {
+        "MinimumLevel": {
+            "Default": "Warning"
+        }
+    },
+    "Secrets": {
+        "DiscordToken": "...",
+        "RiotApiKey": "..."
+    },
+    "ConnectionStrings": {
+        "UrfRidersData": "<postgresql connection string>"
+    }
+}
+```
+To see more configuration options, check the files in `UrfRidersBot.Library\Configuration` or the included `appsettings.json` file.
+
+
 ### EF Core Migrations
 To add new migrations, use the following command in the solution root:
 ```
