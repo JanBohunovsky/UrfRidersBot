@@ -27,7 +27,7 @@ Example configuration:
     }
 }
 ```
-To see more configuration options, check the files in `UrfRidersBot.Library\Configuration` or the included `appsettings.json` file.
+To see more configuration options, check the [configuration models](/UrfRidersBot.Library/Configuration) or the included [appsettings file](/UrfRidersBot.ConsoleUI/appsettings.json).
 
 
 ### EF Core Migrations
