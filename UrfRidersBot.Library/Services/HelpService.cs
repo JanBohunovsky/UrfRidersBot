@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 
 namespace UrfRidersBot.Library
 {
@@ -13,21 +12,15 @@ namespace UrfRidersBot.Library
     {
         private readonly IEmbedService _embed;
         private readonly CommandService _command;
-        private readonly BotConfiguration _botConfig;
-        private readonly DiscordSocketClient _discord;
         private readonly IServiceProvider _provider;
         
         public HelpService(
             IEmbedService embed,
             CommandService command,
-            BotConfiguration botConfig,
-            DiscordSocketClient discord,
             IServiceProvider provider)
         {
             _embed = embed;
             _command = command;
-            _botConfig = botConfig;
-            _discord = discord;
             _provider = provider;
         }
         

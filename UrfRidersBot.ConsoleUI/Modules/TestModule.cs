@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
-using Microsoft.Extensions.Logging;
 using UrfRidersBot.Library;
 
 namespace UrfRidersBot.ConsoleUI.Modules
@@ -14,7 +12,6 @@ namespace UrfRidersBot.ConsoleUI.Modules
     public class TestModule : BaseModule
     {
         public UrfRidersDbContext DbContext { get; set; } = null!;
-        public ILogger<TestModule> Logger { get; set; } = null!;
         public IInteractiveService InteractiveService { get; set; } = null!;
 
         [Command]
