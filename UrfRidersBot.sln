@@ -5,12 +5,9 @@ ProjectSection(SolutionItems) = preProject
 	.gitignore = .gitignore
 	LICENSE = LICENSE
 	README.md = README.md
-	NuGet.config = NuGet.config
 EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.ConsoleUI", "UrfRidersBot.ConsoleUI\UrfRidersBot.ConsoleUI.csproj", "{9096379A-249F-4611-8788-F553A9926AF7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.Library", "UrfRidersBot.Library\UrfRidersBot.Library.csproj", "{37CF9AC1-083A-4BE1-9AE9-7BE7967E995A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot", "src\UrfRidersBot.csproj", "{F88304FC-7808-43D0-BE06-83206CDC3FD4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,13 +15,9 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9096379A-249F-4611-8788-F553A9926AF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9096379A-249F-4611-8788-F553A9926AF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9096379A-249F-4611-8788-F553A9926AF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9096379A-249F-4611-8788-F553A9926AF7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{37CF9AC1-083A-4BE1-9AE9-7BE7967E995A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{37CF9AC1-083A-4BE1-9AE9-7BE7967E995A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{37CF9AC1-083A-4BE1-9AE9-7BE7967E995A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{37CF9AC1-083A-4BE1-9AE9-7BE7967E995A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F88304FC-7808-43D0-BE06-83206CDC3FD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F88304FC-7808-43D0-BE06-83206CDC3FD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F88304FC-7808-43D0-BE06-83206CDC3FD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F88304FC-7808-43D0-BE06-83206CDC3FD4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

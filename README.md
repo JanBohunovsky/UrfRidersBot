@@ -11,7 +11,7 @@ Example configuration:
     "Bot": {
         "Name": "Official UrfRiders Bot",
         "Prefix": "!",
-        "EmbedColor": "#1abc9c"
+        "Color": "#1abc9c"
     },
     "Serilog": {
         "MinimumLevel": {
@@ -23,22 +23,12 @@ Example configuration:
         "RiotApiKey": "..."
     },
     "ConnectionStrings": {
-        "UrfRidersData": "<postgresql connection string>"
+        "Postgres": "..."
     }
 }
 ```
-To see more configuration options, check the [configuration models](/UrfRidersBot.Library/Configuration) or the included [appsettings file](/UrfRidersBot.ConsoleUI/appsettings.json).
+To see more configuration options, check the [configuration models](/src/Configuration) or the included [appsettings file](/src/appsettings.json).
 
-
-### EF Core Migrations
-To add new migrations, use the following command in the solution root:
-```
-dotnet ef migrations add <migration_name> --project "UrfRidersBot.Library" --startup-project "UrfRidersBot.ConsoleUI" -o "Data/Migrations"
-```
-And to update the database use:
-```
-dotnet ef database update --project "UrfRidersBot.Library" --startup-project "UrfRidersBot.ConsoleUI"
-```
 
 # Changelog
 ## 2.0
