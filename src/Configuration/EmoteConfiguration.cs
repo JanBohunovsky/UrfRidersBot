@@ -1,48 +1,58 @@
-﻿using Discord;
+﻿using System;
+using DSharpPlus;
+using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
 
 namespace UrfRidersBot
 {
     public class EmoteConfiguration : BaseConfiguration
     {
-        public IEmote Ok { get; }
-        public IEmote Cancel { get; }
-        public IEmote Checkmark { get; }
-        public IEmote Cross { get; }
-        public IEmote Yes { get; }
-        public IEmote No { get; }
-        public IEmote ThumbsUp { get; }
-        public IEmote ThumbsDown { get; }
+        private readonly DiscordClient _client;
+        private readonly IConfigurationSection _rawEmotes;
         
-        public IEmote Error { get; }
-        public IEmote Critical { get; }
+        // System.Lazy seems like the best solutions here.
+        // ctor: Doesn't work because class gets initialized before the client even starts.
+        // DiscordClient.Ready event: Doesn't work because the client didn't download any guild data.
+        // One more suggestion is to use some kind of initialization method that will be called on BaseCommandModule.BeforeExecutionAsync,
+        // but this leaves the work on the module which I don't want.
+        private readonly Lazy<DiscordEmoji> _yes;
+        private readonly Lazy<DiscordEmoji> _no;
 
-        public IEmote First { get; }
-        public IEmote Last { get; }
-        public IEmote Previous { get; }
-        public IEmote Next { get; }
-        public IEmote Stop { get; }
+        public DiscordEmoji Yes => _yes.Value;
+        public DiscordEmoji No => _no.Value;
 
-        public EmoteConfiguration(IConfiguration configuration) : base(configuration, "Bot:Emotes")
+        public EmoteConfiguration(DiscordClient client, IConfiguration configuration)
         {
-            var emotes = configuration.GetSection("Bot:Emotes");
-            Ok = (emotes[nameof(Ok)] ?? "✅").ToEmote();
-            Cancel = (emotes[nameof(Cancel)] ?? "❌").ToEmote();
-            Checkmark = (emotes[nameof(Checkmark)] ?? "✅").ToEmote();
-            Cross = (emotes[nameof(Cross)] ?? "❌").ToEmote();
-            Yes = (emotes[nameof(Yes)] ?? "✅").ToEmote();
-            No = (emotes[nameof(No)] ?? "❌").ToEmote();
-            ThumbsUp = (emotes[nameof(ThumbsUp)] ?? "👍").ToEmote();
-            ThumbsDown = (emotes[nameof(ThumbsDown)] ?? "👎").ToEmote();
+            _client = client;
+            _rawEmotes = configuration.GetSection("Emotes");
 
-            Error = (emotes[nameof(Error)] ?? "⚠").ToEmote();
-            Critical = (emotes[nameof(Critical)] ?? "❌").ToEmote();
+            _yes = CreateLazyEmote(nameof(Yes), ":white_check_mark:");
+            _no = CreateLazyEmote(nameof(No), ":x:");
+        }
 
-            First = (emotes[nameof(First)] ?? "⏮").ToEmote();
-            Last = (emotes[nameof(Last)] ?? "⏭").ToEmote();
-            Previous = (emotes[nameof(Previous)] ?? "◀").ToEmote();
-            Next = (emotes[nameof(Next)] ?? "▶").ToEmote();
-            Stop = (emotes[nameof(Stop)] ?? "⏹").ToEmote();
+        private Lazy<DiscordEmoji> CreateLazyEmote(string propertyName, string defaultEmoteName) =>
+            new(() => ParseEmote(_client, _rawEmotes[propertyName], defaultEmoteName));
+
+        /// <summary>
+        /// Creates a new <see cref="DiscordEmoji"/> from either emote name (e.g. :thinking:) or a guild emote ID.
+        /// <para>
+        /// If <see cref="rawValue"/> is null, then <see cref="defaultEmoteName"/> is used.
+        /// </para>
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="rawValue">Raw value from configuration, can be <see cref="string"/> or <see cref="ulong"/>.</param>
+        /// <param name="defaultEmoteName">Fallback emote name if <see cref="rawValue"/> is null.</param>
+        private static DiscordEmoji ParseEmote(DiscordClient client, string? rawValue, string defaultEmoteName)
+        {
+            if (rawValue == null)
+                return DiscordEmoji.FromName(client, defaultEmoteName);
+            
+            if (ulong.TryParse(rawValue, out ulong emoteId))
+            {
+                return DiscordEmoji.FromGuildEmote(client, emoteId);
+            }
+
+            return DiscordEmoji.FromName(client, rawValue);
         }
     }
 }

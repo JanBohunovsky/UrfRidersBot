@@ -1,59 +1,56 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
+using DSharpPlus;
+using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace UrfRidersBot.Interactive
 {
     public class ReactionTrackerHandler : IReactionHandler
     {
-        private readonly EmbedService _embedService;
-        private readonly DiscordSocketClient _client;
+        private readonly DiscordClient _client;
         private readonly IDbContextFactory<UrfRidersDbContext> _dbContextFactory;
 
         public ReactionTrackerHandler(
-            EmbedService embedService,
-            DiscordSocketClient client,
+            DiscordClient client,
             IDbContextFactory<UrfRidersDbContext> dbContextFactory)
         {
-            _embedService = embedService;
-            _client = client;
             _dbContextFactory = dbContextFactory;
+            _client = client;
         }
 
-        public async Task ReactionAdded(IUserMessage message, IUser user, IEmote emote)
+        public async Task ReactionAdded(DiscordMessage message, DiscordUser user, DiscordEmoji emote)
         {
-            var embed = _embedService
-                .CreateBasic(
-                    $"{user.Mention} has added reaction '{emote}' to the [message]({message.GetJumpUrl()}).",
-                    "Reaction added")
-                .Build();
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = "Reaction added",
+                Description = $"{user.Mention} has added reaction '{emote}' to a [message]({message.JumpLink})",
+            };
             
-            var trackingUser = await GetUser(message.Id);
-            await trackingUser.SendMessageAsync(embed: embed);
+            var trackingUser = await GetUser(message);
+            await trackingUser.SendMessageAsync(embed.Build());
         }
 
-        public async Task ReactionRemoved(IUserMessage message, IUser user, IEmote emote)
+        public async Task ReactionRemoved(DiscordMessage message, DiscordUser user, DiscordEmoji emote)
         {
-            var embed = _embedService
-                .CreateBasic(
-                    $"{user.Mention} has removed reaction '{emote}' to the [message]({message.GetJumpUrl()}).",
-                    "Reaction removed")
-                .Build();
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = "Reaction added",
+                Description = $"{user.Mention} has removed reaction '{emote}' to a [message]({message.JumpLink})",
+            };
 
-            var trackingUser = await GetUser(message.Id);
-            await trackingUser.SendMessageAsync(embed: embed);
+            var trackingUser = await GetUser(message);
+            await trackingUser.SendMessageAsync(embed.Build());
         }
 
-        private async ValueTask<IUser> GetUser(ulong messageId)
+        private async ValueTask<DiscordMember> GetUser(DiscordMessage message)
         {
             await using var dbContext = _dbContextFactory.CreateDbContext();
-            var data = await dbContext.ReactionTrackerData.FindAsync(messageId);
+            var data = await dbContext.ReactionTrackerData.FindAsync(message.Id);
             if (data == null)
                 throw new Exception($"No data found for {nameof(ReactionTrackerHandler)}");
 
-            return _client.GetUser(data.UserId);
+            return await message.Channel.Guild.GetMemberAsync(data.UserId);
         }
     }
 }

@@ -1,79 +1,69 @@
-﻿using Discord;
-using Discord.WebSocket;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 
 namespace UrfRidersBot
 {
     public class EmbedService
     {
         private readonly BotConfiguration _botConfig;
-        private readonly DiscordSocketClient _client;
+        private readonly DiscordClient _client;
 
-        public EmbedService(BotConfiguration botConfig, DiscordSocketClient client)
+        public EmbedService(BotConfiguration botConfig, DiscordClient client)
         {
             _botConfig = botConfig;
             _client = client;
         }
 
-        public EmbedBuilder CreateBasic(string? description = null, string? title = null)
+        public DiscordEmbedBuilder CreateBotInfo(string? nameSuffix = null)
         {
-            return new EmbedBuilder
+            return new DiscordEmbedBuilder
             {
-                Color = _botConfig.Color,
-                Title = title,
-                Description = description,
-            };
-        }
-
-        public EmbedBuilder CreateBotInfo(string? nameSuffix = null)
-        {
-            return new EmbedBuilder
-            {
-                Color = _botConfig.Color,
-                Author = new EmbedAuthorBuilder
+                Color = UrfRidersColor.Cyan,
+                Author = new DiscordEmbedBuilder.EmbedAuthor
                 {
                     Name = nameSuffix == null ? _botConfig.Name : $"{_botConfig.Name} {nameSuffix}",
-                    IconUrl = _client.CurrentUser.GetAvatarUrl(),
+                    IconUrl = _client.CurrentUser.GetAvatarUrl(ImageFormat.Auto),
                 },
             };
         }
 
-        public EmbedBuilder CreateSuccess(string? description = null, string title = "Success")
+        public DiscordEmbedBuilder CreateSuccess(string? description = null, string title = "Success")
         {
-            return new EmbedBuilder
+            return new DiscordEmbedBuilder
             {
-                Color = Color.Green,
-                Author = new EmbedAuthorBuilder
+                Color = UrfRidersColor.Green,
+                Author = new DiscordEmbedBuilder.EmbedAuthor
                 {
                     Name = title,
-                    IconUrl = "https://cdn.discordapp.com/attachments/717788228899307551/791314528280641546/icons8-checkmark-96.png",
-                },
-                Description = description,
-            };
-        }
-
-        public EmbedBuilder CreateError(string? description = null, string? title = "Error")
-        {
-            return new EmbedBuilder
-            {
-                Color = Color.Gold,
-                Author = new EmbedAuthorBuilder
-                {
-                    Name = title,
-                    IconUrl = "https://cdn.discordapp.com/attachments/717788228899307551/791314543917006928/icons8-error-96.png",
+                    IconUrl = UrfRidersIcon.Checkmark,
                 },
                 Description = description,
             };
         }
 
-        public EmbedBuilder CreateCriticalError(string? description = null, string? title = "Critical Error")
+        public DiscordEmbedBuilder CreateError(string? description = null, string? title = "Error")
         {
-            return new EmbedBuilder
+            return new DiscordEmbedBuilder
             {
-                Color = Color.Red,
-                Author = new EmbedAuthorBuilder
+                Color = UrfRidersColor.Yellow,
+                Author = new DiscordEmbedBuilder.EmbedAuthor
                 {
                     Name = title,
-                    IconUrl = "https://cdn.discordapp.com/attachments/717788228899307551/791314550561570876/icons8-high-priority-96.png",
+                    IconUrl = UrfRidersIcon.Error,
+                },
+                Description = description,
+            };
+        }
+
+        public DiscordEmbedBuilder CreateCriticalError(string? description = null, string? title = "Critical Error")
+        {
+            return new DiscordEmbedBuilder
+            {
+                Color = UrfRidersColor.Red,
+                Author = new DiscordEmbedBuilder.EmbedAuthor
+                {
+                    Name = title,
+                    IconUrl = UrfRidersIcon.HighPriority,
                 },
                 Description = description,
             };

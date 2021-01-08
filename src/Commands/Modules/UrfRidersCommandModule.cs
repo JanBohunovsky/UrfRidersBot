@@ -1,8 +1,8 @@
-﻿using Discord.Commands;
+﻿using DSharpPlus.CommandsNext;
 
 namespace UrfRidersBot
 {
-    public class UrfRidersCommandModule : ModuleBase<UrfRidersContext>
+    public class UrfRidersCommandModule : BaseCommandModule
     {
         public EmbedService EmbedService { get; set; } = null!;
     }

@@ -1,116 +1,117 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord.Commands;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using UrfRidersBot.Interactive;
 
 namespace UrfRidersBot
 {
     [Group("test")]
     [RequireOwner]
-    [Name("Test")]
-    [Summary("Debug commands to test bot's functionality.")]
+    [Description("Debug commands to test bot's functionality.")]
     public class TestModule : UrfRidersCommandModule
     {
-        public UrfRidersDbContext DbContext { get; set; } = null!;
-        public InteractiveService InteractiveService { get; set; } = null!;
+        public ILogger<TestModule> Logger { get; set; } = null!;
 
-        [Command]
-        [Priority(0)]
-        [Name("Test")]
-        [Summary("This will do a simple test.")]
-        public async Task Test()
-        {
-            await ReplyAsync(embed: EmbedService.CreateBasic(title: "Test completed").Build());
-        }
-        
         [Command("exception")]
-        [Priority(1)]
-        [Name("Exception test")]
-        [Summary("This command will throw an exception.")]
-        public Task Exception()
+        [Description("This command will throw an exception.")]
+        public Task Exception(CommandContext ctx)
         {
             throw new NotImplementedException();
         }
 
         [Command("success")]
-        [Priority(1)]
-        [Name("Success test")]
-        [Summary("Responds with a success message.")]
-        public async Task Success()
+        [Description("Responds with a success message.")]
+        public async Task Success(CommandContext ctx)
         {
-            await ReplyAsync(embed: EmbedService.CreateSuccess("Yay, everything went well!").Build());
+            await ctx.RespondAsync(EmbedService.CreateSuccess("Yay, everything went well!").Build());
         }
 
         [Command("error")]
-        [Priority(1)]
-        [Name("Error test")]
-        [Summary("Responds with an error message.")]
-        public async Task Error()
+        [Description("Responds with an error message.")]
+        public async Task Error(CommandContext ctx)
         {
-            await ReplyAsync(embed: EmbedService.CreateError("Something went wrong.").Build());
+            await ctx.RespondAsync(EmbedService.CreateError("Something went wrong.").Build());
         }
 
         [Command("info")]
-        [Priority(1)]
-        [Name("Information test")]
-        [Summary("Responds with basic message.")]
-        public async Task Information()
+        [Description("Responds with basic message.")]
+        public async Task Information(CommandContext ctx)
         {
-            await ReplyAsync(embed: EmbedService.CreateBasic(title: "Hello world!").Build());
+            var embed = new DiscordEmbedBuilder
+            {
+                Color = UrfRidersColor.Cyan,
+                Title = "Hello world!",
+            };
+            
+            await ctx.RespondAsync(":wave:", embed.Build());
         }
 
-        [Command("reactionTracker add")]
-        [Priority(1)]
-        [Name("Add reaction tracker")]
-        [Summary("You will get notified whenever a user adds/removes a reaction to/from target message.")]
-        public async Task AddReactionTracker(ulong messageId)
+        [Group("reactionTracker")]
+        [Description("Attach to a message to get notified whenever a someone adds or removes a reaction.")]
+        public class ReactionTrackerSubmodule : UrfRidersCommandModule
         {
-            if (InteractiveService.HasReactionHandler(messageId))
+            public IDbContextFactory<UrfRidersDbContext> DbContextFactory { get; set; } = null!;
+            public InteractiveService InteractiveService { get; set; } = null!;
+            
+            [Command("add")]
+            [Description("Add a reaction tracker to specified message.")]
+            public async Task Add(CommandContext ctx, [Description("Message to attach reaction tracker on.")] DiscordMessage message)
             {
-                var embed = EmbedService.CreateError("This message already has some kind of reaction handler.").Build();
-                await ReplyAsync(embed: embed);
-            }
-            else
-            {
-                // Create new reaction handler and create persistent data for it.
-                await InteractiveService.AddReactionHandlerAsync<ReactionTrackerHandler>(messageId);
-                await DbContext.ReactionTrackerData.AddAsync(new ReactionTrackerData(messageId, Context.User.Id));
-                await DbContext.SaveChangesAsync();
+                if (InteractiveService.HasReactionHandler(message.Id))
+                {
+                    var embed = EmbedService.CreateError("This message already has some kind of reaction handler.").Build();
+                    await ctx.RespondAsync(embed);
+                }
+                else
+                {
+                    // Create new reaction handler and create persistent data for it.
+                    // TODO: Make this into a service method. I know this is a test command but something like this will be used in the future.
+                    await using (var dbContext = DbContextFactory.CreateDbContext())
+                    {
+                        await InteractiveService.AddReactionHandlerAsync<ReactionTrackerHandler>(message.Id);
+                        await dbContext.ReactionTrackerData.AddAsync(new ReactionTrackerData(message.Id, ctx.User.Id));
+                        await dbContext.SaveChangesAsync();
+                    }
 
-                var embed = EmbedService
-                    .CreateSuccess($"Message is now being tracked for reactions.")
-                    .Build();
+                    var embed = EmbedService
+                        .CreateSuccess($"Added reaction tracker to the [message]({message.JumpLink}).")
+                        .Build();
 
-                await ReplyAsync(embed: embed);
+                    await ctx.RespondAsync(embed);
+                }
             }
             
-        }
-
-        [Command("reactionTracker remove")]
-        [Priority(1)]
-        [Name("Remove reaction tracker")]
-        public async Task RemoveReactionTracker(ulong messageId)
-        {
-            if (!InteractiveService.HasReactionHandler<ReactionTrackerHandler>(messageId))
+            [Command("remove")]
+            [Description("Removes a reaction tracker from specified message.")]
+            public async Task Remove(CommandContext ctx, [Description("Message to remove reaction tracker from.")] DiscordMessage message)
             {
-                var embed = EmbedService.CreateError("This message doesn't have reaction tracker.").Build();
-                await ReplyAsync(embed: embed);
-            }
-            else
-            {
-                // Remove the reaction handler and its persistent data.
-                await InteractiveService.RemoveReactionHandlerAsync(messageId);
-                var data = await DbContext.ReactionTrackerData.FindAsync(messageId);
-                DbContext.ReactionTrackerData.Remove(data);
-                await DbContext.SaveChangesAsync();
+                if (!InteractiveService.HasReactionHandler<ReactionTrackerHandler>(message.Id))
+                {
+                    var embed = EmbedService.CreateError("This message doesn't have reaction tracker.").Build();
+                    await ctx.RespondAsync(embed);
+                }
+                else
+                {
+                    // Remove the reaction handler and its persistent data.
+                    await using (var dbContext = DbContextFactory.CreateDbContext())
+                    {
+                        await InteractiveService.RemoveReactionHandlerAsync(message.Id);
+                        var data = await dbContext.ReactionTrackerData.FindAsync(message.Id);
+                        dbContext.ReactionTrackerData.Remove(data);
+                        await dbContext.SaveChangesAsync();
+                    }
                 
-                var embed = EmbedService
-                    .CreateSuccess($"Message is no longer being tracked for reactions.")
-                    .Build();
+                    var embed = EmbedService
+                        .CreateSuccess($"Removed reaction tracker from the [message]({message.JumpLink}).")
+                        .Build();
 
-                await ReplyAsync(embed: embed);
+                    await ctx.RespondAsync(embed);
+                }
             }
-            
         }
     }
 }

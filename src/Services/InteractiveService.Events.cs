@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
+using DSharpPlus;
+using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,8 +15,8 @@ namespace UrfRidersBot
     {
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _client.ReactionAdded += OnReactionAdded;
-            _client.ReactionRemoved += OnReactionRemoved;
+            _client.MessageReactionAdded += OnMessageReactionAdded;
+            _client.MessageReactionRemoved += OnMessageReactionRemoved;
             
             // Create reaction handler instances for each active handler/message
             await using var dbContext = _dbContextFactory.CreateDbContext();
@@ -37,46 +37,36 @@ namespace UrfRidersBot
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _client.ReactionAdded -= OnReactionAdded;
-            _client.ReactionRemoved -= OnReactionRemoved;
+            _client.MessageReactionAdded -= OnMessageReactionAdded;
+            _client.MessageReactionRemoved -= OnMessageReactionRemoved;
             
             return Task.CompletedTask;
         }
 
-        private async Task OnReactionAdded(Cacheable<IUserMessage, ulong> rawMessage, ISocketMessageChannel channel, SocketReaction reaction)
+        private async Task OnMessageReactionAdded(DiscordClient sender, MessageReactionAddEventArgs e)
         {
-            if (reaction.UserId == _client.CurrentUser.Id)
+            if (e.User.IsCurrent)
                 return;
             
             // Find reaction handler
-            var handler = _reactionHandlers.GetValueOrDefault(rawMessage.Id);
+            var handler = _reactionHandlers.GetValueOrDefault(e.Message.Id);
             if (handler == null)
                 return;
-            
-            // Get message and user
-            var message = await rawMessage.GetOrDownloadAsync();
-            var user = _client.GetUser(reaction.UserId);
-            
-            // Run in different thread
-            _ = Task.Run(async () => await handler.ReactionAdded(message, user, reaction.Emote));
+
+            await handler.ReactionAdded(e.Message, e.User, e.Emoji);
         }
 
-        private async Task OnReactionRemoved(Cacheable<IUserMessage, ulong> rawMessage, ISocketMessageChannel channel, SocketReaction reaction)
+        private async Task OnMessageReactionRemoved(DiscordClient sender, MessageReactionRemoveEventArgs e)
         {
-            if (reaction.UserId == _client.CurrentUser.Id)
+            if (e.User.IsCurrent)
                 return;
             
             // Find reaction handler
-            var handler = _reactionHandlers.GetValueOrDefault(rawMessage.Id);
+            var handler = _reactionHandlers.GetValueOrDefault(e.Message.Id);
             if (handler == null)
                 return;
-            
-            // Get message and user
-            var message = await rawMessage.GetOrDownloadAsync();
-            var user = _client.GetUser(reaction.UserId);
-            
-            // Run in different thread
-            _ = Task.Run(async () => await handler.ReactionRemoved(message, user, reaction.Emote));
+
+            await handler.ReactionRemoved(e.Message, e.User, e.Emoji);
         }
     }
 }

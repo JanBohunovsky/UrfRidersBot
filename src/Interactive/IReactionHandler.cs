@@ -1,11 +1,11 @@
 ﻿using System.Threading.Tasks;
-using Discord;
+using DSharpPlus.Entities;
 
 namespace UrfRidersBot.Interactive
 {
     public interface IReactionHandler
     {
-        Task ReactionAdded(IUserMessage message, IUser user, IEmote emote);
-        Task ReactionRemoved(IUserMessage message, IUser user, IEmote emote);
+        Task ReactionAdded(DiscordMessage message, DiscordUser user, DiscordEmoji emote);
+        Task ReactionRemoved(DiscordMessage message, DiscordUser user, DiscordEmoji emote);
     }
 }

@@ -10,8 +10,12 @@ Example configuration:
 {
     "Bot": {
         "Name": "Official UrfRiders Bot",
-        "Prefix": "!",
-        "Color": "#1abc9c"
+        "Prefix": "!"
+    },
+    "Emotes": {
+        // You can define emotes either by their name, or the guild emote's ID.
+        "Yes": 791318099311329280,
+        "No": ":no_entry_sign:"
     },
     "Serilog": {
         "MinimumLevel": {
@@ -27,7 +31,7 @@ Example configuration:
     }
 }
 ```
-To see more configuration options, check the [configuration models](/src/Configuration) or the included [appsettings file](/src/appsettings.json).
+To see more configuration options, check the [configuration models](/src/Configuration) or the included [appsettings.json file](/src/appsettings.json).
 
 
 # Changelog

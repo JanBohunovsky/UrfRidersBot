@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
+using DSharpPlus;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,77 +12,54 @@ namespace UrfRidersBot
 {
     /// <summary>
     /// Requires the user invoking the command to have this guild rank or higher.
-    /// This precondition automatically applies <see cref="RequireContextAttribute"/>.
     /// <para>
     /// Example: If you select <see cref="GuildRank.Member"/> then users that are at least that rank
     /// or higher (e.g. <see cref="GuildRank.Moderator"/>) can invoke this command.
     /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = false)]
-    public class RequireGuildRankAttribute : RequireContextAttribute
+    public class RequireGuildRankAttribute : CheckBaseAttribute
     {
         private readonly GuildRank _rank;
         
-        public RequireGuildRankAttribute(GuildRank rank) : base(ContextType.Guild) => _rank = rank;
+        public RequireGuildRankAttribute(GuildRank rank) => _rank = rank;
 
-        public override async Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider provider)
+        public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
             // Check if this is invoked in a guild
-            var baseResult = await base.CheckPermissionsAsync(context, command, provider);
-            if (!baseResult.IsSuccess)
-                return baseResult;
+            if (ctx.Guild == null)
+                return false;
 
-            // Get guild user. We already checked if the context is in guild so this should never fail.
-            var user = (SocketGuildUser)context.User;
-
-            // Get guild settings
-            var dbContextFactory = provider.GetRequiredService<IDbContextFactory<UrfRidersDbContext>>();
-            await using var dbContext = dbContextFactory.CreateDbContext();
-            var guildSettings = await dbContext.GuildSettings.FindOrCreateAsync(context.Guild.Id);
-
-            // Check user's rank
-            var userRank = GetUserRank(user, guildSettings);
-            if (userRank >= _rank)
-                return PreconditionResult.FromSuccess();
+            var member = (DiscordMember)ctx.User;
             
-            // Not permitted - find out the best error message.
-            if (_rank == GuildRank.Owner)
-            {
-                return PreconditionResult.FromError("Only the guild owner is permitted to run this command.");
-            }
-            else
-            {
-                var missingRank = GetRankName(_rank, context.Guild, guildSettings);
-                return PreconditionResult.FromError($"You must be {missingRank} to run this command.");
-            }
+            // Get guild settings
+            var dbContextFactory = ctx.Services.GetRequiredService<IDbContextFactory<UrfRidersDbContext>>();
+            await using var dbContext = dbContextFactory.CreateDbContext();
+            var guildSettings = await dbContext.GuildSettings.FindOrCreateAsync(ctx.Guild.Id, id => new GuildSettings(id));
+            
+            // Check user's rank
+            var memberRank = GetMemberRank(member, ctx.Channel, guildSettings);
+            return memberRank >= _rank;
         }
 
-        private static GuildRank GetUserRank(SocketGuildUser user, GuildSettings guildSettings)
+        /// <summary>
+        /// Figures out member's highest guild rank.
+        /// </summary>
+        private static GuildRank GetMemberRank(DiscordMember member, DiscordChannel channel, GuildSettings guildSettings)
         {
             var rank = GuildRank.Everyone;
-            if (UserHasRole(user, guildSettings.MemberRoleId) ?? true)
+            if (MemberHasRole(member, guildSettings.MemberRoleId) ?? true)
                 rank = GuildRank.Member;
-            if (UserHasRole(user, guildSettings.ModeratorRoleId) ?? user.GuildPermissions.ManageChannels)
+            if (MemberHasRole(member, guildSettings.ModeratorRoleId) ??
+                member.PermissionsIn(channel).HasPermission(Permissions.ManageChannels))
                 rank = GuildRank.Moderator;
-            if (UserHasRole(user, guildSettings.AdminRoleId) ?? user.GuildPermissions.Administrator)
+            if (MemberHasRole(member, guildSettings.AdminRoleId) ??
+                member.PermissionsIn(channel).HasPermission(Permissions.Administrator))
                 rank = GuildRank.Admin;
-            if (user.Guild.OwnerId == user.Id)
+            if (member.Guild.OwnerId == member.Id)
                 rank = GuildRank.Owner;
 
             return rank;
-        }
-
-        private static string GetRankName(GuildRank rank, IGuild guild, GuildSettings guildSettings)
-        {
-            return rank switch
-            {
-                GuildRank.Everyone   => "everyone",
-                GuildRank.Member     => GetRoleMention(guild, guildSettings.MemberRoleId) ?? "a member",
-                GuildRank.Moderator  => GetRoleMention(guild, guildSettings.ModeratorRoleId) ?? "a moderator",
-                GuildRank.Admin      => GetRoleMention(guild, guildSettings.AdminRoleId) ?? "an admin",
-                GuildRank.Owner      => "the guild owner",
-                _                    => throw new ArgumentOutOfRangeException(nameof(rank))
-            };
         }
 
         /// <summary>
@@ -91,20 +69,12 @@ namespace UrfRidersBot
         /// With this I can use the null coalescing operator (the double question mark).
         /// </para>
         /// </summary>
-        private static bool? UserHasRole(SocketGuildUser user, ulong? roleId)
+        private static bool? MemberHasRole(DiscordMember member, ulong? roleId)
         {
             if (roleId == null)
                 return null;
             
-            return user.Roles.Any(r => r.Id == roleId);
-        }
-
-        private static string? GetRoleMention(IGuild guild, ulong? roleId)
-        {
-            if (roleId == null)
-                return null;
-            
-            return guild.GetRole(roleId.Value)?.Mention;
+            return member.Roles.Any(r => r.Id == roleId);
         }
     }
 }

@@ -1,10 +1,8 @@
-﻿using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
+﻿using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace UrfRidersBot
 {
@@ -21,8 +19,7 @@ namespace UrfRidersBot
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services
-                .AddTransient<EmbedService>()
-                .AddTransient<HelpService>();
+                .AddSingleton<EmbedService>();
 
             services
                 .AddFetchableHostedService<InteractiveService>();
@@ -52,37 +49,20 @@ namespace UrfRidersBot
 
         public static IServiceCollection AddDiscord(this IServiceCollection services)
         {
-            var discordClient = new DiscordSocketClient(new DiscordSocketConfig
+
+            services.AddSingleton(provider =>
             {
-                AlwaysDownloadUsers = true,
-                GatewayIntents =
-                    GatewayIntents.Guilds |
-                    GatewayIntents.GuildMembers |
-                    GatewayIntents.GuildBans |
-                    GatewayIntents.GuildEmojis |
-                    GatewayIntents.GuildIntegrations |
-                    GatewayIntents.GuildWebhooks |
-                    GatewayIntents.GuildInvites |
-                    GatewayIntents.GuildVoiceStates |
-                    GatewayIntents.GuildPresences |
-                    GatewayIntents.GuildMessages |
-                    GatewayIntents.GuildMessageReactions |
-                    GatewayIntents.GuildMessageTyping |
-                    GatewayIntents.DirectMessages |
-                    GatewayIntents.DirectMessageReactions |
-                    GatewayIntents.DirectMessageTyping,
+                var secrets = provider.GetRequiredService<SecretsConfiguration>();
+                var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
+                
+                return new DiscordClient(new DiscordConfiguration
+                {
+                    Intents = DiscordIntents.All,
+                    TokenType = TokenType.Bot,
+                    Token = secrets.DiscordToken,
+                    LoggerFactory = loggerFactory,
+                });
             });
-
-            var commandService = new CommandService(new CommandServiceConfig
-            {
-                IgnoreExtraArgs = false,
-            });
-
-            services
-                .AddSingleton(discordClient)
-                .AddSingleton(commandService)
-                .AddSingleton<CommandHandlingService>();
-
             services.AddHostedService<DiscordService>();
 
             return services;

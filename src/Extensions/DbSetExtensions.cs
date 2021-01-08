@@ -1,32 +1,41 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace UrfRidersBot
 {
     public static class DbSetExtensions
     {
-        public static async ValueTask<GuildSettings> FindOrCreateAsync(this DbSet<GuildSettings> settings, ulong guildId)
+        public static async ValueTask<TEntity> FindOrCreateAsync<TEntity, TKey>(
+            this DbSet<TEntity> dbSet,
+            TKey key,
+            Func<TKey, TEntity> entityFactory)
+            where TEntity : class
         {
-            var result = await settings.FindAsync(guildId);
-            if (result == null)
+            var entity = await dbSet.FindAsync(key);
+            if (entity == null)
             {
-                result = new GuildSettings(guildId);
-                await settings.AddAsync(result);
+                entity = entityFactory(key);
+                await dbSet.AddAsync(entity);
             }
 
-            return result;
+            return entity;
         }
-        
-        public static GuildSettings FindOrCreate(this DbSet<GuildSettings> settings, ulong guildId)
+
+        public static TEntity FindOrCreate<TEntity, TKey>(
+            this DbSet<TEntity> dbSet,
+            TKey key,
+            Func<TKey, TEntity> entityFactory)
+            where TEntity : class
         {
-            var result = settings.Find(guildId);
-            if (result == null)
+            var entity = dbSet.Find(key);
+            if (entity == null)
             {
-                result = new GuildSettings(guildId);
-                settings.Add(result);
+                entity = entityFactory(key);
+                dbSet.Add(entity);
             }
 
-            return result;
+            return entity;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Discord.WebSocket;
+using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,7 +11,7 @@ namespace UrfRidersBot
 {
     public partial class InteractiveService
     {
-        private readonly DiscordSocketClient _client;
+        private readonly DiscordClient _client;
         private readonly IServiceProvider _provider;
         private readonly IDbContextFactory<UrfRidersDbContext> _dbContextFactory;
         private readonly ILogger<InteractiveService> _logger;
@@ -19,7 +19,7 @@ namespace UrfRidersBot
         private readonly Dictionary<ulong, IReactionHandler> _reactionHandlers;
 
         public InteractiveService(
-            DiscordSocketClient client,
+            DiscordClient client,
             IServiceProvider provider,
             IDbContextFactory<UrfRidersDbContext> dbContextFactory,
             ILogger<InteractiveService> logger)
