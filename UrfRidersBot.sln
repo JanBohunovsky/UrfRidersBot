@@ -9,6 +9,11 @@ EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot", "src\UrfRidersBot.csproj", "{F88304FC-7808-43D0-BE06-83206CDC3FD4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{6C34CCAE-2AF7-480F-B7ED-0F2C9E97139A}"
+ProjectSection(SolutionItems) = preProject
+	images\README.md = images\README.md
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,5 +24,8 @@ Global
 		{F88304FC-7808-43D0-BE06-83206CDC3FD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F88304FC-7808-43D0-BE06-83206CDC3FD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F88304FC-7808-43D0-BE06-83206CDC3FD4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6C34CCAE-2AF7-480F-B7ED-0F2C9E97139A} = {ECB61294-EDBC-4638-B3C1-5B59530D9566}
 	EndGlobalSection
 EndGlobal
