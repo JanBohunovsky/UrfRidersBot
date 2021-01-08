@@ -6,7 +6,7 @@ TODO
 This application uses `appsettings.json` (including environment versions) to get the configuration.
 
 Example configuration:  
-```json
+```json5
 {
     "Bot": {
         "Name": "Official UrfRiders Bot",
