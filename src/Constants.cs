@@ -32,14 +32,14 @@ namespace UrfRidersBot
 
     public static class UrfRidersIcon
     {
-        // TODO: Move these to Github repo: UrfRidersBot/images
-        public static readonly string Checkmark = "https://cdn.discordapp.com/attachments/717788228899307551/791314528280641546/icons8-checkmark-96.png";
-        public static readonly string Ok = "https://cdn.discordapp.com/attachments/717788228899307551/791314535780450344/icons8-ok-96.png";
-        public static readonly string Error = "https://cdn.discordapp.com/attachments/717788228899307551/791314543917006928/icons8-error-96.png";
-        public static readonly string HighPriority = "https://cdn.discordapp.com/attachments/717788228899307551/791314550561570876/icons8-high-priority-96.png";
-        public static readonly string Checked = "https://cdn.discordapp.com/attachments/717788228899307551/791314567954563122/icons8-checked-96.png";
-        public static readonly string Cancel = "https://cdn.discordapp.com/attachments/717788228899307551/791314575093268520/icons8-cancel-96.png";
-        public static readonly string Unavailable = "https://cdn.discordapp.com/attachments/717788228899307551/791314583591059466/icons8-unavailable-96.png";
-        public static readonly string Delete = "https://cdn.discordapp.com/attachments/717788228899307551/791314591657099274/icons8-delete-96.png";
+        // TODO: Remember to update the URLs when merging into master
+        public static readonly string Checkmark = "https://raw.githubusercontent.com/JanBohunovsky/UrfRidersBot/v2.0/images/checkmark.png";
+        public static readonly string Ok = "https://raw.githubusercontent.com/JanBohunovsky/UrfRidersBot/v2.0/images/ok.png";
+        public static readonly string Error = "https://raw.githubusercontent.com/JanBohunovsky/UrfRidersBot/v2.0/images/error.png";
+        public static readonly string HighPriority = "https://raw.githubusercontent.com/JanBohunovsky/UrfRidersBot/v2.0/images/high_priority.png";
+        public static readonly string Checked = "https://raw.githubusercontent.com/JanBohunovsky/UrfRidersBot/v2.0/images/checked.png";
+        public static readonly string Cancel = "https://raw.githubusercontent.com/JanBohunovsky/UrfRidersBot/v2.0/images/cancel.png";
+        public static readonly string Unavailable = "https://raw.githubusercontent.com/JanBohunovsky/UrfRidersBot/v2.0/images/unavailable.png";
+        public static readonly string Delete = "https://raw.githubusercontent.com/JanBohunovsky/UrfRidersBot/v2.0/images/delete.png";
     }
 }
