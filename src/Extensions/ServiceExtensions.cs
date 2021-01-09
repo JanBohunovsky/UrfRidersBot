@@ -16,6 +16,14 @@ namespace UrfRidersBot
                 .AddHostedService(provider => provider.GetRequiredService<TService>());
         }
 
+        public static IServiceCollection AddOnReadyService<TService>(this IServiceCollection services)
+            where TService : class, IOnReadyService
+        {
+            return services
+                .AddSingleton<TService>()
+                .AddSingleton<IOnReadyService>(provider => provider.GetRequiredService<TService>());
+        }
+
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services
@@ -31,7 +39,7 @@ namespace UrfRidersBot
         {
             return services
                 .AddSingleton<BotConfiguration>()
-                .AddSingleton<EmoteConfiguration>()
+                .AddOnReadyService<EmoteConfiguration>()
                 .AddSingleton<SecretsConfiguration>();
         }
 
@@ -55,13 +63,16 @@ namespace UrfRidersBot
                 var secrets = provider.GetRequiredService<SecretsConfiguration>();
                 var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
                 
-                return new DiscordClient(new DiscordConfiguration
+                var client = new DiscordClient(new DiscordConfiguration
                 {
                     Intents = DiscordIntents.All,
                     TokenType = TokenType.Bot,
                     Token = secrets.DiscordToken,
                     LoggerFactory = loggerFactory,
+                    AlwaysCacheMembers = true
                 });
+
+                return client;
             });
             services.AddHostedService<DiscordService>();
 

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace UrfRidersBot
@@ -28,6 +31,20 @@ namespace UrfRidersBot
             {
                 return message.GetStringPrefixLength(guildSettings.CustomPrefix, StringComparison.OrdinalIgnoreCase);
             }
+        }
+
+        private async Task OnGuildDownloadCompleted(DiscordClient sender, GuildDownloadCompletedEventArgs e)
+        {
+            _client.GuildDownloadCompleted -= OnGuildDownloadCompleted;
+            
+            // This is the "true" Ready event, this will contain all the information in guilds
+            foreach (var service in _provider.GetServices<IOnReadyService>())
+            {
+                await service.OnReady(sender);
+            }
+
+            // Add interactivity extensions (now we have all the emotes loaded)
+            ConfigureInteractivity();
         }
 
         private async Task OnCommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)

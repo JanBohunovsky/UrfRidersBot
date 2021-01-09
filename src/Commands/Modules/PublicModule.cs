@@ -21,20 +21,19 @@ namespace UrfRidersBot
         {
             var embed = EmbedService
                 .CreateBotInfo()
-                .AddField("WebSocket", $"{ctx.Client.Ping} ms", true);
+                .AddField("WS Latency", $"{ctx.Client.Ping} ms", true);
 
             var stopwatch = Stopwatch.StartNew();
             var message = await ctx.RespondAsync(embed.Build());
             stopwatch.Stop();
 
-            embed.AddField("Response", $"{stopwatch.ElapsedMilliseconds} ms", true);
+            embed.AddField("Response Time", $"{stopwatch.ElapsedMilliseconds} ms", true);
             await message.ModifyAsync(embed.Build());
         }
         
-        [Command("ask")]
-        [Aliases("yn", "question")]
+        [Command("ask"), Aliases("yn", "question")]
         [Description("Ask a question! This will send a message with your question and with two reactions to respond 'yes' or 'no'.")]
-        public async Task Ask(CommandContext ctx, [RemainingText][Description("Your question to other users.")] string question)
+        public async Task Ask(CommandContext ctx, [RemainingText, Description("Your question to other users.")] string question)
         {
             // TODO: Use interactive service here
             var sb = new StringBuilder();

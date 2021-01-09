@@ -1,52 +1,63 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
 
 namespace UrfRidersBot
 {
-    public class EmoteConfiguration : BaseConfiguration
+    public class EmoteConfiguration : BaseConfiguration, IOnReadyService
     {
-        private readonly DiscordClient _client;
         private readonly IConfigurationSection _rawEmotes;
-        
-        // System.Lazy seems like the best solutions here.
-        // ctor: Doesn't work because class gets initialized before the client even starts.
-        // DiscordClient.Ready event: Doesn't work because the client didn't download any guild data.
-        // One more suggestion is to use some kind of initialization method that will be called on BaseCommandModule.BeforeExecutionAsync,
-        // but this leaves the work on the module which I don't want.
-        private readonly Lazy<DiscordEmoji> _yes;
-        private readonly Lazy<DiscordEmoji> _no;
 
-        public DiscordEmoji Yes => _yes.Value;
-        public DiscordEmoji No => _no.Value;
+        public DiscordEmoji Yes { get; private set; }
+        public DiscordEmoji No { get; private set; }
+        public DiscordEmoji SkipLeft { get; private set; }
+        public DiscordEmoji Left { get; private set; }
+        public DiscordEmoji Right { get; private set; }
+        public DiscordEmoji SkipRight { get; private set; }
+        public DiscordEmoji Stop { get; private set; }
 
-        public EmoteConfiguration(DiscordClient client, IConfiguration configuration)
+        public EmoteConfiguration(IConfiguration configuration)
         {
-            _client = client;
             _rawEmotes = configuration.GetSection("Emotes");
-
-            _yes = CreateLazyEmote(nameof(Yes), ":white_check_mark:");
-            _no = CreateLazyEmote(nameof(No), ":x:");
+            
+            // Default emotes
+            Yes = DiscordEmoji.FromUnicode("✅");
+            No = DiscordEmoji.FromUnicode("❌");
+            SkipLeft = DiscordEmoji.FromUnicode("⏮");
+            Left = DiscordEmoji.FromUnicode("◀");
+            Right = DiscordEmoji.FromUnicode("▶");
+            SkipRight = DiscordEmoji.FromUnicode("⏭");
+            Stop = DiscordEmoji.FromUnicode("⏹");
         }
 
-        private Lazy<DiscordEmoji> CreateLazyEmote(string propertyName, string defaultEmoteName) =>
-            new(() => ParseEmote(_client, _rawEmotes[propertyName], defaultEmoteName));
+        public Task OnReady(DiscordClient client)
+        {
+            // Load custom emotes
+            Yes = ParseEmote(client, _rawEmotes[nameof(Yes)]) ?? Yes;
+            No = ParseEmote(client, _rawEmotes[nameof(No)]) ?? No;
+            SkipLeft = ParseEmote(client, _rawEmotes[nameof(Right)]) ?? SkipLeft;
+            Left = ParseEmote(client, _rawEmotes[nameof(Right)]) ?? Left;
+            Right = ParseEmote(client, _rawEmotes[nameof(Right)]) ?? Right;
+            SkipRight = ParseEmote(client, _rawEmotes[nameof(Right)]) ?? SkipRight;
+            Stop = ParseEmote(client, _rawEmotes[nameof(Right)]) ?? Stop;
+            
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         /// Creates a new <see cref="DiscordEmoji"/> from either emote name (e.g. :thinking:) or a guild emote ID.
-        /// <para>
-        /// If <see cref="rawValue"/> is null, then <see cref="defaultEmoteName"/> is used.
-        /// </para>
         /// </summary>
         /// <param name="client"></param>
         /// <param name="rawValue">Raw value from configuration, can be <see cref="string"/> or <see cref="ulong"/>.</param>
-        /// <param name="defaultEmoteName">Fallback emote name if <see cref="rawValue"/> is null.</param>
-        private static DiscordEmoji ParseEmote(DiscordClient client, string? rawValue, string defaultEmoteName)
+        private static DiscordEmoji? ParseEmote(DiscordClient client, string? rawValue)
         {
+            // If there is no emote configured -> return null
             if (rawValue == null)
-                return DiscordEmoji.FromName(client, defaultEmoteName);
+                return null;
             
+            // If there is -> try to parse it (either by id or name), this can fail (key not found or name not found),
+            // but that's ok, I want that.
             if (ulong.TryParse(rawValue, out ulong emoteId))
             {
                 return DiscordEmoji.FromGuildEmote(client, emoteId);

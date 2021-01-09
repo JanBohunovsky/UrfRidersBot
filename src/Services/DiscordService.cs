@@ -4,6 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -13,15 +16,17 @@ namespace UrfRidersBot
     public partial class DiscordService : IHostedService
     {
         private readonly DiscordClient _client;
-        private readonly CommandsNextExtension _commands;
         private readonly BotConfiguration _botConfig;
+        private readonly EmoteConfiguration _emotes;
         private readonly EmbedService _embedService;
         private readonly IDbContextFactory<UrfRidersDbContext> _dbContextFactory;
         private readonly ILogger<DiscordService> _logger;
+        private readonly IServiceProvider _provider;
 
         public DiscordService(
             DiscordClient client,
             BotConfiguration botConfig,
+            EmoteConfiguration emotes,
             EmbedService embedService,
             IDbContextFactory<UrfRidersDbContext> dbContextFactory,
             ILogger<DiscordService> logger,
@@ -29,26 +34,19 @@ namespace UrfRidersBot
         {
             _client = client;
             _botConfig = botConfig;
+            _emotes = emotes;
             _embedService = embedService;
             _dbContextFactory = dbContextFactory;
             _logger = logger;
-
-            _commands = _client.UseCommandsNext(new CommandsNextConfiguration
-            {
-                EnableDms = false,
-                EnableMentionPrefix = true,
-                Services = provider,
-                PrefixResolver = PrefixResolver
-            });
+            _provider = provider;
             
-            _commands.SetHelpFormatter<UrfRidersHelpFormatter>();
-            _commands.CommandErrored += OnCommandErrored;
+            _client.GuildDownloadCompleted += OnGuildDownloadCompleted;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             // Add command modules to discord
-            _commands.RegisterCommands(Assembly.GetEntryAssembly());
+            ConfigureCommandsNext();
             
             // Make sure the database is on the latest migration
             await using (var dbContext = _dbContextFactory.CreateDbContext())
@@ -65,7 +63,41 @@ namespace UrfRidersBot
         {
             await _client.DisconnectAsync();
 
-            _commands.CommandErrored -= OnCommandErrored;
+            _client.GetCommandsNext().CommandErrored -= OnCommandErrored;
+        }
+        
+        private void ConfigureCommandsNext()
+        {
+            var commands = _client.UseCommandsNext(new CommandsNextConfiguration
+            {
+                EnableDms = false,
+                EnableMentionPrefix = true,
+                Services = _provider,
+                PrefixResolver = PrefixResolver
+            });
+            
+            commands.SetHelpFormatter<UrfRidersHelpFormatter>();
+            commands.RegisterCommands(Assembly.GetEntryAssembly());
+            
+            commands.CommandErrored += OnCommandErrored;
+        }
+        
+        private void ConfigureInteractivity()
+        {
+            _client.UseInteractivity(new InteractivityConfiguration
+            {
+                PollBehaviour = PollBehaviour.DeleteEmojis,
+                PaginationBehaviour = PaginationBehaviour.WrapAround,
+                PaginationDeletion = PaginationDeletion.DeleteEmojis,
+                PaginationEmojis = new PaginationEmojis
+                {
+                    SkipLeft = _emotes.SkipLeft,
+                    Left = _emotes.Left,
+                    Right = _emotes.Right,
+                    SkipRight = _emotes.SkipRight,
+                    Stop = _emotes.Stop,
+                }
+            });
         }
     }
 }
