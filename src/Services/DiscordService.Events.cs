@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -6,6 +7,7 @@ using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace UrfRidersBot
@@ -44,7 +46,7 @@ namespace UrfRidersBot
             }
 
             // Add interactivity extensions (now we have all the emotes loaded)
-            ConfigureInteractivity();
+            RegisterInteractivity();
         }
 
         private async Task OnCommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
@@ -55,39 +57,102 @@ namespace UrfRidersBot
                 e.Context.User,
                 e.Command?.QualifiedName ?? "unknown command"
             );
-            
-            // Application exception has occured
-            if (e.Exception.InnerException != null)
-            {
-                // Log it at higher level
-                _logger.LogError(
-                    e.Exception.InnerException,
-                    "An exception has occured while executing '{command}' invoked by {user}.",
-                    e.Command?.QualifiedName ?? "unknown command",
-                    e.Context.User
-                );
-                
-                // Send user information message that something went wrong
-                var embed = _embedService.CreateCriticalError("An exception has occured.");
-                await e.Context.RespondAsync(embed.Build());
 
-                // Don't do anything else
-                return;
-            }
-            
-            // Check permissions and let the user know if they dont have them
-            if (e.Exception is ChecksFailedException)
+            DiscordEmbedBuilder? embed;
+            switch (e.Exception)
             {
-                var embed = new DiscordEmbedBuilder
-                {
-                    Color = UrfRidersColor.Red,
-                    Author = new DiscordEmbedBuilder.EmbedAuthor
+                // User does not have required permission
+                case ChecksFailedException:
+                    embed = new DiscordEmbedBuilder
                     {
-                        Name = "Access denied",
-                        IconUrl = UrfRidersIcon.Unavailable,
-                    },
-                    Description = "You do not have the permissions required to execute this command.",
-                };
+                        Color = UrfRidersColor.Red,
+                        Author = new DiscordEmbedBuilder.EmbedAuthor
+                        {
+                            Name = "Access denied",
+                            IconUrl = UrfRidersIcon.Unavailable,
+                        },
+                        Description = "You do not have the permissions required to execute this command.",
+                    };
+                    break;
+                
+                // User got the command arguments wrong (wrong type, missing, extra, etc.)
+                case ArgumentException argumentException:
+                    var help = new UrfRidersHelpFormatter(e.Context)
+                        .WithCommand(e.Command)
+                        .Build();
+                    
+                    // Show as error with extra info from help
+                    embed = new DiscordEmbedBuilder(help.Embed)
+                    {
+                        Title = null,
+                        Color = UrfRidersColor.Yellow,
+                        Author = new DiscordEmbedBuilder.EmbedAuthor
+                        {
+                            Name = "Error",
+                            IconUrl = UrfRidersIcon.Error,
+                        },
+                        Description = argumentException.Message,
+                    };
+                    break;
+                
+                // User is dumb (in some cases this can be an actual system exception tho...)
+                case InvalidOperationException invalidOperationException:
+                    embed = _embedService.CreateError(invalidOperationException.Message);
+                    break;
+                
+                // We do not care about these exceptions
+                case CommandNotFoundException:
+                    embed = null;
+                    break;
+                
+                // Unhandled case -> probably application exception
+                default:
+                    // Log it at higher level
+                    _logger.LogError(
+                        e.Exception,
+                        "An exception has occured while executing '{command}' invoked by {user}.",
+                        e.Command?.QualifiedName ?? "unknown command",
+                        e.Context.User
+                    );
+
+                    embed = _embedService.CreateCriticalError("An exception has occured.");
+
+                    // Send the bot owner a message (if he's in this guild)
+                    var owner = await e.Context.Guild.GetMemberAsync(e.Context.Client.CurrentApplication.Owners.First().Id);
+                    if (owner != null && _environment.IsProduction())
+                    {
+                        embed.WithFooter("The bot owner has been notified.");
+
+                        var reportEmbed = new DiscordEmbedBuilder
+                        {
+                            Color = UrfRidersColor.Red,
+                            Author = new DiscordEmbedBuilder.EmbedAuthor
+                            {
+                                Name = "An exception has occured",
+                                IconUrl = UrfRidersIcon.HighPriority,
+                            },
+                            Description = $"Here is the [message]({e.Context.Message.JumpLink}) that caused the exception, " +
+                                          $"check logs for the actual exception.",
+                            Footer = new DiscordEmbedBuilder.EmbedFooter
+                            {
+                                Text = $"{e.Context.User.Username}#{e.Context.User.Discriminator}",
+                                IconUrl = e.Context.User.GetAvatarUrl(ImageFormat.Auto),
+                            },
+                            Timestamp = e.Context.Message.Timestamp,
+                        };
+
+                        reportEmbed
+                            .AddField("Guild", e.Context.Guild.Name, true)
+                            .AddField("Channel", e.Context.Channel.Name, true)
+                            .AddField("Message", e.Context.Message.Content.ToCode(), true);
+
+                        await owner.SendMessageAsync(reportEmbed.Build());
+                    }
+                    break;
+            }
+
+            if (embed != null)
+            {
                 await e.Context.RespondAsync(embed.Build());
             }
         }

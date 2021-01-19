@@ -21,6 +21,7 @@ namespace UrfRidersBot
         private readonly EmbedService _embedService;
         private readonly IDbContextFactory<UrfRidersDbContext> _dbContextFactory;
         private readonly ILogger<DiscordService> _logger;
+        private readonly IHostEnvironment _environment;
         private readonly IServiceProvider _provider;
 
         public DiscordService(
@@ -30,6 +31,7 @@ namespace UrfRidersBot
             EmbedService embedService,
             IDbContextFactory<UrfRidersDbContext> dbContextFactory,
             ILogger<DiscordService> logger,
+            IHostEnvironment environment,
             IServiceProvider provider)
         {
             _client = client;
@@ -39,14 +41,14 @@ namespace UrfRidersBot
             _dbContextFactory = dbContextFactory;
             _logger = logger;
             _provider = provider;
-            
+            _environment = environment;
+
             _client.GuildDownloadCompleted += OnGuildDownloadCompleted;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            // Add command modules to discord
-            ConfigureCommandsNext();
+            RegisterCommands();
             
             // Make sure the database is on the latest migration
             await using (var dbContext = _dbContextFactory.CreateDbContext())
@@ -66,14 +68,14 @@ namespace UrfRidersBot
             _client.GetCommandsNext().CommandErrored -= OnCommandErrored;
         }
         
-        private void ConfigureCommandsNext()
+        private void RegisterCommands()
         {
             var commands = _client.UseCommandsNext(new CommandsNextConfiguration
             {
                 EnableDms = false,
                 EnableMentionPrefix = true,
                 Services = _provider,
-                PrefixResolver = PrefixResolver
+                PrefixResolver = PrefixResolver,
             });
             
             commands.SetHelpFormatter<UrfRidersHelpFormatter>();
@@ -82,7 +84,7 @@ namespace UrfRidersBot
             commands.CommandErrored += OnCommandErrored;
         }
         
-        private void ConfigureInteractivity()
+        private void RegisterInteractivity()
         {
             _client.UseInteractivity(new InteractivityConfiguration
             {

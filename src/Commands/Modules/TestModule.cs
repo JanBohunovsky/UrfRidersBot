@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -18,9 +17,11 @@ namespace UrfRidersBot
 
         [Command("exception")]
         [Description("This command will throw an exception.")]
-        public Task Exception(CommandContext ctx)
+        public async Task Exception(CommandContext ctx)
         {
-            throw new NotImplementedException();
+            DiscordEmbedBuilder embed = null!;
+            
+            await ctx.RespondAsync($"Test: {embed.Title}");
         }
 
         [Command("success")]
@@ -45,9 +46,10 @@ namespace UrfRidersBot
             {
                 Color = UrfRidersColor.Cyan,
                 Title = "Hello world!",
+                Description = ":wave:",
             };
             
-            await ctx.RespondAsync(":wave:", embed.Build());
+            await ctx.RespondAsync(embed.Build());
         }
 
         [Group("reactionTracker")]
