@@ -30,7 +30,8 @@ namespace UrfRidersBot
                 .AddSingleton<EmbedService>();
 
             services
-                .AddFetchableHostedService<InteractiveService>();
+                .AddFetchableHostedService<InteractiveService>()
+                .AddFetchableHostedService<AutoVoiceService>();
 
             return services;
         }
@@ -69,7 +70,7 @@ namespace UrfRidersBot
                     TokenType = TokenType.Bot,
                     Token = secrets.DiscordToken,
                     LoggerFactory = loggerFactory,
-                    AlwaysCacheMembers = true
+                    AlwaysCacheMembers = true,
                 });
 
                 return client;
