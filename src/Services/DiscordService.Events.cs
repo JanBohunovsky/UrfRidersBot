@@ -53,7 +53,7 @@ namespace UrfRidersBot
         {
             _logger.LogInformation(
                 e.Exception,
-                "{user} tried executing '{command}' but it errored:",
+                "{User} tried executing '{Command}' but it errored:",
                 e.Context.User,
                 e.Command?.QualifiedName ?? "unknown command"
             );
@@ -110,7 +110,7 @@ namespace UrfRidersBot
                     // Log it at higher level
                     _logger.LogError(
                         e.Exception,
-                        "An exception has occured while executing '{command}' invoked by {user}.",
+                        "An exception has occured while executing '{Command}' invoked by {User}",
                         e.Command?.QualifiedName ?? "unknown command",
                         e.Context.User
                     );

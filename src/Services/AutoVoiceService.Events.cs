@@ -144,17 +144,17 @@ namespace UrfRidersBot
             // User has joined one of my voice channels
             if (e.After?.Channel != null && _voiceChannels[e.Guild.Id].Contains(e.After.Channel.Id))
             {
-                await OnUserJoin(e.After.Channel, e.User);
+                await OnUserJoin(e.After.Channel);
             }
             
             // User has left one of my voice channels
             if (e.Before?.Channel != null && _voiceChannels[e.Guild.Id].Contains(e.Before.Channel.Id))
             {
-                await OnUserLeft(e.Before.Channel, e.User);
+                await OnUserLeft(e.Before.Channel);
             }
         }
 
-        private async Task OnUserJoin(DiscordChannel voiceChannel, DiscordUser user)
+        private async Task OnUserJoin(DiscordChannel voiceChannel)
         {
             // User has joined the last voice channel -> Create new one
             if (_voiceChannels[voiceChannel.GuildId].Last() == voiceChannel.Id)
@@ -165,8 +165,9 @@ namespace UrfRidersBot
             UpdateChannelName(voiceChannel);
         }
 
-        private async Task OnUserLeft(DiscordChannel voiceChannel, DiscordUser user)
+        private async Task OnUserLeft(DiscordChannel voiceChannel)
         {
+            // All users left the channel -> Delete it
             if (!voiceChannel.Users.Any())
             {
                 await DeleteVoiceChannel(voiceChannel.Guild, voiceChannel.Id);
@@ -179,6 +180,16 @@ namespace UrfRidersBot
 
         private void UpdateChannelName(DiscordChannel voiceChannel)
         {
+            // TODO: Add delay:
+            // 2 methods: UpdateChannelName & DelayUpdateChannelName (temp name)
+            // UpdateChannelName will stay the same as it currently is.
+            // DelayUpdateChannelName will require a List (list or dictionary) of voice channels and update times:
+            //  1. Check if the channel is in the List
+            //    True - do nothing
+            //    False - create a new DateTimeOffset by getting the current time and adding a Delay to it and add those values to the List
+            //          - Delay: 5 minutes is the safest, this should never hit the rate limit but it will be less responsive
+            //                   3 minutes look like the best number, it should be responsive enough while not hitting many rate limits
+            
             var name = GetChannelName(voiceChannel);
             
             if (voiceChannel.Name != name)
