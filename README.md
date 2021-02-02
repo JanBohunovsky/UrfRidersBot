@@ -1,8 +1,6 @@
-![build](https://github.com/JanBohunovsky/UrfRidersBot/workflows/build/badge.svg?branch=v2.0)
+![build](https://github.com/JanBohunovsky/UrfRidersBot/workflows/build/badge.svg?branch=master)
 
 # Configuration
-TODO
-
 This application uses `appsettings.json` (including environment versions) to get the configuration.
 
 Example configuration:  
@@ -13,7 +11,7 @@ Example configuration:
         "Prefix": "!"
     },
     "Emotes": {
-        // You can define emotes either by their name, or the guild emote's ID.
+        // You can define emotes either by their name, or the guild emote ID.
         "Yes": 791318099311329280,
         "No": ":no_entry_sign:"
     },
@@ -35,8 +33,25 @@ To see more configuration options, check the [configuration models](/src/Configu
 
 
 # Changelog
-## 2.0
-TODO
+## 2.0.0
+- Moved to [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus)
+- This version was made from scratch. Some features from previous versions may be missing.
+- Now uses [.NET Generic Host](https://docs.microsoft.com/en-us/dotnet/core/extensions/generic-host).
+- Added help command to list all available commands (thanks to DSharpPlus).
+
+### Improved Auto Voice
+- Changed the name of last/new voice channel to be more clear (now called `➕ New Voice Channel`).
+- The channel name now gets updated when users change their activity instead of every 5 seconds.
+
+### Improved Settings
+- Settings commands are now implemented manually.
+  - This means that for every new setting added, we need to add a new command.
+  - This decision has been made to support argument parsing (i.e. if you're setting a role, you can just mention it instead of posting its ID).
+
+### New public command
+- `ask <question>`
+  - This will post an embed with user's question and with two reactions (yes and no).
+  - Mentioned roles are separated from the embed's content (so they will get pinged).
 
 ## 1.4
 ### Added README
