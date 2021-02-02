@@ -1,4 +1,4 @@
-![build](https://github.com/JanBohunovsky/UrfRidersBot/workflows/build/badge.svg?branch=master)
+![build](https://github.com/JanBohunovsky/UrfRidersBot/workflows/build/badge.svg)
 
 # Configuration
 This application uses `appsettings.json` (including environment versions) to get the configuration.
