@@ -6,6 +6,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using UrfRidersBot.Data;
 
 namespace UrfRidersBot.Discord
 {

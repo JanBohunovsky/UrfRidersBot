@@ -4,6 +4,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using UrfRidersBot.Data;
 using UrfRidersBot.Discord.Interactive;
 
 namespace UrfRidersBot.Discord.Commands.Modules

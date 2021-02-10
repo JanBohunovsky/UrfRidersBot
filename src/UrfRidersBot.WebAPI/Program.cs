@@ -39,7 +39,7 @@ namespace UrfRidersBot.WebAPI
                         };
 
                         logger.WriteTo.PostgreSQL(
-                            context.Configuration.GetConnectionString("Postgres"),
+                            context.Configuration.GetConnectionString("UrfRidersData"),
                             "log",
                             columnWriters,
                             useCopy: false,

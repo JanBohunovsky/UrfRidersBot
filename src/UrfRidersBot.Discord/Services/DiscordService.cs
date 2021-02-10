@@ -10,6 +10,7 @@ using DSharpPlus.Interactivity.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using UrfRidersBot.Data;
 using UrfRidersBot.Discord.Commands;
 using DiscordConfiguration = UrfRidersBot.Discord.Configuration.DiscordConfiguration;
 

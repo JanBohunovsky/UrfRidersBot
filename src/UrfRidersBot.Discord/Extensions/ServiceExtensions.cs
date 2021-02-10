@@ -1,5 +1,4 @@
 ﻿using DSharpPlus;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -20,23 +19,13 @@ namespace UrfRidersBot.Discord
                 .AddHostedService(provider => (TImplementation)provider.GetRequiredService<TService>());
         }
 
-        public static IServiceCollection AddDiscord(this IServiceCollection services, string connectionString)
+        public static IServiceCollection AddDiscordBot(this IServiceCollection services)
         {
             // Configuration
             services
                 .AddSingleton<DiscordConfiguration>()
                 // .AddOnReadyService<EmoteConfiguration>()
                 .AddSingleton<RiotGamesConfiguration>();
-            
-            
-            // Entity Framework
-            services.AddDbContext<UrfRidersDbContext>(
-                options => options.UseNpgsql(connectionString),
-                ServiceLifetime.Transient,
-                ServiceLifetime.Transient
-            );
-            services.AddDbContextFactory<UrfRidersDbContext>(options => options.UseNpgsql(connectionString));
-            
             
             // Project services
             services

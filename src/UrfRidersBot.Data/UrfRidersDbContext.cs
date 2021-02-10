@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace UrfRidersBot.Discord
+namespace UrfRidersBot.Data
 {
     public class UrfRidersDbContext : DbContext
     {

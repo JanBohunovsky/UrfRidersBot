@@ -17,10 +17,20 @@
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }
         },
-        "UrfRidersBot.WebAPI": {
+        "UrfRidersBot (WebAPI)": {
             "commandName": "Project",
             "dotnetRunMessages": "true",
             "launchBrowser": true,
+            "launchUrl": "swagger",
+            "applicationUrl": "https://localhost:5001;http://localhost:5000",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        "UrfRidersBot (Discord)": {
+            "commandName": "Project",
+            "dotnetRunMessages": "true",
+            "launchBrowser": false,
             "launchUrl": "swagger",
             "applicationUrl": "https://localhost:5001;http://localhost:5000",
             "environmentVariables": {

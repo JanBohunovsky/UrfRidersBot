@@ -5,6 +5,7 @@ using DSharpPlus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using UrfRidersBot.Data;
 
 namespace UrfRidersBot.Discord.Interactive
 {
