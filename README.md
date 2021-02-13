@@ -1,44 +1,41 @@
 ![build](https://github.com/JanBohunovsky/UrfRidersBot/workflows/build/badge.svg)
 
 # Configuration
-This application uses `appsettings.json` (including environment versions) to get the configuration.
-
 Example configuration:  
 ```json5
 {
-    "Bot": {
-        "Name": "Official UrfRiders Bot",
-        "Prefix": "!"
+    "Discord": {
+        "Prefix": "!",
+        "Token": "...",
+        "ClientId": "...",
+        "ClientSecret": "..."
     },
-    "Emotes": {
-        // You can define emotes either by their name, or the guild emote ID.
-        "Yes": 791318099311329280,
-        "No": ":no_entry_sign:"
+    "RiotGames": {
+        "ApiKey": "..."
     },
     "Serilog": {
         "MinimumLevel": {
             "Default": "Warning"
         }
     },
-    "Secrets": {
-        "DiscordToken": "...",
-        "RiotApiKey": "..."
-    },
     "ConnectionStrings": {
-        "Postgres": "..."
+        "UrfRidersData": "<postgres connection string>"
     }
 }
 ```
-To see more configuration options, check the [configuration models](/src/Configuration) or the included [appsettings.json file](/src/appsettings.json).
+To see more configuration options, check the [configuration models](/src/UrfRidersBot.Discord/Configuration).
 
 
 # Changelog
 ## 2.0.0
-- Moved to [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus)
 - This version was made from scratch. Some features from previous versions may be missing.
-- Now uses [.NET Generic Host](https://docs.microsoft.com/en-us/dotnet/core/extensions/generic-host).
 - Added help command to list all available commands (thanks to DSharpPlus).
 
+### Backend
+- Changed discord wrapper library to [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus).
+- No longer a console application, now it's hosted inside ASP.NET Web API project.
+  - This will allow me to create endpoints that can control the bot.
+  
 ### Improved Auto Voice
 - Changed the name of last/new voice channel to be more clear (now called `➕ New Voice Channel`).
 - The channel name now gets updated when users change their activity instead of every 5 seconds.

@@ -7,12 +7,16 @@ ProjectSection(SolutionItems) = preProject
 	README.md = README.md
 EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot", "src\UrfRidersBot.csproj", "{F88304FC-7808-43D0-BE06-83206CDC3FD4}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{6C34CCAE-2AF7-480F-B7ED-0F2C9E97139A}"
 ProjectSection(SolutionItems) = preProject
 	images\README.md = images\README.md
 EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.Discord", "src\UrfRidersBot.Discord\UrfRidersBot.Discord.csproj", "{8CC0D8BF-3412-4C17-A7C3-CFA6548B905F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.WebAPI", "src\UrfRidersBot.WebAPI\UrfRidersBot.WebAPI.csproj", "{938AA5D9-0C51-4A5C-BB1F-8B02F1B3C819}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.Data", "src\UrfRidersBot.Data\UrfRidersBot.Data.csproj", "{68282DF9-C3DD-4A6C-A9D6-774C360A713F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,10 +24,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F88304FC-7808-43D0-BE06-83206CDC3FD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F88304FC-7808-43D0-BE06-83206CDC3FD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F88304FC-7808-43D0-BE06-83206CDC3FD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F88304FC-7808-43D0-BE06-83206CDC3FD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CC0D8BF-3412-4C17-A7C3-CFA6548B905F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CC0D8BF-3412-4C17-A7C3-CFA6548B905F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CC0D8BF-3412-4C17-A7C3-CFA6548B905F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CC0D8BF-3412-4C17-A7C3-CFA6548B905F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{938AA5D9-0C51-4A5C-BB1F-8B02F1B3C819}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{938AA5D9-0C51-4A5C-BB1F-8B02F1B3C819}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{938AA5D9-0C51-4A5C-BB1F-8B02F1B3C819}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{938AA5D9-0C51-4A5C-BB1F-8B02F1B3C819}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68282DF9-C3DD-4A6C-A9D6-774C360A713F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68282DF9-C3DD-4A6C-A9D6-774C360A713F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68282DF9-C3DD-4A6C-A9D6-774C360A713F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68282DF9-C3DD-4A6C-A9D6-774C360A713F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6C34CCAE-2AF7-480F-B7ED-0F2C9E97139A} = {ECB61294-EDBC-4638-B3C1-5B59530D9566}
