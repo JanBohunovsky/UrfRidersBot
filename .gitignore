@@ -5,6 +5,7 @@
 
 # Custom
 .idea/
+out/
 config.json
 appsettings.*.json
 
