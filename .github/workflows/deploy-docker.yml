@@ -13,8 +13,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag $image
+    - name: Build solution
+      run: dotnet publish -c Release -o out
+    - name: Build Docker image
+      run: docker build -t $image .
     - name: Run the Docker image
       run: |
         docker run \
