@@ -20,6 +20,6 @@ jobs:
     - name: Run the Docker image
       run: docker run $image \
         -p 80:80 \
-        --env Discord__Token='${{ DISCORD_TOKEN }}' \
-        --env RiotGames__ApiKey='${{ RIOT_GAMES_API_KEY }}' \
-        --env ConnectionStrings__UrfRidersData='${{ CONNECTION_STRING }}'
+        --env Discord__Token='${{ secrets.DISCORD_TOKEN }}' \
+        --env RiotGames__ApiKey='${{ secrets.RIOT_GAMES_API_KEY }}' \
+        --env ConnectionStrings__UrfRidersData='${{ secrets.CONNECTION_STRING }}'
