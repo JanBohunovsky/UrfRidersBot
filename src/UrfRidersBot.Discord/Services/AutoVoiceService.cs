@@ -116,7 +116,10 @@ namespace UrfRidersBot.Discord
             
             // Then delete it from discord
             var voiceChannel = guild.GetChannel(voiceChannelId);
-            await voiceChannel.DeleteAsync();
+            if (voiceChannel != null)
+            {
+                await voiceChannel.DeleteAsync();
+            }
         }
     }
 }

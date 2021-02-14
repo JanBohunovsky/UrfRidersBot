@@ -70,15 +70,13 @@ namespace UrfRidersBot.Discord
             // Catch up - remove empty channels (except the last one) and create a new one if needed
             foreach (var guildId in _voiceChannels.Keys)
             {
-                var voiceChannels = _voiceChannels[guildId].ToList();
-
                 // Remove empty voice channels (the last one should get ignored)
-                foreach (var voiceChannelId in voiceChannels)
+                foreach (var voiceChannelId in _voiceChannels[guildId])
                 {
                     var voiceChannel = e.Guilds[guildId].GetChannel(voiceChannelId);
-                    if (!voiceChannel.Users.Any())
+                    if (voiceChannel == null || !voiceChannel.Users.Any())
                     {
-                        await DeleteVoiceChannel(voiceChannel.Guild, voiceChannel.Id);
+                        await DeleteVoiceChannel(e.Guilds[guildId], voiceChannelId);
                     }
                     else
                     {
