@@ -6,12 +6,15 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.Hosting;
 
 namespace UrfRidersBot.Discord.Commands.Modules
 {
     [Description("Basic commands available to everyone.")]
     public class PublicModule : UrfRidersCommandModule
     {
+        public IHostEnvironment HostEnvironment { get; set; } = null!;
+        
         [Command("ping")]
         [Description("Get bot's WebSocket latency and response time.")]
         public async Task Ping(CommandContext ctx)
@@ -26,6 +29,19 @@ namespace UrfRidersBot.Discord.Commands.Modules
 
             embed.AddField("Response Time", $"{stopwatch.ElapsedMilliseconds} ms", true);
             await message.ModifyAsync(embed.Build());
+        }
+
+        [RequireOwner]
+        [Command("info")]
+        public async Task Info(CommandContext ctx)
+        {
+            var embed = EmbedService.CreateBotInfo();
+            embed.AddField("Version", "2.0.0-preview"); // Temporary hardcoded version
+            embed.AddField("Environment", HostEnvironment.EnvironmentName);
+            embed.AddField("Host", Environment.MachineName);
+            embed.AddField(".NET", Environment.Version.ToString(3));
+
+            await ctx.RespondAsync(embed.Build());
         }
         
         [Command("ask"), Aliases("yn", "question")]

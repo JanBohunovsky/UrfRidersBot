@@ -6,6 +6,8 @@ ProjectSection(SolutionItems) = preProject
 	LICENSE = LICENSE
 	README.md = README.md
 	nuget.config = nuget.config
+	Dockerfile = Dockerfile
+	.dockerignore = .dockerignore
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{6C34CCAE-2AF7-480F-B7ED-0F2C9E97139A}"
