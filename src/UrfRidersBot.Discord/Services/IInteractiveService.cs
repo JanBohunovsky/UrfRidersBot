@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
+using UrfRidersBot.Discord.Interactive;
 
-namespace UrfRidersBot.Discord.Interactive
+namespace UrfRidersBot.Discord
 {
     public interface IInteractiveService
     {

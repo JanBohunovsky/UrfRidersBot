@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using UrfRidersBot.Discord.Configuration;
-using UrfRidersBot.Discord.Interactive;
 using DiscordConfiguration = UrfRidersBot.Discord.Configuration.DiscordConfiguration;
 
 namespace UrfRidersBot.Discord
