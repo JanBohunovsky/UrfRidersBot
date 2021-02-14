@@ -1,0 +1,25 @@
+name: Deploy Docker
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-deploy:
+    environment: production
+    runs-on: self-hosted
+    env:
+      image: 'bohush/urfridersbot'
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag $image
+    - name: Run the Docker image
+      run: docker run $image \
+        -p 80:80 \
+        --env Discord__Token='${{ DISCORD_TOKEN }}' \
+        --env RiotGames__ApiKey='${{ RIOT_GAMES_API_KEY }}' \
+        --env ConnectionStrings__UrfRidersData='${{ CONNECTION_STRING }}'
