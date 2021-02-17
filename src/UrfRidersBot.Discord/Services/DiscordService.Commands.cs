@@ -82,7 +82,7 @@ namespace UrfRidersBot.Discord
                 
                 // User is dumb (in some cases this can be an actual system exception tho...)
                 case InvalidOperationException invalidOperationException:
-                    embed = _embedService.CreateError(invalidOperationException.Message);
+                    embed = EmbedHelper.CreateError(invalidOperationException.Message);
                     break;
                 
                 // We do not care about these exceptions
@@ -100,7 +100,7 @@ namespace UrfRidersBot.Discord
                         e.Context.User
                     );
 
-                    embed = _embedService.CreateCriticalError("An exception has occured.");
+                    embed = EmbedHelper.CreateCriticalError("An exception has occured.");
 
                     // Send the bot owner a message (if he's in this guild)
                     var owner = await e.Context.Guild.GetMemberAsync(e.Context.Client.CurrentApplication.Owners.First().Id);

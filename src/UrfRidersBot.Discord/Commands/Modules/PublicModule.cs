@@ -11,7 +11,7 @@ using Microsoft.Extensions.Hosting;
 namespace UrfRidersBot.Discord.Commands.Modules
 {
     [Description("Basic commands available to everyone.")]
-    public class PublicModule : UrfRidersCommandModule
+    public class PublicModule : BaseCommandModule
     {
         public IHostEnvironment HostEnvironment { get; set; } = null!;
         
@@ -19,8 +19,8 @@ namespace UrfRidersBot.Discord.Commands.Modules
         [Description("Get bot's WebSocket latency and response time.")]
         public async Task Ping(CommandContext ctx)
         {
-            var embed = EmbedService
-                .CreateBotInfo()
+            var embed = EmbedHelper
+                .CreateBotInfo(ctx.Client)
                 .AddField("WS Latency", $"{ctx.Client.Ping} ms", true);
 
             var stopwatch = Stopwatch.StartNew();
@@ -35,7 +35,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
         [Command("info")]
         public async Task Info(CommandContext ctx)
         {
-            var embed = EmbedService.CreateBotInfo();
+            var embed = EmbedHelper.CreateBotInfo(ctx.Client);
             embed.AddField("Version", "2.0.0-preview"); // Temporary hardcoded version
             embed.AddField("Environment", HostEnvironment.EnvironmentName);
             embed.AddField("Host", Environment.MachineName);

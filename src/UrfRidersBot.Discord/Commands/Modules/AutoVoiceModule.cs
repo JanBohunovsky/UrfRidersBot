@@ -11,7 +11,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
     [RequireGuildRank(GuildRank.Admin)]
     [Group("autoVoice")]
     [Description("Automatically create new voice channel whenever all are taken.")]
-    public class AutoVoiceModule : UrfRidersCommandModule
+    public class AutoVoiceModule : BaseCommandModule
     {
         public IAutoVoiceService AutoVoiceService { get; set; } = null!;
 
@@ -90,7 +90,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
             sb.AppendLine(".");
             sb.Append("Whenever someone joins this channel, a new one will be created and whenever one of these channels is empty, it will be deleted.");
 
-            await ctx.RespondAsync(EmbedService.CreateSuccess(sb.ToString()).Build());
+            await ctx.RespondAsync(EmbedHelper.CreateSuccess(sb.ToString()).Build());
         }
         
         [Command("disable")]
@@ -99,7 +99,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
         {
             var count = await AutoVoiceService.Disable(ctx.Guild);
 
-            var embed = EmbedService
+            var embed = EmbedHelper
                 .CreateSuccess("Auto Voice has been disabled.")
                 .WithFooter($"Deleted {count} channel(s)");
 

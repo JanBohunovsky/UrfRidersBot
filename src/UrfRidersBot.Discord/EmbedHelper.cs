@@ -3,18 +3,11 @@ using DSharpPlus.Entities;
 
 namespace UrfRidersBot.Discord
 {
-    internal class EmbedService : IEmbedService
+    public static class EmbedHelper
     {
-        private readonly DiscordClient _client;
-
-        public EmbedService(DiscordClient client)
+        public static DiscordEmbedBuilder CreateBotInfo(DiscordClient client, string? nameSuffix = null)
         {
-            _client = client;
-        }
-
-        public DiscordEmbedBuilder CreateBotInfo(string? nameSuffix = null)
-        {
-            var name = "Official UrfRiders Bot";
+            var name = client.CurrentApplication.Name;
             if (nameSuffix != null)
             {
                 name = $"{name} {nameSuffix}";
@@ -26,14 +19,14 @@ namespace UrfRidersBot.Discord
                 Author = new DiscordEmbedBuilder.EmbedAuthor
                 {
                     Name = name,
-                    IconUrl = _client.CurrentUser.GetAvatarUrl(ImageFormat.Auto),
+                    IconUrl = client.CurrentApplication.Icon,
                 },
             };
         }
 
-        public DiscordEmbedBuilder CreateSuccess(string? description = null, string title = "Success")
+        public static DiscordEmbedBuilder CreateSuccess(string? description = null, string title = "Success")
         {
-            return new DiscordEmbedBuilder
+            return new()
             {
                 Color = UrfRidersColor.Green,
                 Author = new DiscordEmbedBuilder.EmbedAuthor
@@ -45,9 +38,9 @@ namespace UrfRidersBot.Discord
             };
         }
 
-        public DiscordEmbedBuilder CreateError(string? description = null, string? title = "Error")
+        public static DiscordEmbedBuilder CreateError(string? description = null, string? title = "Error")
         {
-            return new DiscordEmbedBuilder
+            return new()
             {
                 Color = UrfRidersColor.Yellow,
                 Author = new DiscordEmbedBuilder.EmbedAuthor
@@ -59,9 +52,9 @@ namespace UrfRidersBot.Discord
             };
         }
 
-        public DiscordEmbedBuilder CreateCriticalError(string? description = null, string? title = "Critical Error")
+        public static DiscordEmbedBuilder CreateCriticalError(string? description = null, string? title = "Critical Error")
         {
-            return new DiscordEmbedBuilder
+            return new()
             {
                 Color = UrfRidersColor.Red,
                 Author = new DiscordEmbedBuilder.EmbedAuthor

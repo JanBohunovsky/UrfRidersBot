@@ -13,7 +13,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
     [Group("test")]
     [RequireOwner]
     [Description("Debug commands to test bot's functionality.")]
-    public class TestModule : UrfRidersCommandModule
+    public class TestModule : BaseCommandModule
     {
         public ILogger<TestModule> Logger { get; set; } = null!;
 
@@ -30,14 +30,14 @@ namespace UrfRidersBot.Discord.Commands.Modules
         [Description("Responds with a success message.")]
         public async Task Success(CommandContext ctx)
         {
-            await ctx.RespondAsync(EmbedService.CreateSuccess("Yay, everything went well!").Build());
+            await ctx.RespondAsync(EmbedHelper.CreateSuccess("Yay, everything went well!").Build());
         }
 
         [Command("error")]
         [Description("Responds with an error message.")]
         public async Task Error(CommandContext ctx)
         {
-            await ctx.RespondAsync(EmbedService.CreateError("Something went wrong.").Build());
+            await ctx.RespondAsync(EmbedHelper.CreateError("Something went wrong.").Build());
         }
 
         [Command("info")]
@@ -56,7 +56,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
 
         [Group("reactionTracker")]
         [Description("Attach to a message to get notified whenever a someone adds or removes a reaction.")]
-        public class ReactionTrackerSubmodule : UrfRidersCommandModule
+        public class ReactionTrackerSubmodule : BaseCommandModule
         {
             public IDbContextFactory<UrfRidersDbContext> DbContextFactory { get; set; } = null!;
             public IInteractiveService InteractiveService { get; set; } = null!;
@@ -67,7 +67,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
             {
                 if (InteractiveService.HasReactionHandler(message.Id))
                 {
-                    var embed = EmbedService.CreateError("This message already has some kind of reaction handler.").Build();
+                    var embed = EmbedHelper.CreateError("This message already has some kind of reaction handler.").Build();
                     await ctx.RespondAsync(embed);
                 }
                 else
@@ -81,7 +81,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
                         await dbContext.SaveChangesAsync();
                     }
 
-                    var embed = EmbedService
+                    var embed = EmbedHelper
                         .CreateSuccess($"Added reaction tracker to the [message]({message.JumpLink}).")
                         .Build();
 
@@ -95,7 +95,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
             {
                 if (!InteractiveService.HasReactionHandler<ReactionTrackerHandler>(message.Id))
                 {
-                    var embed = EmbedService.CreateError("This message doesn't have reaction tracker.").Build();
+                    var embed = EmbedHelper.CreateError("This message doesn't have reaction tracker.").Build();
                     await ctx.RespondAsync(embed);
                 }
                 else
@@ -109,7 +109,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
                         await dbContext.SaveChangesAsync();
                     }
                 
-                    var embed = EmbedService
+                    var embed = EmbedHelper
                         .CreateSuccess($"Removed reaction tracker from the [message]({message.JumpLink}).")
                         .Build();
 

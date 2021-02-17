@@ -11,7 +11,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
     [RequireGuildRank(GuildRank.Admin)]
     [Description("Read and modify a server specific variables.")]
     [ModuleLifespan(ModuleLifespan.Transient)]
-    public class SettingsModule : UrfRidersCommandModule
+    public class SettingsModule : BaseCommandModule
     {
         public UrfRidersDbContext DbContext { get; set; } = null!;
 
@@ -68,7 +68,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
             _settings.CustomPrefix = newPrefix;
             await DbContext.SaveChangesAsync();
 
-            var embed = EmbedService
+            var embed = EmbedHelper
                 .CreateSuccess($"Prefix has been set to `{newPrefix}`.")
                 .WithFooter("Tip: You can always invoke commands by mentioning me!")
                 .Build();
@@ -83,7 +83,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
             _settings.MemberRoleId = role.Id;
             await DbContext.SaveChangesAsync();
 
-            var embed = EmbedService.CreateSuccess($"Member role has been set to {role.Mention}.").Build();
+            var embed = EmbedHelper.CreateSuccess($"Member role has been set to {role.Mention}.").Build();
             await ctx.RespondAsync(embed);
         }
 
@@ -94,7 +94,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
             _settings.ModeratorRoleId = role.Id;
             await DbContext.SaveChangesAsync();
 
-            var embed = EmbedService.CreateSuccess($"Moderator role has been set to {role.Mention}.").Build();
+            var embed = EmbedHelper.CreateSuccess($"Moderator role has been set to {role.Mention}.").Build();
             await ctx.RespondAsync(embed);
         }
 
@@ -105,7 +105,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
             _settings.AdminRoleId = role.Id;
             await DbContext.SaveChangesAsync();
 
-            var embed = EmbedService.CreateSuccess($"Admin role has been set to {role.Mention}.").Build();
+            var embed = EmbedHelper.CreateSuccess($"Admin role has been set to {role.Mention}.").Build();
             await ctx.RespondAsync(embed);
         }
 
@@ -132,13 +132,13 @@ namespace UrfRidersBot.Discord.Commands.Modules
                     key = "Admin role";
                     break;
                 default:
-                    await ctx.RespondAsync(EmbedService.CreateError("Setting not found.").Build());
+                    await ctx.RespondAsync(EmbedHelper.CreateError("Setting not found.").Build());
                     return;
             }
 
             await DbContext.SaveChangesAsync();
 
-            var embed = EmbedService.CreateSuccess($"{key} has been reset.").Build();
+            var embed = EmbedHelper.CreateSuccess($"{key} has been reset.").Build();
             await ctx.RespondAsync(embed);
         }
 
@@ -149,7 +149,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
             DbContext.Remove(_settings);
             await DbContext.SaveChangesAsync();
 
-            var embed = EmbedService.CreateSuccess($"All settings for {ctx.Guild.Name} has been reset.").Build();
+            var embed = EmbedHelper.CreateSuccess($"All settings for {ctx.Guild.Name} has been reset.").Build();
             await ctx.RespondAsync(embed);
         }
 

@@ -20,7 +20,6 @@ namespace UrfRidersBot.Discord
     {
         private readonly DiscordClient _client;
         private readonly DiscordConfiguration _discordConfig;
-        private readonly IEmbedService _embedService;
         private readonly IDbContextFactory<UrfRidersDbContext> _dbContextFactory;
         private readonly ILogger<DiscordService> _logger;
         private readonly IHostEnvironment _environment;
@@ -29,7 +28,6 @@ namespace UrfRidersBot.Discord
         public DiscordService(
             DiscordClient client,
             DiscordConfiguration discordConfig,
-            IEmbedService embedService,
             IDbContextFactory<UrfRidersDbContext> dbContextFactory,
             ILogger<DiscordService> logger,
             IHostEnvironment environment,
@@ -37,7 +35,6 @@ namespace UrfRidersBot.Discord
         {
             _client = client;
             _discordConfig = discordConfig;
-            _embedService = embedService;
             _dbContextFactory = dbContextFactory;
             _logger = logger;
             _provider = provider;

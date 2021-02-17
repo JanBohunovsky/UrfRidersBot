@@ -32,9 +32,6 @@ namespace UrfRidersBot.Discord
         {
             // Project services
             services
-                .AddSingleton<IEmbedService, EmbedService>();
-
-            services
                 .AddFetchableHostedService<IInteractiveService, InteractiveService>()
                 .AddFetchableHostedService<IAutoVoiceService, AutoVoiceService>();
             
