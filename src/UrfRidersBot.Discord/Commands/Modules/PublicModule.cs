@@ -13,7 +13,12 @@ namespace UrfRidersBot.Discord.Commands.Modules
     [Description("Basic commands available to everyone.")]
     public class PublicModule : BaseCommandModule
     {
-        public IHostEnvironment HostEnvironment { get; set; } = null!;
+        private readonly IHostEnvironment _hostEnvironment;
+
+        public PublicModule(IHostEnvironment hostEnvironment)
+        {
+            _hostEnvironment = hostEnvironment;
+        }
         
         [Command("ping")]
         [Description("Get bot's WebSocket latency and response time.")]
@@ -37,7 +42,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
         {
             var embed = EmbedHelper.CreateBotInfo(ctx.Client);
             embed.AddField("Version", "2.0.0-preview"); // Temporary hardcoded version
-            embed.AddField("Environment", HostEnvironment.EnvironmentName);
+            embed.AddField("Environment", _hostEnvironment.EnvironmentName);
             embed.AddField("Host", Environment.MachineName);
             embed.AddField(".NET", Environment.Version.ToString(3));
 

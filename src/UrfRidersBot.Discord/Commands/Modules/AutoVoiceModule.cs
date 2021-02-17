@@ -13,13 +13,18 @@ namespace UrfRidersBot.Discord.Commands.Modules
     [Description("Automatically create new voice channel whenever all are taken.")]
     public class AutoVoiceModule : BaseCommandModule
     {
-        public IAutoVoiceService AutoVoiceService { get; set; } = null!;
+        private readonly IAutoVoiceService _autoVoiceService;
+
+        public AutoVoiceModule(IAutoVoiceService autoVoiceService)
+        {
+            _autoVoiceService = autoVoiceService;
+        }
 
         [GroupCommand]
         [Description("Current Auto Voice status and more useful information.")]
         public async Task Information(CommandContext ctx)
         {
-            var channels = AutoVoiceService.GetChannels(ctx.Guild);
+            var channels = _autoVoiceService.GetChannels(ctx.Guild);
 
             var channelBuilder = new StringBuilder();
             await foreach (var channel in channels)
@@ -76,7 +81,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
                 throw new ArgumentException("Channel must be a category.", nameof(category));
             }
 
-            var voiceChannel = await AutoVoiceService.Enable(ctx.Guild, category);
+            var voiceChannel = await _autoVoiceService.Enable(ctx.Guild, category);
 
             var sb = new StringBuilder();
             sb.AppendLine("Auto Voice has been enabled.");
@@ -97,7 +102,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
         [Description("Disables the module and deletes all the voice channels created by this module.")]
         public async Task Disable(CommandContext ctx)
         {
-            var count = await AutoVoiceService.Disable(ctx.Guild);
+            var count = await _autoVoiceService.Disable(ctx.Guild);
 
             var embed = EmbedHelper
                 .CreateSuccess("Auto Voice has been disabled.")

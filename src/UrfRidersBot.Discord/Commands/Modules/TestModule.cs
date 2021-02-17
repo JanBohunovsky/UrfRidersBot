@@ -3,7 +3,6 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using UrfRidersBot.Core.Entities;
 using UrfRidersBot.Discord.Interactive;
 using UrfRidersBot.Persistence;
@@ -15,8 +14,6 @@ namespace UrfRidersBot.Discord.Commands.Modules
     [Description("Debug commands to test bot's functionality.")]
     public class TestModule : BaseCommandModule
     {
-        public ILogger<TestModule> Logger { get; set; } = null!;
-
         [Command("exception")]
         [Description("This command will throw an exception.")]
         public async Task Exception(CommandContext ctx)
@@ -58,14 +55,22 @@ namespace UrfRidersBot.Discord.Commands.Modules
         [Description("Attach to a message to get notified whenever a someone adds or removes a reaction.")]
         public class ReactionTrackerSubmodule : BaseCommandModule
         {
-            public IDbContextFactory<UrfRidersDbContext> DbContextFactory { get; set; } = null!;
-            public IInteractiveService InteractiveService { get; set; } = null!;
+            private readonly IDbContextFactory<UrfRidersDbContext> _dbContextFactory;
+            private readonly IInteractiveService _interactiveService;
+
+            public ReactionTrackerSubmodule(
+                IDbContextFactory<UrfRidersDbContext> dbContextFactory,
+                IInteractiveService interactiveService)
+            {
+                _dbContextFactory = dbContextFactory;
+                _interactiveService = interactiveService;
+            }
             
             [Command("add")]
             [Description("Add a reaction tracker to specified message.")]
             public async Task Add(CommandContext ctx, [Description("Message to attach reaction tracker on.")] DiscordMessage message)
             {
-                if (InteractiveService.HasReactionHandler(message.Id))
+                if (_interactiveService.HasReactionHandler(message.Id))
                 {
                     var embed = EmbedHelper.CreateError("This message already has some kind of reaction handler.").Build();
                     await ctx.RespondAsync(embed);
@@ -74,9 +79,9 @@ namespace UrfRidersBot.Discord.Commands.Modules
                 {
                     // Create new reaction handler and create persistent data for it.
                     // TODO: Make this into a service method. I know this is a test command but something like this will be used in the future.
-                    await using (var dbContext = DbContextFactory.CreateDbContext())
+                    await using (var dbContext = _dbContextFactory.CreateDbContext())
                     {
-                        await InteractiveService.AddReactionHandlerAsync<ReactionTrackerHandler>(message.Id);
+                        await _interactiveService.AddReactionHandlerAsync<ReactionTrackerHandler>(message.Id);
                         await dbContext.ReactionTrackerData.AddAsync(new ReactionTrackerData(message.Id, ctx.User.Id));
                         await dbContext.SaveChangesAsync();
                     }
@@ -93,7 +98,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
             [Description("Removes a reaction tracker from specified message.")]
             public async Task Remove(CommandContext ctx, [Description("Message to remove reaction tracker from.")] DiscordMessage message)
             {
-                if (!InteractiveService.HasReactionHandler<ReactionTrackerHandler>(message.Id))
+                if (!_interactiveService.HasReactionHandler<ReactionTrackerHandler>(message.Id))
                 {
                     var embed = EmbedHelper.CreateError("This message doesn't have reaction tracker.").Build();
                     await ctx.RespondAsync(embed);
@@ -101,9 +106,9 @@ namespace UrfRidersBot.Discord.Commands.Modules
                 else
                 {
                     // Remove the reaction handler and its persistent data.
-                    await using (var dbContext = DbContextFactory.CreateDbContext())
+                    await using (var dbContext = _dbContextFactory.CreateDbContext())
                     {
-                        await InteractiveService.RemoveReactionHandlerAsync(message.Id);
+                        await _interactiveService.RemoveReactionHandlerAsync(message.Id);
                         var data = await dbContext.ReactionTrackerData.FindAsync(message.Id);
                         dbContext.ReactionTrackerData.Remove(data);
                         await dbContext.SaveChangesAsync();

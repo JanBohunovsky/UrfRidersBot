@@ -13,19 +13,23 @@ namespace UrfRidersBot.Discord.Commands.Modules
     [ModuleLifespan(ModuleLifespan.Transient)]
     public class SettingsModule : BaseCommandModule
     {
-        public UrfRidersDbContext DbContext { get; set; } = null!;
-
         private const string NullText = "*null*";
         private const string CustomPrefixKey = "prefix";
         private const string MemberRoleKey = "member";
         private const string ModeratorRoleKey = "moderator";
         private const string AdminRoleKey = "admin";
 
+        private readonly UrfRidersDbContext _dbContext;
         private GuildSettings _settings = null!;
 
+        public SettingsModule(UrfRidersDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+        
         public override async Task BeforeExecutionAsync(CommandContext ctx)
         {
-            _settings = await DbContext.GuildSettings.FindOrCreateAsync(ctx.Guild.Id, id => new GuildSettings(id));
+            _settings = await _dbContext.GuildSettings.FindOrCreateAsync(ctx.Guild.Id, id => new GuildSettings(id));
         }
 
         [GroupCommand]
@@ -66,7 +70,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
         public async Task SetCustomPrefix(CommandContext ctx, [Description("Prefix to use on this server.")] string newPrefix)
         {
             _settings.CustomPrefix = newPrefix;
-            await DbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
             var embed = EmbedHelper
                 .CreateSuccess($"Prefix has been set to `{newPrefix}`.")
@@ -81,7 +85,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
         public async Task SetMemberRole(CommandContext ctx, [Description("Role that describes a verified/trusted user on the server.")] DiscordRole role)
         {
             _settings.MemberRoleId = role.Id;
-            await DbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
             var embed = EmbedHelper.CreateSuccess($"Member role has been set to {role.Mention}.").Build();
             await ctx.RespondAsync(embed);
@@ -92,7 +96,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
         public async Task SetModeratorRole(CommandContext ctx, [Description("Role that describes a server moderator.")] DiscordRole role)
         {
             _settings.ModeratorRoleId = role.Id;
-            await DbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
             var embed = EmbedHelper.CreateSuccess($"Moderator role has been set to {role.Mention}.").Build();
             await ctx.RespondAsync(embed);
@@ -103,7 +107,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
         public async Task SetAdminRole(CommandContext ctx, [Description("Role that describes a server admin.")] DiscordRole role)
         {
             _settings.AdminRoleId = role.Id;
-            await DbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
             var embed = EmbedHelper.CreateSuccess($"Admin role has been set to {role.Mention}.").Build();
             await ctx.RespondAsync(embed);
@@ -136,7 +140,7 @@ namespace UrfRidersBot.Discord.Commands.Modules
                     return;
             }
 
-            await DbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
             var embed = EmbedHelper.CreateSuccess($"{key} has been reset.").Build();
             await ctx.RespondAsync(embed);
@@ -146,8 +150,8 @@ namespace UrfRidersBot.Discord.Commands.Modules
         [Description("Reset all settings for current server")]
         public async Task ResetAllSettings(CommandContext ctx)
         {
-            DbContext.Remove(_settings);
-            await DbContext.SaveChangesAsync();
+            _dbContext.Remove(_settings);
+            await _dbContext.SaveChangesAsync();
 
             var embed = EmbedHelper.CreateSuccess($"All settings for {ctx.Guild.Name} has been reset.").Build();
             await ctx.RespondAsync(embed);
