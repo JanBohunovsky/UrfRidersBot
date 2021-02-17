@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
-using UrfRidersBot.Data;
+using UrfRidersBot.Persistence;
 
 namespace UrfRidersBot.Discord.Interactive
 {

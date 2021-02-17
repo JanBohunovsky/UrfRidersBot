@@ -7,14 +7,15 @@
 
     <ItemGroup>
       <Folder Include="Migrations" />
+      <Folder Include="Repositories" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.2">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\UrfRidersBot.Core\UrfRidersBot.Core.csproj" />
     </ItemGroup>
 
 </Project>

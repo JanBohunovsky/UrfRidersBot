@@ -19,7 +19,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.Discord", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.WebAPI", "src\UrfRidersBot.WebAPI\UrfRidersBot.WebAPI.csproj", "{938AA5D9-0C51-4A5C-BB1F-8B02F1B3C819}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.Data", "src\UrfRidersBot.Data\UrfRidersBot.Data.csproj", "{68282DF9-C3DD-4A6C-A9D6-774C360A713F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.Persistence", "src\UrfRidersBot.Persistence\UrfRidersBot.Persistence.csproj", "{68282DF9-C3DD-4A6C-A9D6-774C360A713F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.Core", "src\UrfRidersBot.Core\UrfRidersBot.Core.csproj", "{95F121EA-3D8D-4DD9-A90F-305447C1B060}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{68282DF9-C3DD-4A6C-A9D6-774C360A713F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68282DF9-C3DD-4A6C-A9D6-774C360A713F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68282DF9-C3DD-4A6C-A9D6-774C360A713F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95F121EA-3D8D-4DD9-A90F-305447C1B060}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95F121EA-3D8D-4DD9-A90F-305447C1B060}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95F121EA-3D8D-4DD9-A90F-305447C1B060}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95F121EA-3D8D-4DD9-A90F-305447C1B060}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6C34CCAE-2AF7-480F-B7ED-0F2C9E97139A} = {ECB61294-EDBC-4638-B3C1-5B59530D9566}

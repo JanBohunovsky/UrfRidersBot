@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace UrfRidersBot.Data.Migrations
+namespace UrfRidersBot.Persistence.Migrations
 {
     public partial class InitialCreate : Migration
     {

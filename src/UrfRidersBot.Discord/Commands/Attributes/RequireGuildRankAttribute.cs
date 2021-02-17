@@ -7,7 +7,8 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using UrfRidersBot.Data;
+using UrfRidersBot.Core.Entities;
+using UrfRidersBot.Persistence;
 
 namespace UrfRidersBot.Discord.Commands
 {

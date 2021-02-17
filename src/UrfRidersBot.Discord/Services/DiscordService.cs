@@ -10,9 +10,9 @@ using DSharpPlus.Interactivity.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using UrfRidersBot.Data;
 using UrfRidersBot.Discord.Commands;
-using DiscordConfiguration = UrfRidersBot.Discord.Configuration.DiscordConfiguration;
+using UrfRidersBot.Persistence;
+using DiscordConfiguration = UrfRidersBot.Core.Configuration.DiscordConfiguration;
 
 namespace UrfRidersBot.Discord
 {
@@ -48,14 +48,7 @@ namespace UrfRidersBot.Discord
         {
             RegisterCommands();
             RegisterInteractivity();
-            
-            // Make sure the database is on the latest migration
-            await using (var dbContext = _dbContextFactory.CreateDbContext())
-            {
-                _logger.LogInformation("Migrating database...");
-                await dbContext.Database.MigrateAsync(cancellationToken);
-            }
-            
+
             _client.GetCommandsNext().CommandErrored += OnCommandErrored;
             
             // Start discord client

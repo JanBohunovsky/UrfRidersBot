@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using UrfRidersBot.Core.Entities;
 
-namespace UrfRidersBot.Data
+namespace UrfRidersBot.Persistence
 {
     public class UrfRidersDbContext : DbContext
     {
@@ -15,10 +17,7 @@ namespace UrfRidersBot.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<GuildSettings>().HasKey(x => x.GuildId);
-            modelBuilder.Entity<AutoVoiceChannel>().HasKey(x => new { x.GuildId, x.VoiceChannelId });
-            modelBuilder.Entity<ReactionTrackerData>().HasKey(x => x.MessageId);
-            modelBuilder.Entity<ReactionHandlerInfo>().HasKey(x => x.MessageId);
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }

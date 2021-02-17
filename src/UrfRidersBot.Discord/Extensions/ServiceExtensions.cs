@@ -1,9 +1,10 @@
 ﻿using DSharpPlus;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using UrfRidersBot.Discord.Configuration;
-using DiscordConfiguration = UrfRidersBot.Discord.Configuration.DiscordConfiguration;
+using UrfRidersBot.Core.Configuration;
+using DiscordConfiguration = UrfRidersBot.Core.Configuration.DiscordConfiguration;
 
 namespace UrfRidersBot.Discord
 {
@@ -18,14 +19,17 @@ namespace UrfRidersBot.Discord
                 .AddHostedService(provider => (TImplementation)provider.GetRequiredService<TService>());
         }
 
+        public static IServiceCollection AddConfigurations(this IServiceCollection services, IConfiguration configuration)
+        {
+            // TODO: Automate this via reflection
+            services.AddSingleton(configuration.GetSection(DiscordConfiguration.SectionName).Get<DiscordConfiguration>());
+            services.AddSingleton(configuration.GetSection(RiotGamesConfiguration.SectionName).Get<RiotGamesConfiguration>());
+
+            return services;
+        }
+
         public static IServiceCollection AddDiscordBot(this IServiceCollection services)
         {
-            // Configuration
-            services
-                .AddSingleton<DiscordConfiguration>()
-                // .AddOnReadyService<EmoteConfiguration>()
-                .AddSingleton<RiotGamesConfiguration>();
-            
             // Project services
             services
                 .AddSingleton<IEmbedService, EmbedService>();

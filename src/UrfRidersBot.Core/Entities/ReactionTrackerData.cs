@@ -1,4 +1,4 @@
-﻿namespace UrfRidersBot.Data
+﻿namespace UrfRidersBot.Core.Entities
 {
     public class ReactionTrackerData
     {

@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using UrfRidersBot.Data;
+using UrfRidersBot.Persistence;
 
-namespace UrfRidersBot.Data.Migrations
+namespace UrfRidersBot.Persistence.Migrations
 {
     [DbContext(typeof(UrfRidersDbContext))]
-    [Migration("20210210152859_InitialCreate")]
+    [Migration("20210217160411_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,7 +20,7 @@ namespace UrfRidersBot.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.2");
 
-            modelBuilder.Entity("UrfRidersBot.Data.AutoVoiceChannel", b =>
+            modelBuilder.Entity("UrfRidersBot.Core.Entities.AutoVoiceChannel", b =>
                 {
                     b.Property<decimal>("GuildId")
                         .HasColumnType("numeric(20,0)");
@@ -33,7 +33,7 @@ namespace UrfRidersBot.Data.Migrations
                     b.ToTable("AutoVoiceChannels");
                 });
 
-            modelBuilder.Entity("UrfRidersBot.Data.GuildSettings", b =>
+            modelBuilder.Entity("UrfRidersBot.Core.Entities.GuildSettings", b =>
                 {
                     b.Property<decimal>("GuildId")
                         .ValueGeneratedOnAdd()
@@ -56,7 +56,7 @@ namespace UrfRidersBot.Data.Migrations
                     b.ToTable("GuildSettings");
                 });
 
-            modelBuilder.Entity("UrfRidersBot.Data.ReactionHandlerInfo", b =>
+            modelBuilder.Entity("UrfRidersBot.Core.Entities.ReactionHandlerInfo", b =>
                 {
                     b.Property<decimal>("MessageId")
                         .ValueGeneratedOnAdd()
@@ -71,7 +71,7 @@ namespace UrfRidersBot.Data.Migrations
                     b.ToTable("ActiveReactionHandlers");
                 });
 
-            modelBuilder.Entity("UrfRidersBot.Data.ReactionTrackerData", b =>
+            modelBuilder.Entity("UrfRidersBot.Core.Entities.ReactionTrackerData", b =>
                 {
                     b.Property<decimal>("MessageId")
                         .ValueGeneratedOnAdd()
