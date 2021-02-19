@@ -18,9 +18,9 @@ namespace UrfRidersBot.WebAPI.Controllers
         public record AutoVoiceGuild(ulong GuildId, string GuildName, IEnumerable<AutoVoiceChannel> VoiceChannels);
 
         private readonly DiscordClient _client;
-        private readonly IAutoVoiceService _autoVoiceService;
+        private readonly IAutoVoiceHostedService _autoVoiceService;
 
-        public AutoVoiceController(IAutoVoiceService autoVoiceService, DiscordClient client)
+        public AutoVoiceController(IAutoVoiceHostedService autoVoiceService, DiscordClient client)
         {
             _autoVoiceService = autoVoiceService;
             _client = client;
