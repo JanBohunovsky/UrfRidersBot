@@ -9,7 +9,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace UrfRidersBot.Infrastructure
 {
-    internal partial class AutoVoiceService : IHostedService
+    internal partial class AutoVoiceHostedService
     {
         // Probably make these configurable
         private const string NameNew = "➕ New Voice Channel";
@@ -29,7 +29,7 @@ namespace UrfRidersBot.Infrastructure
             "rider",
         };
         
-        private Dictionary<ulong, List<ulong>> _voiceChannels = new();
+        private Dictionary<ulong, List<ulong>> _guilds = new();
         
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -58,20 +58,24 @@ namespace UrfRidersBot.Infrastructure
             _client.GuildDownloadCompleted -= OnGuildDownloadCompleted;
             
             // Load all the data first
-            await using var dbContext = _dbContextFactory.CreateDbContext();
-            await foreach (var dbEntity in dbContext.AutoVoiceChannels)
+            await using var unitOfWork = _unitOfWorkFactory.Create();
+            var channels = await unitOfWork.AutoVoiceChannels.GetAllAsync(_client);
+            foreach (var channel in channels)
             {
-                if (!_voiceChannels.ContainsKey(dbEntity.GuildId))
-                    _voiceChannels[dbEntity.GuildId] = new List<ulong>();
+                if (channel == null)
+                    continue;
+                if (!_guilds.ContainsKey(channel.GuildId))
+                    _guilds[channel.GuildId] = new List<ulong>();
                 
-                _voiceChannels[dbEntity.GuildId].Add(dbEntity.VoiceChannelId);
+                _guilds[channel.GuildId].Add(channel.Id);
             }
             
+            
             // Catch up - remove empty channels (except the last one) and create a new one if needed
-            foreach (var guildId in _voiceChannels.Keys)
+            foreach (var guildId in _guilds.Keys)
             {
                 // Remove empty voice channels (the last one should get ignored)
-                foreach (var voiceChannelId in _voiceChannels[guildId])
+                foreach (var voiceChannelId in _guilds[guildId])
                 {
                     var voiceChannel = e.Guilds[guildId].GetChannel(voiceChannelId);
                     if (voiceChannel == null || !voiceChannel.Users.Any())
@@ -85,7 +89,7 @@ namespace UrfRidersBot.Infrastructure
                 }
 
                 // Create new voice channel if the last voice channel is not empty
-                var lastVoiceChannelId = _voiceChannels[guildId].Last();
+                var lastVoiceChannelId = _guilds[guildId].Last();
                 var lastVoiceChannel = e.Guilds[guildId].GetChannel(lastVoiceChannelId);
                 if (lastVoiceChannel.Users.Any())
                 {
@@ -99,33 +103,23 @@ namespace UrfRidersBot.Infrastructure
         /// </summary>
         private async Task OnChannelDeleted(DiscordClient sender, ChannelDeleteEventArgs e)
         {
-            if (!_voiceChannels.ContainsKey(e.Guild.Id))
+            if (!_guilds.ContainsKey(e.Guild.Id))
                 return;
             
-            if (_voiceChannels[e.Guild.Id].Remove(e.Channel.Id))
+            if (_guilds[e.Guild.Id].Remove(e.Channel.Id))
             {
-                await using var dbContext = _dbContextFactory.CreateDbContext();
-                var dbEntity = await dbContext.AutoVoiceChannels.FindAsync(e.Guild.Id, e.Channel.Id);
-                if (dbEntity != null)
-                {
-                    dbContext.AutoVoiceChannels.Remove(dbEntity);
-                    await dbContext.SaveChangesAsync();
-                }
+                await using var unitOfWork = _unitOfWorkFactory.Create();
+                unitOfWork.AutoVoiceChannels.Remove(e.Channel);
+                await unitOfWork.CompleteAsync();
                 
                 // If all voice channels have been deleted then disable the module
-                if (_voiceChannels[e.Guild.Id].Count == 0)
-                    _voiceChannels.Remove(e.Guild.Id);
+                if (_guilds[e.Guild.Id].Count == 0)
+                    _guilds.Remove(e.Guild.Id);
             }
         }
 
         private async Task OnPresenceUpdated(DiscordClient sender, PresenceUpdateEventArgs e)
         {
-            // TODO: Get member and look at their voice channel and check if it's an auto voice channel
-            foreach (var (id, guild) in _client.Guilds)
-            {
-                guild.GetMemberAsync(e.User.Id);
-            }
-
             var voiceChannel = await FindVoiceChannelAsync(e.User);
             if (voiceChannel == null)
                 return;
@@ -143,17 +137,17 @@ namespace UrfRidersBot.Infrastructure
                 return;
 
             // Guild does not have auto voice enabled
-            if (!_voiceChannels.ContainsKey(e.Guild.Id))
+            if (!_guilds.ContainsKey(e.Guild.Id))
                 return;
 
             // User has joined one of my voice channels
-            if (e.After?.Channel != null && _voiceChannels[e.Guild.Id].Contains(e.After.Channel.Id))
+            if (e.After?.Channel != null && _guilds[e.Guild.Id].Contains(e.After.Channel.Id))
             {
                 await OnUserJoin(e.After.Channel);
             }
             
             // User has left one of my voice channels
-            if (e.Before?.Channel != null && _voiceChannels[e.Guild.Id].Contains(e.Before.Channel.Id))
+            if (e.Before?.Channel != null && _guilds[e.Guild.Id].Contains(e.Before.Channel.Id))
             {
                 await OnUserLeft(e.Before.Channel);
             }
@@ -162,7 +156,7 @@ namespace UrfRidersBot.Infrastructure
         private async Task OnUserJoin(DiscordChannel voiceChannel)
         {
             // User has joined the last voice channel -> Create new one
-            if (_voiceChannels[voiceChannel.GuildId].Last() == voiceChannel.Id)
+            if (_guilds[voiceChannel.GuildId].Last() == voiceChannel.Id)
             {
                 await CreateVoiceChannel(voiceChannel.Guild, voiceChannel.Parent);
             }
@@ -278,18 +272,19 @@ namespace UrfRidersBot.Infrastructure
             if (user.IsBot)
                 return null;
             
-            // Find voice channel the user is in
-            foreach (var channelId in _voiceChannels.SelectMany(x => x.Value))
+            foreach (var (guildId, guild) in _client.Guilds)
             {
-                var voiceChannel = await _client.GetChannelAsync(channelId);
+                if (!_guilds.ContainsKey(guildId))
+                    continue;
                 
-                if (voiceChannel.Users.Any(x => x.Id == user.Id))
-                {
-                    return voiceChannel;
-                }
-            }
+                var member = await guild.GetMemberAsync(user.Id);
+                if (member.VoiceState?.Channel == null)
+                    continue;
 
-            // Not found
+                if (_guilds[guildId].Contains(member.VoiceState.Channel.Id))
+                    return member.VoiceState.Channel;
+            }
+            
             return null;
         }
     }

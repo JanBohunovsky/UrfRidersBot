@@ -6,10 +6,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Repositories" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00800" />
     </ItemGroup>
 

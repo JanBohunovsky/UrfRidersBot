@@ -1,11 +1,11 @@
-﻿namespace UrfRidersBot.Core.Entities
+﻿namespace UrfRidersBot.Persistence.DTOs
 {
-    public class AutoVoiceChannel
+    public class AutoVoiceChannelDTO
     {
         public ulong GuildId { get; set; }
         public ulong VoiceChannelId { get; set; }
         
-        public AutoVoiceChannel(ulong guildId, ulong voiceChannelId)
+        public AutoVoiceChannelDTO(ulong guildId, ulong voiceChannelId)
         {
             GuildId = guildId;
             VoiceChannelId = voiceChannelId;

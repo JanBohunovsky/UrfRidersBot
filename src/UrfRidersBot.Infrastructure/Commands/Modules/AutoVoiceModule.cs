@@ -6,6 +6,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using UrfRidersBot.Core;
+using UrfRidersBot.Core.Interfaces;
 
 namespace UrfRidersBot.Infrastructure.Commands.Modules
 {
@@ -14,9 +15,9 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
     [Description("Automatically create new voice channel whenever all are taken.")]
     public class AutoVoiceModule : BaseCommandModule
     {
-        private readonly IAutoVoiceService _autoVoiceService;
+        private readonly IAutoVoiceHostedService _autoVoiceService;
 
-        public AutoVoiceModule(IAutoVoiceService autoVoiceService)
+        public AutoVoiceModule(IAutoVoiceHostedService autoVoiceService)
         {
             _autoVoiceService = autoVoiceService;
         }

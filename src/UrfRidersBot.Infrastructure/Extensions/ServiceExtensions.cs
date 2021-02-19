@@ -33,7 +33,7 @@ namespace UrfRidersBot.Infrastructure
             // Project services
             services
                 .AddFetchableHostedService<IInteractiveService, InteractiveService>()
-                .AddFetchableHostedService<IAutoVoiceService, AutoVoiceService>();
+                .AddFetchableHostedService<IAutoVoiceHostedService, AutoVoiceHostedService>();
             
             
             // Discord client and service

@@ -22,7 +22,7 @@ namespace UrfRidersBot.WebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddConfigurations(Configuration);
-            services.AddDbContext(Configuration.GetConnectionString("UrfRidersData"));
+            services.AddPersistence(Configuration.GetConnectionString("UrfRidersData"));
             services.AddDiscordBot();
             
             services.AddControllers();
