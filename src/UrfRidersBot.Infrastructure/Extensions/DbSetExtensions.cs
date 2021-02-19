@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace UrfRidersBot.Discord
+namespace UrfRidersBot.Infrastructure
 {
     public static class DbSetExtensions
     {

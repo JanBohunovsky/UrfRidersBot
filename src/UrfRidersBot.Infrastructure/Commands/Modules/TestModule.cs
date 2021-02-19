@@ -3,11 +3,12 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
+using UrfRidersBot.Core;
 using UrfRidersBot.Core.Entities;
-using UrfRidersBot.Discord.Interactive;
+using UrfRidersBot.Infrastructure.Interactive;
 using UrfRidersBot.Persistence;
 
-namespace UrfRidersBot.Discord.Commands.Modules
+namespace UrfRidersBot.Infrastructure.Commands.Modules
 {
     [Group("test")]
     [RequireOwner]

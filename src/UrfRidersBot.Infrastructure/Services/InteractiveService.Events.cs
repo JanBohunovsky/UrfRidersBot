@@ -7,9 +7,9 @@ using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using UrfRidersBot.Discord.Interactive;
+using UrfRidersBot.Infrastructure.Interactive;
 
-namespace UrfRidersBot.Discord
+namespace UrfRidersBot.Infrastructure
 {
     internal partial class InteractiveService : IHostedService
     {

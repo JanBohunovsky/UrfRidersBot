@@ -1,7 +1,8 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
+using UrfRidersBot.Core;
 
-namespace UrfRidersBot.Discord.Commands
+namespace UrfRidersBot.Infrastructure.Commands
 {
     public class UrfRidersHelpFormatter : DefaultHelpFormatter
     {

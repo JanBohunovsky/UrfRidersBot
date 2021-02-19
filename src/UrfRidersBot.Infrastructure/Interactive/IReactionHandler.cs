@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace UrfRidersBot.Discord.Interactive
+namespace UrfRidersBot.Infrastructure.Interactive
 {
     public interface IReactionHandler
     {

@@ -5,7 +5,7 @@ using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using UrfRidersBot.Persistence;
 
-namespace UrfRidersBot.Discord.Interactive
+namespace UrfRidersBot.Infrastructure.Interactive
 {
     public class ReactionTrackerHandler : IReactionHandler
     {

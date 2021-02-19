@@ -1,6 +1,6 @@
 ﻿using DSharpPlus.Entities;
 
-namespace UrfRidersBot.Discord
+namespace UrfRidersBot.Core
 {
     public static class UrfRidersColor
     {

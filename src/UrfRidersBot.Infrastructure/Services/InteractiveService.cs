@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using UrfRidersBot.Core.Entities;
-using UrfRidersBot.Discord.Interactive;
+using UrfRidersBot.Infrastructure.Interactive;
 using UrfRidersBot.Persistence;
 
-namespace UrfRidersBot.Discord
+namespace UrfRidersBot.Infrastructure
 {
     internal partial class InteractiveService : IInteractiveService
     {

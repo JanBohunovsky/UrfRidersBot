@@ -7,7 +7,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
 
-namespace UrfRidersBot.Discord
+namespace UrfRidersBot.Infrastructure
 {
     internal partial class AutoVoiceService : IHostedService
     {
@@ -120,6 +120,12 @@ namespace UrfRidersBot.Discord
 
         private async Task OnPresenceUpdated(DiscordClient sender, PresenceUpdateEventArgs e)
         {
+            // TODO: Get member and look at their voice channel and check if it's an auto voice channel
+            foreach (var (id, guild) in _client.Guilds)
+            {
+                guild.GetMemberAsync(e.User.Id);
+            }
+
             var voiceChannel = await FindVoiceChannelAsync(e.User);
             if (voiceChannel == null)
                 return;

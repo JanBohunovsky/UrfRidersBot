@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using UrfRidersBot.Core;
 
-namespace UrfRidersBot.Discord.Commands.Modules
+namespace UrfRidersBot.Infrastructure.Commands.Modules
 {
     [RequireGuildRank(GuildRank.Admin)]
     [Group("autoVoice")]

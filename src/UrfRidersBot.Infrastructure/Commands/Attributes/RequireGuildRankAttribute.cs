@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using UrfRidersBot.Core.Entities;
 using UrfRidersBot.Persistence;
 
-namespace UrfRidersBot.Discord.Commands
+namespace UrfRidersBot.Infrastructure.Commands
 {
     /// <summary>
     /// Requires the user invoking the command to have this guild rank or higher.

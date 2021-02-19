@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.AspNetCore.Mvc;
-using UrfRidersBot.Discord;
+using UrfRidersBot.Infrastructure;
 
 namespace UrfRidersBot.WebAPI.Controllers
 {

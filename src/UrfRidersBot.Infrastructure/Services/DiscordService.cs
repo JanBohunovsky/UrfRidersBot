@@ -10,11 +10,11 @@ using DSharpPlus.Interactivity.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using UrfRidersBot.Discord.Commands;
+using UrfRidersBot.Infrastructure.Commands;
 using UrfRidersBot.Persistence;
 using DiscordConfiguration = UrfRidersBot.Core.Configuration.DiscordConfiguration;
 
-namespace UrfRidersBot.Discord
+namespace UrfRidersBot.Infrastructure
 {
     internal partial class DiscordService : IHostedService
     {

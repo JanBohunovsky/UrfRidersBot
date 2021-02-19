@@ -7,8 +7,9 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Hosting;
+using UrfRidersBot.Core;
 
-namespace UrfRidersBot.Discord.Commands.Modules
+namespace UrfRidersBot.Infrastructure.Commands.Modules
 {
     [Description("Basic commands available to everyone.")]
     public class PublicModule : BaseCommandModule

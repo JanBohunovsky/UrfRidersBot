@@ -2,10 +2,11 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using UrfRidersBot.Core;
 using UrfRidersBot.Core.Entities;
 using UrfRidersBot.Persistence;
 
-namespace UrfRidersBot.Discord.Commands.Modules
+namespace UrfRidersBot.Infrastructure.Commands.Modules
 {
     [Group("settings")]
     [RequireGuildRank(GuildRank.Admin)]

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace UrfRidersBot.Discord
+namespace UrfRidersBot.Infrastructure
 {
     public interface IAutoVoiceService
     {

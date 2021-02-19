@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using UrfRidersBot.Core.Entities;
 using UrfRidersBot.Persistence;
 
-namespace UrfRidersBot.Discord
+namespace UrfRidersBot.Infrastructure
 {
     internal partial class AutoVoiceService : IAutoVoiceService
     {

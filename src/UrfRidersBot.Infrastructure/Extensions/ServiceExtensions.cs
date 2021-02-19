@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using UrfRidersBot.Core.Configuration;
 using DiscordConfiguration = UrfRidersBot.Core.Configuration.DiscordConfiguration;
 
-namespace UrfRidersBot.Discord
+namespace UrfRidersBot.Infrastructure
 {
     public static class ServiceExtensions
     {

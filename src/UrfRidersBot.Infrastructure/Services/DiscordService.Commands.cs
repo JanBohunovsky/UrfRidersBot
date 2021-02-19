@@ -7,9 +7,10 @@ using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using UrfRidersBot.Discord.Commands;
+using UrfRidersBot.Core;
+using UrfRidersBot.Infrastructure.Commands;
 
-namespace UrfRidersBot.Discord
+namespace UrfRidersBot.Infrastructure
 {
     internal partial class DiscordService
     {

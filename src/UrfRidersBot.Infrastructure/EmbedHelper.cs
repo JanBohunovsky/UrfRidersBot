@@ -1,7 +1,8 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
+using UrfRidersBot.Core;
 
-namespace UrfRidersBot.Discord
+namespace UrfRidersBot.Infrastructure
 {
     public static class EmbedHelper
     {
