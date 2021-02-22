@@ -5,41 +5,49 @@ namespace UrfRidersBot.Core.Entities
 {
     public class AutoVoiceSettings
     {
-        private readonly List<DiscordChannel> _voiceChannels;
+        private readonly List<AutoVoiceChannel> _voiceChannels;
         
-        public DiscordGuild Guild { get; }
-        public bool IsEnabled { get; set; }
-        public DiscordChannel? VoiceChannelCreator { get; set; }
-        public ICollection<ulong> VoiceChannelIds { get; private set; }
+        public ulong GuildId { get; private set; }
+        public bool IsEnabled { get; private set; }
+        public ulong? VoiceChannelCreatorId { get; private set; }
         
-        public IReadOnlyCollection<DiscordChannel> VoiceChannels => _voiceChannels.AsReadOnly();
+        public IReadOnlyCollection<AutoVoiceChannel> VoiceChannels => _voiceChannels.AsReadOnly();
 
-        public AutoVoiceSettings(DiscordGuild guild)
+        public AutoVoiceSettings(ulong guildId)
         {
-            Guild = guild;
-
-            VoiceChannelIds = new List<ulong>();
-            _voiceChannels = new List<DiscordChannel>();
-        }
-
-        public void Create()
-        {
-            _voiceChannels.Add(null);
-        }
-
-        public void Delete(DiscordChannel channel)
-        {
-            _voiceChannels.Remove(channel);
-        }
-
-        public void Enable()
-        {
+            GuildId = guildId;
             
+            _voiceChannels = new List<AutoVoiceChannel>();
+        }
+
+        public DiscordChannel GetVoiceChannelCreator(DiscordGuild guild)
+        {
+            return guild.Channels[VoiceChannelCreatorId!.Value];
+        }
+
+        public void Enable(DiscordChannel voiceChannelCreator)
+        {
+            IsEnabled = true;
+            VoiceChannelCreatorId = voiceChannelCreator.Id;
         }
 
         public void Disable()
         {
-            
+            IsEnabled = false;
+            VoiceChannelCreatorId = null;
+            _voiceChannels.Clear();
+        }
+
+        public void AddChannel(DiscordChannel newVoiceChannelCreator)
+        {
+            // Convert voice channel creator into auto voice channel and set the new creator channel.
+            _voiceChannels.Add(new AutoVoiceChannel(VoiceChannelCreatorId!.Value, GuildId));
+            VoiceChannelCreatorId = newVoiceChannelCreator.Id;
+        }
+
+        public void RemoveChannel(ulong voiceChannelId)
+        {
+            _voiceChannels.RemoveAll(x => x.VoiceChannelId == voiceChannelId);
         }
     }
 }

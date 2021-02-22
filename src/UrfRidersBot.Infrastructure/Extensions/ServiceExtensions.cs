@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using UrfRidersBot.Core.Configuration;
+using UrfRidersBot.Core.Interfaces;
 using DiscordConfiguration = UrfRidersBot.Core.Configuration.DiscordConfiguration;
 
 namespace UrfRidersBot.Infrastructure
@@ -33,7 +34,8 @@ namespace UrfRidersBot.Infrastructure
             // Project services
             services
                 .AddFetchableHostedService<IInteractiveService, InteractiveService>()
-                .AddFetchableHostedService<IAutoVoiceHostedService, AutoVoiceHostedService>();
+                .AddFetchableHostedService<IAutoVoiceHostedService, AutoVoiceHostedService>()
+                .AddSingleton<IAutoVoiceService, AutoVoiceService>();
             
             
             // Discord client and service

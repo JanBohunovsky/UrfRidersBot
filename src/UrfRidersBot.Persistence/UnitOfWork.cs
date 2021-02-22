@@ -8,13 +8,13 @@ namespace UrfRidersBot.Persistence
     {
         private readonly UrfRidersDbContext _context;
 
-        public IAutoVoiceChannelRepository AutoVoiceChannels { get; }
+        public IAutoVoiceSettingsRepository AutoVoiceSettings { get; }
 
         public UnitOfWork(UrfRidersDbContext context)
         {
             _context = context;
 
-            AutoVoiceChannels = new AutoVoiceChannelRepository(_context);
+            AutoVoiceSettings = new AutoVoiceSettingsRepository(_context);
         }
         
         public async Task CompleteAsync()

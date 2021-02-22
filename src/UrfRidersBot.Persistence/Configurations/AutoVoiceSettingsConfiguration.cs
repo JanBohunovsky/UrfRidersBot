@@ -8,7 +8,10 @@ namespace UrfRidersBot.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<AutoVoiceSettings> builder)
         {
-            
+            builder.HasKey(x => x.GuildId);
+
+            // builder.HasMany(x => x.VoiceChannels)
+            //     .WithOne();
         }
     }
 }

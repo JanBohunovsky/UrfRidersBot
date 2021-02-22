@@ -1,15 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UrfRidersBot.Core.Entities;
-using UrfRidersBot.Persistence.DTOs;
 
 namespace UrfRidersBot.Persistence.Configurations
 {
-    public class AutoVoiceChannelConfiguration : IEntityTypeConfiguration<AutoVoiceChannelDTO>
+    public class AutoVoiceChannelConfiguration : IEntityTypeConfiguration<AutoVoiceChannel>
     {
-        public void Configure(EntityTypeBuilder<AutoVoiceChannelDTO> builder)
+        public void Configure(EntityTypeBuilder<AutoVoiceChannel> builder)
         {
-            builder.HasKey(x => new { x.GuildId, x.VoiceChannelId });
+            builder.HasKey(x => new { x.VoiceChannelId, x.GuildId });
         }
     }
 }
