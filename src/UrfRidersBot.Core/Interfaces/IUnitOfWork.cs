@@ -5,7 +5,7 @@ namespace UrfRidersBot.Core.Interfaces
 {
     public interface IUnitOfWork : IDisposable, IAsyncDisposable
     {
-        IAutoVoiceSettingsRepository AutoVoiceSettings { get; }
+        IAutoVoiceChannelRepository AutoVoiceChannels { get; }
         Task CompleteAsync();
     }
 }

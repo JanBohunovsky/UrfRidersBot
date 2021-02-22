@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 
 namespace UrfRidersBot.Core.Entities
 {
@@ -13,9 +14,19 @@ namespace UrfRidersBot.Core.Entities
             GuildId = guildId;
         }
 
-        public DiscordChannel AsDiscordChannel(DiscordGuild guild)
+        public DiscordChannel ToDiscord(DiscordGuild guild)
         {
-            return guild.Channels[VoiceChannelId];
+            return guild.GetChannel(VoiceChannelId);
+        }
+
+        public DiscordChannel ToDiscord(DiscordClient client)
+        {
+            return client.Guilds[GuildId].GetChannel(VoiceChannelId);
+        }
+
+        public static AutoVoiceChannel FromDiscord(DiscordChannel channel)
+        {
+            return new AutoVoiceChannel(channel.Id, channel.GuildId);
         }
     }
 }

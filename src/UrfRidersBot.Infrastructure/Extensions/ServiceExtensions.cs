@@ -34,7 +34,7 @@ namespace UrfRidersBot.Infrastructure
             // Project services
             services
                 .AddFetchableHostedService<IInteractiveService, InteractiveService>()
-                .AddFetchableHostedService<IAutoVoiceHostedService, AutoVoiceHostedService>()
+                .AddHostedService<AutoVoiceHostedService>()
                 .AddSingleton<IAutoVoiceService, AutoVoiceService>();
             
             

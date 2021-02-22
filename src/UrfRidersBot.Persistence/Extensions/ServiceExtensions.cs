@@ -36,7 +36,7 @@ namespace UrfRidersBot.Persistence
         {
             // TODO: Use reflection
             services
-                .AddTransient<IAutoVoiceSettingsRepository, AutoVoiceSettingsRepository>();
+                .AddTransient<IAutoVoiceChannelRepository, AutoVoiceChannelRepository>();
 
             return services;
         }

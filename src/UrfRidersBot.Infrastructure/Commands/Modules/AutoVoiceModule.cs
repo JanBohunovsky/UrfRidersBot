@@ -15,9 +15,9 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
     [Description("Automatically create new voice channel whenever all are taken.")]
     public class AutoVoiceModule : BaseCommandModule
     {
-        private readonly IAutoVoiceHostedService _autoVoiceService;
+        private readonly IAutoVoiceService _autoVoiceService;
 
-        public AutoVoiceModule(IAutoVoiceHostedService autoVoiceService)
+        public AutoVoiceModule(IAutoVoiceService autoVoiceService)
         {
             _autoVoiceService = autoVoiceService;
         }
@@ -26,10 +26,13 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         [Description("Current Auto Voice status and more useful information.")]
         public async Task Information(CommandContext ctx)
         {
-            var channels = _autoVoiceService.GetChannels(ctx.Guild);
+            var channels = (await _autoVoiceService.GetVoiceChannelsAsync(ctx.Guild)).ToList();
+
+            if (!channels.Any())
+                throw new InvalidOperationException("Auto Voice is disabled on this server.");
 
             var channelBuilder = new StringBuilder();
-            await foreach (var channel in channels)
+            foreach (var channel in channels)
             {
                 channelBuilder.AppendLine($"Name: `{channel.Name}`");
                 channelBuilder.AppendLine($"ID: `{channel.Id}`");
@@ -83,7 +86,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
                 throw new ArgumentException("Channel must be a category.", nameof(category));
             }
 
-            var voiceChannel = await _autoVoiceService.Enable(ctx.Guild, category);
+            var voiceChannel = await _autoVoiceService.EnableForGuildAsync(ctx.Guild, category);
 
             var sb = new StringBuilder();
             sb.AppendLine("Auto Voice has been enabled.");
@@ -104,7 +107,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         [Description("Disables the module and deletes all the voice channels created by this module.")]
         public async Task Disable(CommandContext ctx)
         {
-            var count = await _autoVoiceService.Disable(ctx.Guild);
+            var count = await _autoVoiceService.DisableForGuildAsync(ctx.Guild);
 
             var embed = EmbedHelper
                 .CreateSuccess("Auto Voice has been disabled.")
