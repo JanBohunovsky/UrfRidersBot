@@ -19,9 +19,10 @@ namespace UrfRidersBot.Infrastructure
             _client.MessageReactionRemoved += OnMessageReactionRemoved;
             
             // Create reaction handler instances for each active handler/message
-            await using var dbContext = _dbContextFactory.CreateDbContext();
+            await using var unitOfWork = _unitOfWorkFactory.Create();
 
-            await foreach (var info in dbContext.ActiveReactionHandlers)
+            var activeReactionHandlers = await unitOfWork.ActiveReactionHandlers.GetAllAsync();
+            foreach (var info in activeReactionHandlers)
             {
                 var type = Type.GetType(info.TypeName);
                 if (type == null)

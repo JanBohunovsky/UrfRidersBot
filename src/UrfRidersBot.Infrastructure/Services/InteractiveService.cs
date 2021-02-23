@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using UrfRidersBot.Core.Entities;
+using UrfRidersBot.Core.Interfaces;
 using UrfRidersBot.Infrastructure.Interactive;
-using UrfRidersBot.Persistence;
 
 namespace UrfRidersBot.Infrastructure
 {
@@ -15,7 +14,7 @@ namespace UrfRidersBot.Infrastructure
     {
         private readonly DiscordClient _client;
         private readonly IServiceProvider _provider;
-        private readonly IDbContextFactory<UrfRidersDbContext> _dbContextFactory;
+        private readonly IUnitOfWorkFactory _unitOfWorkFactory;
         private readonly ILogger<InteractiveService> _logger;
         
         private readonly Dictionary<ulong, IReactionHandler> _reactionHandlers;
@@ -23,12 +22,12 @@ namespace UrfRidersBot.Infrastructure
         public InteractiveService(
             DiscordClient client,
             IServiceProvider provider,
-            IDbContextFactory<UrfRidersDbContext> dbContextFactory,
+            IUnitOfWorkFactory unitOfWorkFactory,
             ILogger<InteractiveService> logger)
         {
-            _provider = provider;
-            _dbContextFactory = dbContextFactory;
             _client = client;
+            _provider = provider;
+            _unitOfWorkFactory = unitOfWorkFactory;
             _logger = logger;
 
             _reactionHandlers = new Dictionary<ulong, IReactionHandler>();
@@ -39,21 +38,21 @@ namespace UrfRidersBot.Infrastructure
             var handlerInstance = ActivatorUtilities.CreateInstance<T>(_provider);
             var handlerInfo = new ReactionHandlerInfo(messageId, handlerInstance.GetType().FullName!);
             
-            await using var dbContext = _dbContextFactory.CreateDbContext();
-            await dbContext.ActiveReactionHandlers.AddAsync(handlerInfo);
-            await dbContext.SaveChangesAsync();
+            await using var unitOfWork = _unitOfWorkFactory.Create();
+            await unitOfWork.ActiveReactionHandlers.AddAsync(handlerInfo);
+            await unitOfWork.CompleteAsync();
             
             _reactionHandlers[messageId] = handlerInstance;
         }
 
         public async Task RemoveReactionHandlerAsync(ulong messageId)
         {
-            await using var dbContext = _dbContextFactory.CreateDbContext();
-            var handlerInfo = await dbContext.ActiveReactionHandlers.FindAsync(messageId);
+            await using var unitOfWork = _unitOfWorkFactory.Create();
+            var handlerInfo = await unitOfWork.ActiveReactionHandlers.GetByMessageId(messageId);
             if (handlerInfo != null)
             {
-                dbContext.ActiveReactionHandlers.Remove(handlerInfo);
-                await dbContext.SaveChangesAsync();
+                unitOfWork.ActiveReactionHandlers.Remove(handlerInfo);
+                await unitOfWork.CompleteAsync();
             }
             
             _reactionHandlers.Remove(messageId);
