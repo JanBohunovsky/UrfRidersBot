@@ -7,9 +7,9 @@ namespace UrfRidersBot.Persistence
     public class UrfRidersDbContext : DbContext
     {
         public DbSet<AutoVoiceChannel> AutoVoiceChannels => Set<AutoVoiceChannel>();
+        public DbSet<GuildSettings> GuildSettings => Set<GuildSettings>();
         
         // Old stuff
-        public DbSet<GuildSettings> GuildSettings => Set<GuildSettings>();
         public DbSet<ReactionTrackerData> ReactionTrackerData => Set<ReactionTrackerData>();
         public DbSet<ReactionHandlerInfo> ActiveReactionHandlers => Set<ReactionHandlerInfo>();
         

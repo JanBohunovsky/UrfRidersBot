@@ -21,8 +21,8 @@ namespace UrfRidersBot.Infrastructure
                 return -1;
 
             // Get custom prefix from guild
-            await using var dbContext = _dbContextFactory.CreateDbContext();
-            var guildSettings = await dbContext.GuildSettings.FindAsync(message.Channel.GuildId);
+            await using var unitOfWork = _unitOfWorkFactory.Create();
+            var guildSettings = await unitOfWork.GuildSettings.GetAsync(message.Channel.Guild);
 
             // No custom prefix (or invalid one) -> use default
             if (guildSettings?.CustomPrefix == null || string.IsNullOrWhiteSpace(guildSettings.CustomPrefix))

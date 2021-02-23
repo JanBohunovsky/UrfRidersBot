@@ -7,11 +7,10 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using UrfRidersBot.Core.Interfaces;
 using UrfRidersBot.Infrastructure.Commands;
-using UrfRidersBot.Persistence;
 using DiscordConfiguration = UrfRidersBot.Core.Configuration.DiscordConfiguration;
 
 namespace UrfRidersBot.Infrastructure
@@ -20,7 +19,7 @@ namespace UrfRidersBot.Infrastructure
     {
         private readonly DiscordClient _client;
         private readonly DiscordConfiguration _discordConfig;
-        private readonly IDbContextFactory<UrfRidersDbContext> _dbContextFactory;
+        private readonly IUnitOfWorkFactory _unitOfWorkFactory;
         private readonly ILogger<DiscordService> _logger;
         private readonly IHostEnvironment _environment;
         private readonly IServiceProvider _provider;
@@ -28,14 +27,14 @@ namespace UrfRidersBot.Infrastructure
         public DiscordService(
             DiscordClient client,
             DiscordConfiguration discordConfig,
-            IDbContextFactory<UrfRidersDbContext> dbContextFactory,
+            IUnitOfWorkFactory unitOfWorkFactory,
             ILogger<DiscordService> logger,
             IHostEnvironment environment,
             IServiceProvider provider)
         {
             _client = client;
             _discordConfig = discordConfig;
-            _dbContextFactory = dbContextFactory;
+            _unitOfWorkFactory = unitOfWorkFactory;
             _logger = logger;
             _provider = provider;
             _environment = environment;

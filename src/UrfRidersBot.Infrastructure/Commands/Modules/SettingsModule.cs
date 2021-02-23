@@ -4,7 +4,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using UrfRidersBot.Core;
 using UrfRidersBot.Core.Entities;
-using UrfRidersBot.Persistence;
+using UrfRidersBot.Core.Interfaces;
 
 namespace UrfRidersBot.Infrastructure.Commands.Modules
 {
@@ -20,17 +20,17 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         private const string ModeratorRoleKey = "moderator";
         private const string AdminRoleKey = "admin";
 
-        private readonly UrfRidersDbContext _dbContext;
+        private readonly IUnitOfWork _unitOfWork;
         private GuildSettings _settings = null!;
 
-        public SettingsModule(UrfRidersDbContext dbContext)
+        public SettingsModule(IUnitOfWork unitOfWork)
         {
-            _dbContext = dbContext;
+            _unitOfWork = unitOfWork;
         }
         
         public override async Task BeforeExecutionAsync(CommandContext ctx)
         {
-            _settings = await _dbContext.GuildSettings.FindOrCreateAsync(ctx.Guild.Id, id => new GuildSettings(id));
+            _settings = await _unitOfWork.GuildSettings.GetOrCreateAsync(ctx.Guild);
         }
 
         [GroupCommand]
@@ -71,7 +71,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         public async Task SetCustomPrefix(CommandContext ctx, [Description("Prefix to use on this server.")] string newPrefix)
         {
             _settings.CustomPrefix = newPrefix;
-            await _dbContext.SaveChangesAsync();
+            await _unitOfWork.CompleteAsync();
 
             var embed = EmbedHelper
                 .CreateSuccess($"Prefix has been set to `{newPrefix}`.")
@@ -86,7 +86,10 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         public async Task SetMemberRole(CommandContext ctx, [Description("Role that describes a verified/trusted user on the server.")] DiscordRole role)
         {
             _settings.MemberRoleId = role.Id;
-            await _dbContext.SaveChangesAsync();
+            
+            // TODO: Consider moving this to AfterExecutionAsync()
+            // All commands except the group command use this method
+            await _unitOfWork.CompleteAsync();
 
             var embed = EmbedHelper.CreateSuccess($"Member role has been set to {role.Mention}.").Build();
             await ctx.RespondAsync(embed);
@@ -97,7 +100,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         public async Task SetModeratorRole(CommandContext ctx, [Description("Role that describes a server moderator.")] DiscordRole role)
         {
             _settings.ModeratorRoleId = role.Id;
-            await _dbContext.SaveChangesAsync();
+            await _unitOfWork.CompleteAsync();
 
             var embed = EmbedHelper.CreateSuccess($"Moderator role has been set to {role.Mention}.").Build();
             await ctx.RespondAsync(embed);
@@ -108,7 +111,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         public async Task SetAdminRole(CommandContext ctx, [Description("Role that describes a server admin.")] DiscordRole role)
         {
             _settings.AdminRoleId = role.Id;
-            await _dbContext.SaveChangesAsync();
+            await _unitOfWork.CompleteAsync();
 
             var embed = EmbedHelper.CreateSuccess($"Admin role has been set to {role.Mention}.").Build();
             await ctx.RespondAsync(embed);
@@ -141,7 +144,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
                     return;
             }
 
-            await _dbContext.SaveChangesAsync();
+            await _unitOfWork.CompleteAsync();
 
             var embed = EmbedHelper.CreateSuccess($"{key} has been reset.").Build();
             await ctx.RespondAsync(embed);
@@ -151,13 +154,14 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         [Description("Reset all settings for current server")]
         public async Task ResetAllSettings(CommandContext ctx)
         {
-            _dbContext.Remove(_settings);
-            await _dbContext.SaveChangesAsync();
+            _unitOfWork.GuildSettings.Remove(_settings);
+            await _unitOfWork.CompleteAsync();
 
             var embed = EmbedHelper.CreateSuccess($"All settings for {ctx.Guild.Name} has been reset.").Build();
             await ctx.RespondAsync(embed);
         }
 
+        // TODO: Move this to GuildSettings
         private string? GetRoleMention(CommandContext ctx, ulong? roleId)
         {
             return roleId == null ? null : ctx.Guild.GetRole(roleId.Value).Mention;

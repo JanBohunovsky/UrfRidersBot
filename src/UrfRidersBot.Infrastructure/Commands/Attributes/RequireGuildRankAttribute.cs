@@ -5,10 +5,9 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using UrfRidersBot.Core.Entities;
-using UrfRidersBot.Persistence;
+using UrfRidersBot.Core.Interfaces;
 
 namespace UrfRidersBot.Infrastructure.Commands
 {
@@ -35,9 +34,9 @@ namespace UrfRidersBot.Infrastructure.Commands
             var member = (DiscordMember)ctx.User;
             
             // Get guild settings
-            var dbContextFactory = ctx.Services.GetRequiredService<IDbContextFactory<UrfRidersDbContext>>();
-            await using var dbContext = dbContextFactory.CreateDbContext();
-            var guildSettings = await dbContext.GuildSettings.FindOrCreateAsync(ctx.Guild.Id, id => new GuildSettings(id));
+            var unitOfWorkFactory = ctx.Services.GetRequiredService<IUnitOfWorkFactory>();
+            await using var unitOfWork = unitOfWorkFactory.Create();
+            var guildSettings = await unitOfWork.GuildSettings.GetOrCreateAsync(ctx.Guild);
             
             // Check user's rank
             var memberRank = GetMemberRank(member, ctx.Channel, guildSettings);
