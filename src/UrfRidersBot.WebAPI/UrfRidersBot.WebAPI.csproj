@@ -19,6 +19,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\UrfRidersBot.Infrastructure\UrfRidersBot.Infrastructure.csproj" />
+      <ProjectReference Include="..\UrfRidersBot.Persistence\UrfRidersBot.Persistence.csproj" />
     </ItemGroup>
 
 </Project>
