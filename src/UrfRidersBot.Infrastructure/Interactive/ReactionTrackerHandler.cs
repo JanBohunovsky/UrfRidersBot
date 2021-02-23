@@ -2,22 +2,19 @@
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using Microsoft.EntityFrameworkCore;
-using UrfRidersBot.Persistence;
+using UrfRidersBot.Core.Interfaces;
 
 namespace UrfRidersBot.Infrastructure.Interactive
 {
     public class ReactionTrackerHandler : IReactionHandler
     {
         private readonly DiscordClient _client;
-        private readonly IDbContextFactory<UrfRidersDbContext> _dbContextFactory;
+        private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
-        public ReactionTrackerHandler(
-            DiscordClient client,
-            IDbContextFactory<UrfRidersDbContext> dbContextFactory)
+        public ReactionTrackerHandler(DiscordClient client, IUnitOfWorkFactory unitOfWorkFactory)
         {
-            _dbContextFactory = dbContextFactory;
             _client = client;
+            _unitOfWorkFactory = unitOfWorkFactory;
         }
 
         public async Task ReactionAdded(DiscordMessage message, DiscordUser user, DiscordEmoji emote)
@@ -46,8 +43,8 @@ namespace UrfRidersBot.Infrastructure.Interactive
 
         private async ValueTask<DiscordMember> GetUser(DiscordMessage message)
         {
-            await using var dbContext = _dbContextFactory.CreateDbContext();
-            var data = await dbContext.ReactionTrackerData.FindAsync(message.Id);
+            await using var unitOfWork = _unitOfWorkFactory.Create();
+            var data = await unitOfWork.ReactionTrackerData.GetByMessageAsync(message);
             if (data == null)
                 throw new Exception($"No data found for {nameof(ReactionTrackerHandler)}");
 

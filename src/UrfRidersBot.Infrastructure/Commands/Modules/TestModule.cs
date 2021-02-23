@@ -2,11 +2,10 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using Microsoft.EntityFrameworkCore;
 using UrfRidersBot.Core;
 using UrfRidersBot.Core.Entities;
+using UrfRidersBot.Core.Interfaces;
 using UrfRidersBot.Infrastructure.Interactive;
-using UrfRidersBot.Persistence;
 
 namespace UrfRidersBot.Infrastructure.Commands.Modules
 {
@@ -54,16 +53,15 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
 
         [Group("reactionTracker")]
         [Description("Attach to a message to get notified whenever a someone adds or removes a reaction.")]
+        [ModuleLifespan(ModuleLifespan.Transient)]
         public class ReactionTrackerSubmodule : BaseCommandModule
         {
-            private readonly IDbContextFactory<UrfRidersDbContext> _dbContextFactory;
+            private readonly IUnitOfWork _unitOfWork;
             private readonly IInteractiveService _interactiveService;
 
-            public ReactionTrackerSubmodule(
-                IDbContextFactory<UrfRidersDbContext> dbContextFactory,
-                IInteractiveService interactiveService)
+            public ReactionTrackerSubmodule(IUnitOfWork unitOfWork, IInteractiveService interactiveService)
             {
-                _dbContextFactory = dbContextFactory;
+                _unitOfWork = unitOfWork;
                 _interactiveService = interactiveService;
             }
             
@@ -80,12 +78,9 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
                 {
                     // Create new reaction handler and create persistent data for it.
                     // TODO: Make this into a service method. I know this is a test command but something like this will be used in the future.
-                    await using (var dbContext = _dbContextFactory.CreateDbContext())
-                    {
-                        await _interactiveService.AddReactionHandlerAsync<ReactionTrackerHandler>(message.Id);
-                        await dbContext.ReactionTrackerData.AddAsync(new ReactionTrackerData(message.Id, ctx.User.Id));
-                        await dbContext.SaveChangesAsync();
-                    }
+                    await _interactiveService.AddReactionHandlerAsync<ReactionTrackerHandler>(message.Id);
+                    await _unitOfWork.ReactionTrackerData.AddAsync(new ReactionTrackerData(message.Id, ctx.User.Id));
+                    await _unitOfWork.CompleteAsync();
 
                     var embed = EmbedHelper
                         .CreateSuccess($"Added reaction tracker to the [message]({message.JumpLink}).")
@@ -107,12 +102,12 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
                 else
                 {
                     // Remove the reaction handler and its persistent data.
-                    await using (var dbContext = _dbContextFactory.CreateDbContext())
+                    await _interactiveService.RemoveReactionHandlerAsync(message.Id);
+                    var data = await _unitOfWork.ReactionTrackerData.GetByMessageAsync(message);
+                    if (data != null)
                     {
-                        await _interactiveService.RemoveReactionHandlerAsync(message.Id);
-                        var data = await dbContext.ReactionTrackerData.FindAsync(message.Id);
-                        dbContext.ReactionTrackerData.Remove(data);
-                        await dbContext.SaveChangesAsync();
+                        _unitOfWork.ReactionTrackerData.Remove(data);
+                        await _unitOfWork.CompleteAsync();
                     }
                 
                     var embed = EmbedHelper
