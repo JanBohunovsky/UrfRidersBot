@@ -17,7 +17,7 @@
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }
         },
-        "UrfRidersBot (WebAPI)": {
+        "Kestrel": {
             "commandName": "Project",
             "dotnetRunMessages": "true",
             "launchBrowser": true,
@@ -27,7 +27,7 @@
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }
         },
-        "UrfRidersBot (Discord)": {
+        "Kestrel (No Browser)": {
             "commandName": "Project",
             "dotnetRunMessages": "true",
             "launchBrowser": false,

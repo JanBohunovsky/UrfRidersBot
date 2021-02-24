@@ -1,18 +1,34 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NpgsqlTypes;
 using Serilog;
 using Serilog.Sinks.PostgreSQL;
+using UrfRidersBot.Persistence;
 
 namespace UrfRidersBot.WebAPI
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+            
+            // Make sure the database is on the latest migration
+            var logger = host.Services.GetRequiredService<ILogger<Program>>();
+            var dbContextFactory = host.Services.GetRequiredService<IDbContextFactory<UrfRidersDbContext>>();
+            await using (var dbContext = dbContextFactory.CreateDbContext())
+            {
+                logger.LogInformation("Migrating database...");
+                await dbContext.Database.MigrateAsync();
+            }
+
+            await host.RunAsync();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

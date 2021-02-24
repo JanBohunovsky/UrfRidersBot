@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using UrfRidersBot.Data;
-using UrfRidersBot.Discord;
+using UrfRidersBot.Infrastructure;
+using UrfRidersBot.Persistence;
 
 namespace UrfRidersBot.WebAPI
 {
@@ -22,17 +21,8 @@ namespace UrfRidersBot.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Entity Framework
-            string connectionString = Configuration.GetConnectionString("UrfRidersData");
-            services.AddDbContext<UrfRidersDbContext>(
-                options => options.UseNpgsql(connectionString),
-                ServiceLifetime.Transient,
-                ServiceLifetime.Transient
-            );
-            services.AddDbContextFactory<UrfRidersDbContext>(
-                options => options.UseNpgsql(connectionString)
-            );
-            
+            services.AddConfigurations(Configuration);
+            services.AddPersistence(Configuration.GetConnectionString("UrfRidersData"));
             services.AddDiscordBot();
             
             services.AddControllers();

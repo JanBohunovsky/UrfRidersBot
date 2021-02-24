@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.AspNetCore.Mvc;
-using UrfRidersBot.Discord;
+using UrfRidersBot.Core.Interfaces;
 
 namespace UrfRidersBot.WebAPI.Controllers
 {
@@ -17,12 +16,12 @@ namespace UrfRidersBot.WebAPI.Controllers
 
         public record AutoVoiceGuild(ulong GuildId, string GuildName, IEnumerable<AutoVoiceChannel> VoiceChannels);
 
+        private readonly IAutoVoiceChannelRepository _repository;
         private readonly DiscordClient _client;
-        private readonly IAutoVoiceService _autoVoiceService;
 
-        public AutoVoiceController(IAutoVoiceService autoVoiceService, DiscordClient client)
+        public AutoVoiceController(IAutoVoiceChannelRepository repository, DiscordClient client)
         {
-            _autoVoiceService = autoVoiceService;
+            _repository = repository;
             _client = client;
         }
 
@@ -30,22 +29,15 @@ namespace UrfRidersBot.WebAPI.Controllers
         public async Task<IEnumerable<AutoVoiceGuild>> GetVoiceChannels()
         {
             var guilds = new List<AutoVoiceGuild>();
-            
-            foreach (var (id, guild) in _client.Guilds)
-            {
-                var voiceChannels = new List<AutoVoiceChannel>();
 
-                try
-                {
-                    await foreach (var channel in _autoVoiceService.GetChannels(guild))
-                    {
-                        voiceChannels.Add(new AutoVoiceChannel(channel.Id, channel.Name, channel.Users.Count()));
-                    }
-                }
-                catch (InvalidOperationException)
-                {
-                    continue;
-                }
+            var autoVoiceGuilds = await _repository.GetAllAsync(_client);
+
+            foreach (var autoVoiceChannels in autoVoiceGuilds)
+            {
+                var guild = autoVoiceChannels.Key;
+                var voiceChannels = autoVoiceChannels
+                    .Select(x => new AutoVoiceChannel(x.Id, x.Name, x.Users.Count()))
+                    .ToList();
                 
                 guilds.Add(new AutoVoiceGuild(guild.Id, guild.Name, voiceChannels));
             }

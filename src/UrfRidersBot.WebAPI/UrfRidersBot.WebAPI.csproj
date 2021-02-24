@@ -18,11 +18,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\UrfRidersBot.Discord\UrfRidersBot.Discord.csproj" />
+      <ProjectReference Include="..\UrfRidersBot.Infrastructure\UrfRidersBot.Infrastructure.csproj" />
+      <ProjectReference Include="..\UrfRidersBot.Persistence\UrfRidersBot.Persistence.csproj" />
     </ItemGroup>
 
 </Project>
