@@ -25,7 +25,7 @@ jobs:
       run: |
         docker run \
           -d \
-          -p 80:80 \
+          -p 8080:80 \
           -e Discord__Token='${{ secrets.DISCORD_TOKEN }}' \
           -e RiotGames__ApiKey='${{ secrets.RIOT_GAMES_API_KEY }}' \
           -e ConnectionStrings__UrfRidersData='${{ secrets.CONNECTION_STRING }}' \
