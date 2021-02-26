@@ -1,0 +1,33 @@
+name: Deploy to Raspberry PI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build-and-deploy:
+    environment: production
+    runs-on: self-hosted
+    env:
+      image: 'bohush/urfridersbot'
+      container: 'urfridersbot'
+      appsettings-path: '~/.urfridersbot-secrets/appsettings.Production.json'
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Publish solution
+      run: dotnet publish -c Release -o out
+    - name: Copy production configuration
+      run: cp $appsettings-path out
+    - name: Build docker image
+      run: docker build -t $image .
+    - name: Stop container
+      run: docker stop $container && docker rm $container
+    - name: Run docker image
+      run: docker run --name=$container -d -p 8080:80 $image
+    - name: Clean up docker
+      run: docker system prune -a -f
