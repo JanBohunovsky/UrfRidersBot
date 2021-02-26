@@ -1,11 +1,6 @@
 name: build
 
-on: 
-  push:
-    paths:
-    - 'src/**'
-    - '*.sln'
-    - 'nuget.config'
+on: push
 
 jobs:
   build:
