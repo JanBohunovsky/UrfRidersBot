@@ -51,7 +51,7 @@ namespace UrfRidersBot.Persistence.Repositories
                 .ToList();
         }
 
-        public async ValueTask<DiscordChannel> GetVoiceChannelCreator(DiscordGuild guild)
+        public async ValueTask<DiscordChannel> GetCreator(DiscordGuild guild)
         {
             var all = await _context.AutoVoiceChannels
                 .AsNoTracking()
@@ -61,7 +61,7 @@ namespace UrfRidersBot.Persistence.Repositories
             return all.Last().ToDiscord(guild);
         }
 
-        public async ValueTask<bool> ContainsChannel(DiscordChannel voiceChannel)
+        public async ValueTask<bool> Contains(DiscordChannel voiceChannel)
         {
             // I don't know how EF Core compares objects in SQL queries when using Contains() method
             // and I'm too lazy to find out, so I'm just gonna use Any()  :^)
@@ -69,17 +69,17 @@ namespace UrfRidersBot.Persistence.Repositories
                 .AnyAsync(x => x.GuildId == voiceChannel.GuildId && x.VoiceChannelId == voiceChannel.Id);
         }
 
-        public async Task AddChannelAsync(DiscordChannel voiceChannel)
+        public async Task AddAsync(DiscordChannel voiceChannel)
         {
             await _context.AutoVoiceChannels.AddAsync(AutoVoiceChannel.FromDiscord(voiceChannel));
         }
 
-        public void RemoveChannel(DiscordChannel voiceChannel)
+        public void Remove(DiscordChannel voiceChannel)
         {
             _context.AutoVoiceChannels.Remove(AutoVoiceChannel.FromDiscord(voiceChannel));
         }
 
-        public void RemoveChannel(AutoVoiceChannel autoVoiceChannel)
+        public void Remove(AutoVoiceChannel autoVoiceChannel)
         {
             _context.AutoVoiceChannels.Remove(autoVoiceChannel);
         }

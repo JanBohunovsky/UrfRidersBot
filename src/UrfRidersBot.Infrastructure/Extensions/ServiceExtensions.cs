@@ -1,25 +1,16 @@
 ﻿using DSharpPlus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using UrfRidersBot.Core.Configuration;
 using UrfRidersBot.Core.Interfaces;
+using UrfRidersBot.Infrastructure.HostedServices;
 using DiscordConfiguration = UrfRidersBot.Core.Configuration.DiscordConfiguration;
 
 namespace UrfRidersBot.Infrastructure
 {
     public static class ServiceExtensions
     {
-        public static IServiceCollection AddFetchableHostedService<TService, TImplementation>(this IServiceCollection services)
-            where TService : class
-            where TImplementation : class, TService, IHostedService
-        {
-            return services
-                .AddSingleton<TService, TImplementation>()
-                .AddHostedService(provider => (TImplementation)provider.GetRequiredService<TService>());
-        }
-
         public static IServiceCollection AddConfigurations(this IServiceCollection services, IConfiguration configuration)
         {
             // TODO: Automate this via reflection
@@ -31,12 +22,14 @@ namespace UrfRidersBot.Infrastructure
 
         public static IServiceCollection AddDiscordBot(this IServiceCollection services)
         {
+            // TODO: Automate this via reflection
             // Project services
             services
-                .AddFetchableHostedService<IInteractiveService, InteractiveService>()
                 .AddHostedService<AutoVoiceHostedService>()
-                .AddSingleton<IAutoVoiceService, AutoVoiceService>();
+                .AddHostedService<ReactionRolesHostedService>();
             
+            services
+                .AddSingleton<IAutoVoiceService, AutoVoiceService>();
             
             // Discord client and service
             services.AddSingleton(provider =>
@@ -52,6 +45,10 @@ namespace UrfRidersBot.Infrastructure
                     LoggerFactory = loggerFactory,
                     AlwaysCacheMembers = true,
                 });
+                
+                // TODO: Consider moving UseCommandsNext here
+                // Since this will be called only when DiscordClient is requested (which happens only in IHostedServices)
+                // then that means it can be here.
 
                 return client;
             });

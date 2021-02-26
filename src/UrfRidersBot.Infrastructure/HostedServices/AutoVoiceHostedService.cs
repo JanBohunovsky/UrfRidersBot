@@ -7,7 +7,7 @@ using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
 using UrfRidersBot.Core.Interfaces;
 
-namespace UrfRidersBot.Infrastructure
+namespace UrfRidersBot.Infrastructure.HostedServices
 {
     internal class AutoVoiceHostedService : IHostedService
     {
@@ -61,7 +61,7 @@ namespace UrfRidersBot.Infrastructure
         {
             // TODO: Potential use of cache
             await using var unitOfWork = _unitOfWorkFactory.Create();
-            unitOfWork.AutoVoiceChannels.RemoveChannel(e.Channel);
+            unitOfWork.AutoVoiceChannels.Remove(e.Channel);
             await unitOfWork.CompleteAsync();
         }
 
