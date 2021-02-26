@@ -9,9 +9,9 @@ jobs:
     environment: production
     runs-on: self-hosted
     env:
-      image: 'bohush/urfridersbot'
-      container: 'urfridersbot'
-      appsettings: '~/.urfridersbot-secrets/appsettings.Production.json'
+      image: bohush/urfridersbot
+      container: urfridersbot
+      appsettings: ~/.urfridersbot-secrets/appsettings.Production.json
 
     steps:
     - uses: actions/checkout@v2
