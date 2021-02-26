@@ -12,10 +12,10 @@ namespace UrfRidersBot.Core.Interfaces
         ValueTask<ILookup<ulong, AutoVoiceChannel>> GetAllRawAsync();
         ValueTask<ILookup<DiscordGuild, DiscordChannel>> GetAllAsync(DiscordClient client);
         ValueTask<ICollection<DiscordChannel>> GetChannelsAsync(DiscordGuild guild);
-        ValueTask<DiscordChannel> GetVoiceChannelCreator(DiscordGuild guild);
-        ValueTask<bool> ContainsChannel(DiscordChannel voiceChannel);
-        Task AddChannelAsync(DiscordChannel voiceChannel);
-        void RemoveChannel(DiscordChannel voiceChannel);
-        void RemoveChannel(AutoVoiceChannel autoVoiceChannel);
+        ValueTask<DiscordChannel> GetCreator(DiscordGuild guild);
+        ValueTask<bool> Contains(DiscordChannel voiceChannel);
+        Task AddAsync(DiscordChannel voiceChannel);
+        void Remove(DiscordChannel voiceChannel);
+        void Remove(AutoVoiceChannel autoVoiceChannel);
     }
 }

@@ -50,7 +50,7 @@ namespace UrfRidersBot.Infrastructure
 
             var newVoiceChannel = await guild.CreateVoiceChannelAsync(NameNew, category);
             
-            await unitOfWork.AutoVoiceChannels.AddChannelAsync(newVoiceChannel);
+            await unitOfWork.AutoVoiceChannels.AddAsync(newVoiceChannel);
             await unitOfWork.CompleteAsync();
 
             return newVoiceChannel;
@@ -67,7 +67,7 @@ namespace UrfRidersBot.Infrastructure
             
             foreach (var voiceChannel in voiceChannels)
             {
-                unitOfWork.AutoVoiceChannels.RemoveChannel(voiceChannel);
+                unitOfWork.AutoVoiceChannels.Remove(voiceChannel);
                 await voiceChannel.DeleteAsync();
             }
 
@@ -88,7 +88,7 @@ namespace UrfRidersBot.Infrastructure
             
             await using var unitOfWork = _unitOfWorkFactory.Create();
             
-            await unitOfWork.AutoVoiceChannels.AddChannelAsync(newVoiceChannel);
+            await unitOfWork.AutoVoiceChannels.AddAsync(newVoiceChannel);
             await unitOfWork.CompleteAsync();
 
             return newVoiceChannel;
@@ -98,7 +98,7 @@ namespace UrfRidersBot.Infrastructure
         {
             await using var unitOfWork = _unitOfWorkFactory.Create();
             
-            unitOfWork.AutoVoiceChannels.RemoveChannel(voiceChannel);
+            unitOfWork.AutoVoiceChannels.Remove(voiceChannel);
             await voiceChannel.DeleteAsync();
 
             await unitOfWork.CompleteAsync();
@@ -156,13 +156,13 @@ namespace UrfRidersBot.Infrastructure
                 return false;
             
             await using var unitOfWork = _unitOfWorkFactory.Create();
-            return await unitOfWork.AutoVoiceChannels.ContainsChannel(voiceChannel);
+            return await unitOfWork.AutoVoiceChannels.Contains(voiceChannel);
         }
 
         public async ValueTask<bool> IsVoiceChannelCreatorAsync(DiscordChannel voiceChannel)
         {
             await using var unitOfWork = _unitOfWorkFactory.Create();
-            return await unitOfWork.AutoVoiceChannels.GetVoiceChannelCreator(voiceChannel.Guild) == voiceChannel;
+            return await unitOfWork.AutoVoiceChannels.GetCreator(voiceChannel.Guild) == voiceChannel;
         }
 
         public async Task CatchUpAsync()
@@ -185,7 +185,7 @@ namespace UrfRidersBot.Infrastructure
                     {
                         var discordVoiceChannel = guild.GetChannel(autoVoiceChannel.VoiceChannelId);
 
-                        unitOfWork.AutoVoiceChannels.RemoveChannel(autoVoiceChannel);
+                        unitOfWork.AutoVoiceChannels.Remove(autoVoiceChannel);
                         if (discordVoiceChannel != null)
                         {
                             await discordVoiceChannel.DeleteAsync();
@@ -211,7 +211,7 @@ namespace UrfRidersBot.Infrastructure
 
                     if (discordVoiceChannel == null || !discordVoiceChannel.Users.Any())
                     {
-                        unitOfWork.AutoVoiceChannels.RemoveChannel(autoVoiceChannel);
+                        unitOfWork.AutoVoiceChannels.Remove(autoVoiceChannel);
                         if (discordVoiceChannel != null)
                         {
                             await discordVoiceChannel.DeleteAsync();
