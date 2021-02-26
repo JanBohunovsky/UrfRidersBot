@@ -26,6 +26,7 @@ jobs:
       run: docker build -t $image .
     - name: Stop container
       run: docker stop $container && docker rm $container
+      continue-on-error: true
     - name: Run docker image
       run: docker run --name=$container -d -p 8080:80 $image
     - name: Clean up docker
