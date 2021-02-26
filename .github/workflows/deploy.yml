@@ -11,7 +11,6 @@ jobs:
     env:
       image: bohush/urfridersbot
       container: urfridersbot
-      appsettings: ~/.urfridersbot-secrets/appsettings.Production.json
 
     steps:
     - uses: actions/checkout@v2
@@ -22,7 +21,7 @@ jobs:
     - name: Publish solution
       run: dotnet publish -c Release -o out
     - name: Copy production configuration
-      run: cp $appsettings out
+      run: cp /home/pi/.urfridersbot-secrets/appsettings.Production.json out
     - name: Build docker image
       run: docker build -t $image .
     - name: Stop container
