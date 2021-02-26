@@ -5,13 +5,13 @@ on:
     branches: [ master ]
 
 jobs:
-  build-and-deploy:
+  deploy:
     environment: production
     runs-on: self-hosted
     env:
       image: 'bohush/urfridersbot'
       container: 'urfridersbot'
-      appsettings-path: '~/.urfridersbot-secrets/appsettings.Production.json'
+      appsettings: '~/.urfridersbot-secrets/appsettings.Production.json'
 
     steps:
     - uses: actions/checkout@v2
@@ -22,7 +22,7 @@ jobs:
     - name: Publish solution
       run: dotnet publish -c Release -o out
     - name: Copy production configuration
-      run: cp $appsettings-path out
+      run: cp $appsettings out
     - name: Build docker image
       run: docker build -t $image .
     - name: Stop container
