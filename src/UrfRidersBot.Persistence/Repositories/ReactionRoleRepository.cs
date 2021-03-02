@@ -5,6 +5,7 @@ using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using UrfRidersBot.Core.Entities;
 using UrfRidersBot.Core.Interfaces;
+using UrfRidersBot.Persistence.DTOs;
 using UrfRidersBot.Persistence.Mappers;
 
 namespace UrfRidersBot.Persistence.Repositories
@@ -48,12 +49,12 @@ namespace UrfRidersBot.Persistence.Repositories
 
         public async Task AddAsync(ReactionRole reactionRole)
         {
-            await _context.ReactionRoles.AddAsync(ReactionRoleMapper.FromDiscord(reactionRole));
+            await _context.ReactionRoles.AddAsync(ReactionRoleDTO.FromDiscord(reactionRole));
         }
 
         public void Remove(ReactionRole reactionRole)
         {
-            _context.ReactionRoles.Remove(ReactionRoleMapper.FromDiscord(reactionRole));
+            _context.ReactionRoles.Remove(ReactionRoleDTO.FromDiscord(reactionRole));
         }
     }
 }
