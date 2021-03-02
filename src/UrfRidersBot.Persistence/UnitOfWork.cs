@@ -11,6 +11,7 @@ namespace UrfRidersBot.Persistence
         public IAutoVoiceChannelRepository AutoVoiceChannels { get; }
         public IGuildSettingsRepository GuildSettings { get; }
         public IReactionRoleRepository ReactionRoles { get; }
+        public IColorRoleRepository ColorRoles { get; }
 
         public UnitOfWork(UrfRidersDbContext context)
         {
@@ -19,6 +20,7 @@ namespace UrfRidersBot.Persistence
             AutoVoiceChannels = new AutoVoiceChannelRepository(_context);
             GuildSettings = new GuildSettingsRepository(_context);
             ReactionRoles = new ReactionRoleRepository(_context);
+            ColorRoles = new ColorRoleRepository(_context);
         }
         
         public async Task CompleteAsync()

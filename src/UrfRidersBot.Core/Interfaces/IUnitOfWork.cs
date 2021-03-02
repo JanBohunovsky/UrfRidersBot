@@ -8,6 +8,7 @@ namespace UrfRidersBot.Core.Interfaces
         IAutoVoiceChannelRepository AutoVoiceChannels { get; }
         IGuildSettingsRepository GuildSettings { get; }
         IReactionRoleRepository ReactionRoles { get; }
+        IColorRoleRepository ColorRoles { get; }
         Task CompleteAsync();
     }
 }
