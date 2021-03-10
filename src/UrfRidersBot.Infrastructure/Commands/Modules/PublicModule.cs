@@ -8,17 +8,21 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Hosting;
 using UrfRidersBot.Core;
+using UrfRidersBot.Core.Interfaces;
 
 namespace UrfRidersBot.Infrastructure.Commands.Modules
 {
     [Description("Basic commands available to everyone.")]
+    [ModuleLifespan(ModuleLifespan.Transient)]
     public class PublicModule : BaseCommandModule
     {
         private readonly IHostEnvironment _hostEnvironment;
+        private readonly IColorRoleService _colorRoleService;
 
-        public PublicModule(IHostEnvironment hostEnvironment)
+        public PublicModule(IHostEnvironment hostEnvironment, IColorRoleService colorRoleService)
         {
             _hostEnvironment = hostEnvironment;
+            _colorRoleService = colorRoleService;
         }
         
         [Command("ping")]
@@ -48,6 +52,44 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
             embed.AddField(".NET", Environment.Version.ToString(3));
 
             await ctx.RespondAsync(embed.Build());
+        }
+
+        [RequireGuildRank(GuildRank.Member)]
+        [Command("color")]
+        [Description("Give yourself a role with custom color.")]
+        public async Task Color(CommandContext ctx, 
+            [Description("Color you wish to use, for example: `#ff8000` or `255,128,0`.")]
+            DiscordColor? color = null)
+        {
+            if (ctx.Member == null)
+            {
+                return;
+            }
+
+            if (color == null)
+            {
+                color = DiscordColor.None;
+            }
+            else if (color.Value.Value == DiscordColor.None.Value)
+            {
+                // If user entered pure black, set it to near black because pure black is treated as transparent.
+                color = DiscordColor.Black;
+            }
+
+            await _colorRoleService.SetColorRoleAsync(ctx.Member, color.Value);
+        }
+        
+        [RequireGuildRank(GuildRank.Member)]
+        [Command("removeColor"), Aliases("clearColor")]
+        [Description("Remove your custom color role.")]
+        public async Task RemoveColor(CommandContext ctx)
+        {
+            if (ctx.Member == null)
+            {
+                return;
+            }
+
+            await _colorRoleService.RemoveColorRoleAsync(ctx.Member);
         }
         
         [Command("ask"), Aliases("yn", "question")]
