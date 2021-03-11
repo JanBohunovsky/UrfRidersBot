@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NpgsqlTypes;
 using Serilog;
+using Serilog.Filters;
 using Serilog.Sinks.PostgreSQL;
 using UrfRidersBot.Persistence;
 
@@ -34,34 +36,43 @@ namespace UrfRidersBot.WebAPI
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); })
-                .UseSerilog((context, provider, logger) =>
-                {
-                    logger
-                        .ReadFrom.Configuration(context.Configuration)
-                        .Enrich.FromLogContext()
-                        .WriteTo.Console();
+                .UseSerilog(ConfigureSerilog);
 
-                    if (context.HostingEnvironment.IsProduction())
-                    {
-                        var columnWriters = new Dictionary<string, ColumnWriterBase>
-                        {
-                            { "timestamp", new TimestampColumnWriter(NpgsqlDbType.TimestampTz) },
-                            { "level", new LevelColumnWriter() },
-                            { "level_name", new LevelColumnWriter(true, NpgsqlDbType.Text) },
-                            { "message", new RenderedMessageColumnWriter() },
-                            { "message_template", new MessageTemplateColumnWriter() },
-                            { "properties", new PropertiesColumnWriter() },
-                            { "exception", new ExceptionColumnWriter() },
-                        };
+        private static void ConfigureSerilog(HostBuilderContext context, IServiceProvider provider,
+            LoggerConfiguration logger)
+        {
+            logger
+                .ReadFrom.Configuration(context.Configuration)
+                .Enrich.FromLogContext()
+                .WriteTo.Console();
 
-                        logger.WriteTo.PostgreSQL(
-                            context.Configuration.GetConnectionString("UrfRidersData"),
-                            "log",
-                            columnWriters,
-                            useCopy: false,
-                            needAutoCreateTable: true
-                        );
-                    }
-                });
+            if (!context.HostingEnvironment.IsProduction()) 
+                return;
+
+            // BaseDiscordClient is spamming Error and Fatal logs which give no value.
+            // e.g. [Fata] Connection terminated ... reconnecting -- This happens when Discord requests WebSocket restart (which is normal)
+            //                                                       but also when the bot gets disconnected...
+            //      [Error] Rate limit hit, re-queueing request to ... -- This should've been a warning, like seriously...
+            logger.Filter.ByExcluding(Matching.FromSource("DSharpPlus.BaseDiscordClient"));
+            
+            var columnWriters = new Dictionary<string, ColumnWriterBase>
+            {
+                { "timestamp", new TimestampColumnWriter(NpgsqlDbType.TimestampTz) },
+                { "level", new LevelColumnWriter() },
+                { "level_name", new LevelColumnWriter(true, NpgsqlDbType.Text) },
+                { "message", new RenderedMessageColumnWriter() },
+                { "message_template", new MessageTemplateColumnWriter() },
+                { "properties", new PropertiesColumnWriter() },
+                { "exception", new ExceptionColumnWriter() },
+            };
+
+            logger.WriteTo.PostgreSQL(
+                context.Configuration.GetConnectionString("UrfRidersData"),
+                "log",
+                columnWriters,
+                useCopy: false,
+                needAutoCreateTable: true
+            );
+        }
     }
 }
