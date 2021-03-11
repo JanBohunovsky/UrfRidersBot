@@ -18,11 +18,15 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
     {
         private readonly IHostEnvironment _hostEnvironment;
         private readonly IColorRoleService _colorRoleService;
+        private readonly IVersionService _versionService;
 
-        public PublicModule(IHostEnvironment hostEnvironment, IColorRoleService colorRoleService)
+        public PublicModule(IHostEnvironment hostEnvironment,
+            IColorRoleService colorRoleService,
+            IVersionService versionService)
         {
             _hostEnvironment = hostEnvironment;
             _colorRoleService = colorRoleService;
+            _versionService = versionService;
         }
         
         [Command("ping")]
@@ -46,7 +50,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         public async Task Info(CommandContext ctx)
         {
             var embed = EmbedHelper.CreateBotInfo(ctx.Client);
-            embed.AddField("Version", "2.0.0-preview"); // Temporary hardcoded version
+            embed.AddField("Version", _versionService.BotVersion);
             embed.AddField("Environment", _hostEnvironment.EnvironmentName);
             embed.AddField("Host", Environment.MachineName);
             embed.AddField(".NET", Environment.Version.ToString(3));
