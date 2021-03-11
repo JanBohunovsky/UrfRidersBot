@@ -28,6 +28,39 @@ To see more configuration options, check the [configuration models](/src/UrfRide
 
 # Changelog
 ## 2.0.0
+### Added bot version
+- The bot version uses following format: `Major.Minor.Patch`
+- **Major** - *Big changes that the user has to learn to use the bot.*
+  - New/reworked command groups (e.g. Clash)
+  - New/reworked systems (e.g. Guild Rank)
+- **Minor** - *Small changes that will affect how the user uses the bot.*
+  - New/updated commands
+  - New/updated services
+- **Patch** - *Things that user is usually not affected by.*
+  - Bug fixes
+  - Text improvements (e.g. command outputs, fixed typos)
+  - Changes to command documentation (e.g. parameter description)
+  - Internal changes (e.g. updated nuget package)
+- With this change, the version 2.0 is "complete". From now on I'm gonna be using this versioning scheme while implementing new or old features.
+
+## 2.0.0-dev3
+### Added color roles
+- Users can give themselves a role with custom color using the new `color` command.
+
+
+## 2.0.0-dev2
+### Added Messages API endpoint
+- Currently supports only message sending.
+
+### Re-added Reaction Roles
+- Now works like a toggle
+  - The bot will remove your reaction every time.
+  - If you already have the role, the bot will remove it.
+  - If you don't have the role, the bot will give it to you.
+  - The reason for this change was that I have no way of adding other user's reactions if they already have the role so the reactions would not match the number of users with that role.
+
+
+## 2.0.0-dev1
 - This version was made from scratch. Some features from previous versions may be missing.
 - Added help command to list all available commands (thanks to DSharpPlus).
 
@@ -49,6 +82,7 @@ To see more configuration options, check the [configuration models](/src/UrfRide
 - `ask <question>`
   - This will post an embed with user's question and with two reactions (yes and no).
   - Mentioned roles are separated from the embed's content (so they will get pinged).
+
 
 ## 1.4
 ### Added README
