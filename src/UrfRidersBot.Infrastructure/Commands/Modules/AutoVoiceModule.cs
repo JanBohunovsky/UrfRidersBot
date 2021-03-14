@@ -40,6 +40,12 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
                 
                 foreach (var user in channel.Users)
                 {
+                    if (user == null)
+                    {
+                        channelBuilder.AppendLine("*Unknown user*");
+                        continue;
+                    }
+                    
                     channelBuilder.Append(user.Mention);
 
                     if (user.Presence.Activities.Any())
