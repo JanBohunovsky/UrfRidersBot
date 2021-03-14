@@ -70,6 +70,11 @@ namespace UrfRidersBot.Infrastructure
                 new DiscordOverwriteBuilder().For(guild.EveryoneRole).Deny(Permissions.ManageChannels),
                 new DiscordOverwriteBuilder().For(guild.CurrentMember).Allow(Permissions.ManageChannels)
             };
+
+            if (bitrate != null)
+            {
+                bitrate *= 1000;
+            }
             
             return await guild.CreateVoiceChannelAsync(NameNew, category, bitrate, overwrites: overwrites);
         }
@@ -107,7 +112,7 @@ namespace UrfRidersBot.Infrastructure
             var guildSettings = await unitOfWork.GuildSettings.GetAsync(template.Guild);
             var bitrate = guildSettings?.VoiceBitrate;
             
-            var newVoiceChannel = await CreateNewChannelAsync(template.Guild, template, bitrate);
+            var newVoiceChannel = await CreateNewChannelAsync(template.Guild, template.Parent, bitrate);
 
             await unitOfWork.AutoVoiceChannels.AddAsync(newVoiceChannel);
             await unitOfWork.CompleteAsync();

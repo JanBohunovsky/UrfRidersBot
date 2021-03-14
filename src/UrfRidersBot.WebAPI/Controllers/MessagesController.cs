@@ -32,7 +32,7 @@ namespace UrfRidersBot.WebAPI.Controllers
             {
                 message = await channel.GetMessageAsync(messageId);
             }
-            catch (UnauthorizedException e)
+            catch (UnauthorizedException)
             {
                 return NotFound("Message not found.");
             }
