@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using UrfRidersBot.Core;
 using UrfRidersBot.Infrastructure.Commands;
 
-namespace UrfRidersBot.Infrastructure
+namespace UrfRidersBot.Infrastructure.HostedServices
 {
     internal partial class DiscordService
     {

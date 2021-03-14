@@ -13,13 +13,14 @@ using UrfRidersBot.Core.Interfaces;
 using UrfRidersBot.Infrastructure.Commands;
 using DiscordConfiguration = UrfRidersBot.Core.Configuration.DiscordConfiguration;
 
-namespace UrfRidersBot.Infrastructure
+namespace UrfRidersBot.Infrastructure.HostedServices
 {
     internal partial class DiscordService : IHostedService
     {
         private readonly DiscordClient _client;
         private readonly DiscordConfiguration _discordConfig;
         private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+        private readonly IBotInformationService _botInfo;
         private readonly ILogger<DiscordService> _logger;
         private readonly IHostEnvironment _environment;
         private readonly IServiceProvider _provider;
@@ -28,6 +29,7 @@ namespace UrfRidersBot.Infrastructure
             DiscordClient client,
             DiscordConfiguration discordConfig,
             IUnitOfWorkFactory unitOfWorkFactory,
+            IBotInformationService botInfo,
             ILogger<DiscordService> logger,
             IHostEnvironment environment,
             IServiceProvider provider)
@@ -35,6 +37,7 @@ namespace UrfRidersBot.Infrastructure
             _client = client;
             _discordConfig = discordConfig;
             _unitOfWorkFactory = unitOfWorkFactory;
+            _botInfo = botInfo;
             _logger = logger;
             _provider = provider;
             _environment = environment;
@@ -48,6 +51,7 @@ namespace UrfRidersBot.Infrastructure
             _client.GetCommandsNext().CommandErrored += OnCommandErrored;
             
             // Start discord client
+            _botInfo.SetStartTime(DateTimeOffset.Now);
             await _client.ConnectAsync();
         }
 
