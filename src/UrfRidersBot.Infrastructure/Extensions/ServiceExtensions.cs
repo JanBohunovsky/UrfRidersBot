@@ -27,11 +27,12 @@ namespace UrfRidersBot.Infrastructure
                 .AddHostedService<AutoVoiceHostedService>()
                 .AddHostedService<ReactionRolesHostedService>();
             
-            services.AddSingleton<IAutoVoiceService, AutoVoiceService>();
+            services
+                .AddSingleton<IAutoVoiceService, AutoVoiceService>()
+                .AddSingleton<IBotInformationService, BotInformationService>();
 
             services
-                .AddTransient<IColorRoleService, ColorRoleService>()
-                .AddTransient<IBotInformationService, BotInformationService>();
+                .AddTransient<IColorRoleService, ColorRoleService>();
             
             // Discord client and service
             services.AddSingleton(provider =>
