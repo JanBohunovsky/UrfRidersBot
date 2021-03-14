@@ -1,8 +1,6 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
 using UrfRidersBot.Core.Interfaces;
@@ -23,6 +21,7 @@ namespace UrfRidersBot.Infrastructure.HostedServices
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _client.MessageReactionAdded += OnMessageReactionAdded;
+            _client.MessageReactionRemoved += OnMessageReactionRemoved;
             
             return Task.CompletedTask;
         }
@@ -30,6 +29,7 @@ namespace UrfRidersBot.Infrastructure.HostedServices
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _client.MessageReactionAdded -= OnMessageReactionAdded;
+            _client.MessageReactionRemoved -= OnMessageReactionRemoved;
             
             return Task.CompletedTask;
         }
@@ -49,20 +49,25 @@ namespace UrfRidersBot.Infrastructure.HostedServices
                 return;
 
             var member = await e.Guild.GetMemberAsync(e.User.Id);
-            await ToggleRoleAsync(member, role);
-            await e.Message.DeleteReactionAsync(e.Emoji, e.User);
+            await member.GrantRoleAsync(role);
         }
 
-        private async Task ToggleRoleAsync(DiscordMember member, DiscordRole role)
+        private async Task OnMessageReactionRemoved(DiscordClient sender, MessageReactionRemoveEventArgs e)
         {
-            if (member.Roles.Contains(role))
-            {
-                await member.RevokeRoleAsync(role);
-            }
-            else
-            {
-                await member.GrantRoleAsync(role);
-            }
+            if (e.User.IsCurrent)
+                return;
+
+            if (e.Guild == null)
+                return;
+
+            await using var unitOfWork = _unitOfWorkFactory.Create();
+            var role = await unitOfWork.ReactionRoles.GetRoleAsync(e.Message, e.Emoji);
+
+            if (role == null)
+                return;
+
+            var member = await e.Guild.GetMemberAsync(e.User.Id);
+            await member.RevokeRoleAsync(role);
         }
     }
 }
