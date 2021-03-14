@@ -32,7 +32,7 @@ namespace UrfRidersBot.Infrastructure
 
             services
                 .AddTransient<IColorRoleService, ColorRoleService>()
-                .AddTransient<IVersionService, VersionService>();
+                .AddTransient<IBotInformationService, BotInformationService>();
             
             // Discord client and service
             services.AddSingleton(provider =>
