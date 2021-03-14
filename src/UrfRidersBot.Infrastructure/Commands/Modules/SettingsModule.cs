@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -19,6 +20,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         private const string MemberRoleKey = "member";
         private const string ModeratorRoleKey = "moderator";
         private const string AdminRoleKey = "admin";
+        private const string BitrateKey = "bitrate";
 
         private readonly IUnitOfWork _unitOfWork;
         private GuildSettings _settings = null!;
@@ -60,8 +62,12 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
                 .AddField(
                     "Custom prefix",
                     _settings.CustomPrefix != null ? Markdown.Code(_settings.CustomPrefix) : NullText,
+                    true)
+                .AddField(
+                    "Bitrate",
+                    _settings.VoiceBitrate != null ? $"{_settings.VoiceBitrate} Kbps" : NullText,
                     true);
-
+            
             await ctx.RespondAsync(embed);
         }
 
@@ -117,6 +123,36 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
             await ctx.RespondAsync(embed);
         }
 
+        [Command(BitrateKey)]
+        [Description("Set bitrate for auto voice channels.")]
+        public async Task SetBitrate(CommandContext ctx, int bitrate)
+        {
+            const int minBitrate = 8;
+            var maxBitrate = ctx.Guild.PremiumTier switch
+            {
+                PremiumTier.Tier_1  => 128,
+                PremiumTier.Tier_2  => 256,
+                PremiumTier.Tier_3  => 384,
+                PremiumTier.Unknown => 384, // Handle unknown as a new tier above 3
+                _ => 96
+            };
+
+            if (bitrate < minBitrate || bitrate > maxBitrate)
+            {
+                await ctx.RespondAsync(EmbedHelper.CreateError($"Bitrate must be between {minBitrate} and {maxBitrate} Kbps."));
+                return;
+            }
+
+            _settings.VoiceBitrate = bitrate;
+            await _unitOfWork.CompleteAsync();
+
+            var embed = EmbedHelper
+                .CreateSuccess($"Auto Voice channel's bitrate has been set to {bitrate} Kbps.")
+                .WithFooter("Existing Auto Voice channels won't be updated.");
+
+            await ctx.RespondAsync(embed);
+        }
+
         [Command("reset")]
         [Description("Reset a specific setting")]
         public async Task ResetSetting(CommandContext ctx, [Description("Setting key, use `help settings` if you don't know.")] string key)
@@ -138,6 +174,10 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
                 case AdminRoleKey:
                     _settings.AdminRoleId = null;
                     key = "Admin role";
+                    break;
+                case BitrateKey:
+                    _settings.VoiceBitrate = null;
+                    key = "Bitrate";
                     break;
                 default:
                     await ctx.RespondAsync(EmbedHelper.CreateError("Setting not found.").Build());
