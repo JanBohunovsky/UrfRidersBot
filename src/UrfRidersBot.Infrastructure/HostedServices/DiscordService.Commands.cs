@@ -17,7 +17,7 @@ namespace UrfRidersBot.Infrastructure.HostedServices
         private async Task<int> PrefixResolver(DiscordMessage message)
         {
             // Check if the default prefix is valid
-            if (string.IsNullOrWhiteSpace(_discordConfig.Prefix))
+            if (string.IsNullOrWhiteSpace(_discordOptions.CurrentValue.Prefix))
                 return -1;
 
             // Get custom prefix from guild
@@ -27,7 +27,7 @@ namespace UrfRidersBot.Infrastructure.HostedServices
             // No custom prefix (or invalid one) -> use default
             if (guildSettings?.CustomPrefix == null || string.IsNullOrWhiteSpace(guildSettings.CustomPrefix))
             {
-                return message.GetStringPrefixLength(_discordConfig.Prefix, StringComparison.OrdinalIgnoreCase);
+                return message.GetStringPrefixLength(_discordOptions.CurrentValue.Prefix, StringComparison.OrdinalIgnoreCase);
             }
             else
             {

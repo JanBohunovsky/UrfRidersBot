@@ -9,16 +9,17 @@ using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using UrfRidersBot.Core.Configuration;
 using UrfRidersBot.Core.Interfaces;
 using UrfRidersBot.Infrastructure.Commands;
-using DiscordConfiguration = UrfRidersBot.Core.Configuration.DiscordConfiguration;
 
 namespace UrfRidersBot.Infrastructure.HostedServices
 {
     internal partial class DiscordService : IHostedService
     {
         private readonly DiscordClient _client;
-        private readonly DiscordConfiguration _discordConfig;
+        private readonly IOptionsMonitor<DiscordOptions> _discordOptions;
         private readonly IUnitOfWorkFactory _unitOfWorkFactory;
         private readonly IBotInformationService _botInfo;
         private readonly ILogger<DiscordService> _logger;
@@ -27,7 +28,7 @@ namespace UrfRidersBot.Infrastructure.HostedServices
 
         public DiscordService(
             DiscordClient client,
-            DiscordConfiguration discordConfig,
+            IOptionsMonitor<DiscordOptions> discordOptions,
             IUnitOfWorkFactory unitOfWorkFactory,
             IBotInformationService botInfo,
             ILogger<DiscordService> logger,
@@ -35,7 +36,7 @@ namespace UrfRidersBot.Infrastructure.HostedServices
             IServiceProvider provider)
         {
             _client = client;
-            _discordConfig = discordConfig;
+            _discordOptions = discordOptions;
             _unitOfWorkFactory = unitOfWorkFactory;
             _botInfo = botInfo;
             _logger = logger;
