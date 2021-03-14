@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DSharpPlus.Entities;
 
 namespace UrfRidersBot.WebAPI.Models
@@ -38,6 +39,26 @@ namespace UrfRidersBot.WebAPI.Models
             }
 
             return builder;
+        }
+
+        public static EmbedDTO? FromDiscord(DiscordEmbed? embed)
+        {
+            if (embed == null)
+                return null;
+
+            return new EmbedDTO
+            {
+                Title = embed.Title,
+                Description = embed.Description,
+                Url = embed.Url?.ToString(),
+                ImageUrl = embed.Image?.Url?.ToString(),
+                Color = embed.Color.HasValue ? embed.Color.Value.ToString() : null,
+                Author = EmbedAuthorDTO.FromDiscord(embed.Author),
+                Thumbnail = EmbedThumbnailDTO.FromDiscord(embed.Thumbnail),
+                Footer = EmbedFooterDTO.FromDiscord(embed.Footer),
+                Timestamp = embed.Timestamp,
+                Fields = embed.Fields.Select(EmbedFieldDTO.FromDiscord)
+            };
         }
     }
 }

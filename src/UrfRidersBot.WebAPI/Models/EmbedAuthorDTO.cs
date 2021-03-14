@@ -17,5 +17,18 @@ namespace UrfRidersBot.WebAPI.Models
                 IconUrl = IconUrl
             };
         }
+
+        public static EmbedAuthorDTO? FromDiscord(DiscordEmbedAuthor? author)
+        {
+            if (author == null)
+                return null;
+
+            return new EmbedAuthorDTO
+            {
+                Name = author.Name,
+                Url = author.Url?.ToString(),
+                IconUrl = author.IconUrl?.ToString()
+            };
+        }
     }
 }

@@ -17,5 +17,18 @@ namespace UrfRidersBot.WebAPI.Models
                 Height = Height
             };
         }
+
+        public static EmbedThumbnailDTO? FromDiscord(DiscordEmbedThumbnail? thumbnail)
+        {
+            if (thumbnail == null)
+                return null;
+
+            return new EmbedThumbnailDTO
+            {
+                Url = thumbnail.Url?.ToString(),
+                Width = thumbnail.Width,
+                Height = thumbnail.Height
+            };
+        }
     }
 }
