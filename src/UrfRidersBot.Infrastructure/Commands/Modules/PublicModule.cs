@@ -50,7 +50,6 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         public async Task Info(CommandContext ctx)
         {
             var embed = EmbedHelper.CreateBotInfo(ctx.Client);
-            embed.AddField("Version", _botInfo.Version);
             embed.AddField("Uptime", _botInfo.Uptime.ToPrettyString());
             embed.AddField("Environment", _hostEnvironment.EnvironmentName);
             embed.AddField("Host", Environment.MachineName);
