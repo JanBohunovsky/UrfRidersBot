@@ -46,7 +46,7 @@ namespace UrfRidersBot.WebAPI.Models
             if (embed == null)
                 return null;
 
-            return new EmbedDTO
+            var result = new EmbedDTO
             {
                 Title = embed.Title,
                 Description = embed.Description,
@@ -56,9 +56,15 @@ namespace UrfRidersBot.WebAPI.Models
                 Author = EmbedAuthorDTO.FromDiscord(embed.Author),
                 Thumbnail = EmbedThumbnailDTO.FromDiscord(embed.Thumbnail),
                 Footer = EmbedFooterDTO.FromDiscord(embed.Footer),
-                Timestamp = embed.Timestamp,
-                Fields = embed.Fields.Select(EmbedFieldDTO.FromDiscord)
+                Timestamp = embed.Timestamp
             };
+
+            if (embed.Fields != null)
+            {
+                result.Fields = embed.Fields.Select(EmbedFieldDTO.FromDiscord);
+            }
+
+            return result;
         }
     }
 }
