@@ -67,14 +67,14 @@ namespace UrfRidersBot.Infrastructure.HostedServices
 
         private async Task OnPresenceUpdated(DiscordClient sender, PresenceUpdateEventArgs e)
         {
-            var voiceChannel = await _autoVoiceService.FindVoiceChannelAsync(e.User);
+            var voiceChannel = await _autoVoiceService.FindAsync(e.User);
             if (voiceChannel == null)
                 return;
 
             if (e.PresenceBefore.Activities.Count == e.PresenceAfter.Activities.Count)
                 return;
 
-            await _autoVoiceService.UpdateVoiceChannelNameAsync(voiceChannel);
+            await _autoVoiceService.UpdateNameAsync(voiceChannel);
         }
 
         private async Task OnVoiceStateUpdated(DiscordClient sender, VoiceStateUpdateEventArgs e)
@@ -84,13 +84,13 @@ namespace UrfRidersBot.Infrastructure.HostedServices
                 return;
 
             // User has joined one of my voice channels
-            if (await _autoVoiceService.ContainsVoiceChannelAsync(e.After?.Channel))
+            if (await _autoVoiceService.ContainsAsync(e.After?.Channel))
             {
                 await OnUserJoin(e.After!.Channel);
             }
             
             // User has left one of my voice channels
-            if (await _autoVoiceService.ContainsVoiceChannelAsync(e.Before?.Channel))
+            if (await _autoVoiceService.ContainsAsync(e.Before?.Channel))
             {
                 await OnUserLeft(e.Before!.Channel);
             }
@@ -98,12 +98,12 @@ namespace UrfRidersBot.Infrastructure.HostedServices
 
         private async Task OnUserJoin(DiscordChannel voiceChannel)
         {
-            await _autoVoiceService.UpdateVoiceChannelNameAsync(voiceChannel);
+            await _autoVoiceService.UpdateNameAsync(voiceChannel);
             
             // User has joined the last voice channel -> Create new one
-            if (await _autoVoiceService.IsVoiceChannelCreatorAsync(voiceChannel))
+            if (await _autoVoiceService.IsCreatorAsync(voiceChannel))
             {
-                await _autoVoiceService.CreateVoiceChannelAsync(voiceChannel);
+                await _autoVoiceService.CreateAsync(voiceChannel);
             }
         }
 
@@ -112,11 +112,11 @@ namespace UrfRidersBot.Infrastructure.HostedServices
             // All users left the channel -> Delete it
             if (!voiceChannel.Users.Any())
             {
-                await _autoVoiceService.DeleteVoiceChannelAsync(voiceChannel);
+                await _autoVoiceService.DeleteAsync(voiceChannel);
             }
             else
             {
-                await _autoVoiceService.UpdateVoiceChannelNameAsync(voiceChannel);
+                await _autoVoiceService.UpdateNameAsync(voiceChannel);
             }
         }
     }

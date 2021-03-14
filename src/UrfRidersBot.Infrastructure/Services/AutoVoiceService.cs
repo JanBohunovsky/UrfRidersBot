@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,14 +31,17 @@ namespace UrfRidersBot.Infrastructure
         
         private readonly DiscordClient _client;
         private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-        // private readonly Dictionary<ulong, List<ulong>> _guildCache;
+
+        // Key = voice channel ID
+        // Value = should the channel be updated after it's removed from this dictionary
+        private readonly ConcurrentDictionary<ulong, bool> _queuedVoiceChannels;
 
         public AutoVoiceService(DiscordClient client, IUnitOfWorkFactory unitOfWorkFactory)
         {
             _client = client;
             _unitOfWorkFactory = unitOfWorkFactory;
-            
-            // _guildCache = new Dictionary<ulong, List<ulong>>();
+
+            _queuedVoiceChannels = new ConcurrentDictionary<ulong, bool>();
         }
 
         public async ValueTask<DiscordChannel> EnableForGuildAsync(DiscordGuild guild, DiscordChannel? category = null)
@@ -76,13 +80,13 @@ namespace UrfRidersBot.Infrastructure
             return count;
         }
 
-        public async ValueTask<IEnumerable<DiscordChannel>> GetVoiceChannelsAsync(DiscordGuild guild)
+        public async ValueTask<IEnumerable<DiscordChannel>> GetByGuildAsync(DiscordGuild guild)
         {
             await using var unitOfWork = _unitOfWorkFactory.Create();
             return await unitOfWork.AutoVoiceChannels.GetChannelsAsync(guild);
         }
 
-        public async ValueTask<DiscordChannel> CreateVoiceChannelAsync(DiscordChannel template)
+        public async ValueTask<DiscordChannel> CreateAsync(DiscordChannel template)
         {
             var newVoiceChannel = await template.Guild.CreateVoiceChannelAsync(NameNew, template.Parent);
             
@@ -94,7 +98,7 @@ namespace UrfRidersBot.Infrastructure
             return newVoiceChannel;
         }
 
-        public async Task DeleteVoiceChannelAsync(DiscordChannel voiceChannel)
+        public async Task DeleteAsync(DiscordChannel voiceChannel)
         {
             await using var unitOfWork = _unitOfWorkFactory.Create();
             
@@ -104,130 +108,43 @@ namespace UrfRidersBot.Infrastructure
             await unitOfWork.CompleteAsync();
         }
 
-        public async Task UpdateVoiceChannelNameAsync(DiscordChannel voiceChannel)
+        public async Task UpdateNameAsync(DiscordChannel voiceChannel)
         {
-            var name = GetBestNameForVoiceChannel(voiceChannel);
+            var name = GetBestName(voiceChannel);
             
-            // TODO: Add delay:
-            // 2 methods: UpdateChannelName & DelayUpdateChannelName (temp name)
-            // UpdateChannelName will stay the same as it currently is.
-            // DelayUpdateChannelName will require a List (list or dictionary) of voice channels and update times:
-            //  1. Check if the channel is in the List
-            //    True - do nothing
-            //    False - create a new DateTimeOffset by getting the current time and adding a Delay to it and add those values to the List
-            //          - Delay: 5 minutes is the safest, this should never hit the rate limit but it will be less responsive
-            //                   3 minutes look like the best number, it should be responsive enough while not hitting many rate limits
-            if (voiceChannel.Name != name)
+            if (voiceChannel.Name == name)
             {
-                // TODO: Figure out what to do with this, the rate limit is 2 requests per 10 minutes....
-                _ = voiceChannel.ModifyAsync(x => x.Name = name);
+                return;
+            }
+
+            // Check if the voice channel was recently renamed, and if it was, mark it as "to be updated".
+            if (_queuedVoiceChannels.ContainsKey(voiceChannel.Id))
+            {
+                _queuedVoiceChannels[voiceChannel.Id] = true;
+                return;
+            }
+            
+            await voiceChannel.ModifyAsync(x => x.Name = name);
+
+            _queuedVoiceChannels.TryAdd(voiceChannel.Id, false);
+            
+            _ = DelayRenamingAsync(voiceChannel.Id);
+        }
+
+        private async Task DelayRenamingAsync(ulong voiceChannelId)
+        {
+            await Task.Delay(TimeSpan.FromMinutes(5));
+
+            _queuedVoiceChannels.TryRemove(voiceChannelId, out var shouldUpdate);
+
+            if (shouldUpdate)
+            {
+                var voiceChannel = await _client.GetChannelAsync(voiceChannelId);
+                await UpdateNameAsync(voiceChannel);
             }
         }
 
-        public async ValueTask<DiscordChannel?> FindVoiceChannelAsync(DiscordUser user)
-        {
-            if (user.IsBot)
-                return null;
-            
-            // TODO: Potential use of cache
-            await using var unitOfWork = _unitOfWorkFactory.Create();
-            var autoVoiceGuilds = await unitOfWork.AutoVoiceChannels.GetAllAsync(_client);
-
-            foreach (var autoVoiceChannels in autoVoiceGuilds)
-            {
-                var guild = autoVoiceChannels.Key;
-                var member = await guild.GetMemberAsync(user.Id);
-                var memberVoiceChannel = member.VoiceState?.Channel;
-                
-                if (memberVoiceChannel == null)
-                    continue;
-
-                if (autoVoiceChannels.Contains(memberVoiceChannel))
-                    return memberVoiceChannel;
-            }
-
-            return null;
-        }
-
-        public async ValueTask<bool> ContainsVoiceChannelAsync(DiscordChannel? voiceChannel)
-        {
-            // TODO: Potential use of cache
-            if (voiceChannel == null)
-                return false;
-            
-            await using var unitOfWork = _unitOfWorkFactory.Create();
-            return await unitOfWork.AutoVoiceChannels.Contains(voiceChannel);
-        }
-
-        public async ValueTask<bool> IsVoiceChannelCreatorAsync(DiscordChannel voiceChannel)
-        {
-            await using var unitOfWork = _unitOfWorkFactory.Create();
-            return await unitOfWork.AutoVoiceChannels.GetCreator(voiceChannel.Guild) == voiceChannel;
-        }
-
-        public async Task CatchUpAsync()
-        {
-            // Warning: This method is ugly, when I have more time I will refactor this but now I won't bother.
-            
-            await using var unitOfWork = _unitOfWorkFactory.Create();
-            var autoVoiceGuilds = await unitOfWork.AutoVoiceChannels.GetAllRawAsync();
-
-            foreach (var autoVoiceChannels in autoVoiceGuilds)
-            {
-                var guild = _client.Guilds[autoVoiceChannels.Key];
-                var voiceChannelCreator = autoVoiceChannels.Last();
-
-                // If the voice channel creator was deleted, then disable auto voice for the guild (by deleting all channels).
-                var discordVoiceChannelCreator = guild.GetChannel(voiceChannelCreator.VoiceChannelId);
-                if (discordVoiceChannelCreator == null)
-                {
-                    foreach (var autoVoiceChannel in autoVoiceChannels)
-                    {
-                        var discordVoiceChannel = guild.GetChannel(autoVoiceChannel.VoiceChannelId);
-
-                        unitOfWork.AutoVoiceChannels.Remove(autoVoiceChannel);
-                        if (discordVoiceChannel != null)
-                        {
-                            await discordVoiceChannel.DeleteAsync();
-                        }
-                    }
-
-                    continue;
-                }
-
-                if (discordVoiceChannelCreator.Users.Any())
-                {
-                    await UpdateVoiceChannelNameAsync(discordVoiceChannelCreator);
-                    await CreateVoiceChannelAsync(discordVoiceChannelCreator);
-                }
-
-                // Update all channels
-                foreach (var autoVoiceChannel in autoVoiceChannels)
-                {
-                    if (autoVoiceChannel == voiceChannelCreator)
-                        continue;
-                    
-                    var discordVoiceChannel = guild.GetChannel(autoVoiceChannel.VoiceChannelId);
-
-                    if (discordVoiceChannel == null || !discordVoiceChannel.Users.Any())
-                    {
-                        unitOfWork.AutoVoiceChannels.Remove(autoVoiceChannel);
-                        if (discordVoiceChannel != null)
-                        {
-                            await discordVoiceChannel.DeleteAsync();
-                        }
-                    }
-                    else
-                    {
-                        await UpdateVoiceChannelNameAsync(discordVoiceChannel);
-                    }
-                }
-            }
-
-            await unitOfWork.CompleteAsync();
-        }
-
-        private string GetBestNameForVoiceChannel(DiscordChannel voiceChannel)
+        public string GetBestName(DiscordChannel voiceChannel)
         {
             // TODO: Use strategy pattern(?)
             // I mean like having a list of IAutoVoiceNamingStrategy and iterate through them
@@ -305,6 +222,109 @@ namespace UrfRidersBot.Infrastructure
             }
 
             return NameGeneral;
+        }
+
+        public async ValueTask<DiscordChannel?> FindAsync(DiscordUser user)
+        {
+            if (user.IsBot)
+                return null;
+            
+            // TODO: Potential use of cache
+            await using var unitOfWork = _unitOfWorkFactory.Create();
+            var autoVoiceGuilds = await unitOfWork.AutoVoiceChannels.GetAllAsync(_client);
+
+            foreach (var autoVoiceChannels in autoVoiceGuilds)
+            {
+                var guild = autoVoiceChannels.Key;
+                var member = await guild.GetMemberAsync(user.Id);
+                var memberVoiceChannel = member.VoiceState?.Channel;
+                
+                if (memberVoiceChannel == null)
+                    continue;
+
+                if (autoVoiceChannels.Contains(memberVoiceChannel))
+                    return memberVoiceChannel;
+            }
+
+            return null;
+        }
+
+        public async ValueTask<bool> ContainsAsync(DiscordChannel? voiceChannel)
+        {
+            // TODO: Potential use of cache
+            if (voiceChannel == null)
+                return false;
+            
+            await using var unitOfWork = _unitOfWorkFactory.Create();
+            return await unitOfWork.AutoVoiceChannels.Contains(voiceChannel);
+        }
+
+        public async ValueTask<bool> IsCreatorAsync(DiscordChannel voiceChannel)
+        {
+            await using var unitOfWork = _unitOfWorkFactory.Create();
+            return await unitOfWork.AutoVoiceChannels.GetCreator(voiceChannel.Guild) == voiceChannel;
+        }
+
+        public async Task CatchUpAsync()
+        {
+            // Warning: This method is ugly, when I have more time I will refactor this but now I won't bother.
+            
+            await using var unitOfWork = _unitOfWorkFactory.Create();
+            var autoVoiceGuilds = await unitOfWork.AutoVoiceChannels.GetAllRawAsync();
+
+            foreach (var autoVoiceChannels in autoVoiceGuilds)
+            {
+                var guild = _client.Guilds[autoVoiceChannels.Key];
+                var voiceChannelCreator = autoVoiceChannels.Last();
+
+                // If the voice channel creator was deleted, then disable auto voice for the guild (by deleting all channels).
+                var discordVoiceChannelCreator = guild.GetChannel(voiceChannelCreator.VoiceChannelId);
+                if (discordVoiceChannelCreator == null)
+                {
+                    foreach (var autoVoiceChannel in autoVoiceChannels)
+                    {
+                        var discordVoiceChannel = guild.GetChannel(autoVoiceChannel.VoiceChannelId);
+
+                        unitOfWork.AutoVoiceChannels.Remove(autoVoiceChannel);
+                        if (discordVoiceChannel != null)
+                        {
+                            await discordVoiceChannel.DeleteAsync();
+                        }
+                    }
+
+                    continue;
+                }
+
+                if (discordVoiceChannelCreator.Users.Any())
+                {
+                    await UpdateNameAsync(discordVoiceChannelCreator);
+                    await CreateAsync(discordVoiceChannelCreator);
+                }
+
+                // Update all channels
+                foreach (var autoVoiceChannel in autoVoiceChannels)
+                {
+                    if (autoVoiceChannel == voiceChannelCreator)
+                        continue;
+                    
+                    var discordVoiceChannel = guild.GetChannel(autoVoiceChannel.VoiceChannelId);
+
+                    if (discordVoiceChannel == null || !discordVoiceChannel.Users.Any())
+                    {
+                        unitOfWork.AutoVoiceChannels.Remove(autoVoiceChannel);
+                        if (discordVoiceChannel != null)
+                        {
+                            await discordVoiceChannel.DeleteAsync();
+                        }
+                    }
+                    else
+                    {
+                        await UpdateNameAsync(discordVoiceChannel);
+                    }
+                }
+            }
+
+            await unitOfWork.CompleteAsync();
         }
     }
 }

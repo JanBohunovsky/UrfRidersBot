@@ -26,7 +26,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         [Description("Current Auto Voice status and more useful information.")]
         public async Task Information(CommandContext ctx)
         {
-            var channels = (await _autoVoiceService.GetVoiceChannelsAsync(ctx.Guild)).ToList();
+            var channels = (await _autoVoiceService.GetByGuildAsync(ctx.Guild)).ToList();
 
             if (!channels.Any())
                 throw new InvalidOperationException("Auto Voice is disabled on this server.");
