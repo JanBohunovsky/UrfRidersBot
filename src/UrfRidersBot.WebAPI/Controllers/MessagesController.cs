@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using UrfRidersBot.WebAPI.Models;
 
@@ -16,27 +17,78 @@ namespace UrfRidersBot.WebAPI.Controllers
         {
             _client = client;
         }
-        
-        [HttpPost]
-        public async Task<IActionResult> SendMessage([FromBody] MessageDTO message)
+
+        [HttpGet("{guildId}/{channelId}/{messageId}")]
+        public async Task<IActionResult> Get(ulong guildId, ulong channelId, ulong messageId)
         {
-            if (!_client.Guilds.TryGetValue(message.GuildId, out var guild))
+            if (!_client.Guilds.TryGetValue(guildId, out var guild))
                 return NotFound("Guild not found.");
 
-            if (!guild.Channels.TryGetValue(message.ChannelId, out var channel))
+            if (!guild.Channels.TryGetValue(channelId, out var channel))
                 return NotFound("Channel not found.");
 
-            DiscordMessage? result;
+            DiscordMessage? message;
             try
             {
-                result = await channel.SendMessageAsync(message.Content, message.Embed?.ToDiscord());
+                message = await channel.GetMessageAsync(messageId);
+            }
+            catch (UnauthorizedException e)
+            {
+                return NotFound("Message not found.");
+            }
+
+            return Ok(MessageDTO.FromDiscord(message));
+        }
+        
+        [HttpPost("{guildId}/{channelId}")]
+        public async Task<IActionResult> Send(ulong guildId, ulong channelId, [FromBody] MessageDTO model)
+        {
+            if (!_client.Guilds.TryGetValue(guildId, out var guild))
+                return NotFound("Guild not found.");
+
+            if (!guild.Channels.TryGetValue(channelId, out var channel))
+                return NotFound("Channel not found.");
+
+            DiscordMessage? message;
+            try
+            {
+                message = await channel.SendMessageAsync(model.Content, model.Embed?.ToDiscord());
             }
             catch (ArgumentException e)
             {
                 return BadRequest(e.Message);
             }
 
-            return Ok(result.Id);
+            return Created($"/api/messages/{message.ChannelId}/{message.Id}", MessageDTO.FromDiscord(message));
+        }
+
+        [HttpPut("{guildId}/{channelId}/{messageId}")]
+        public async Task<IActionResult> Modify(ulong guildId, ulong channelId, ulong messageId, [FromBody] MessageDTO model)
+        {
+            if (!_client.Guilds.TryGetValue(guildId, out var guild))
+                return NotFound("Guild not found.");
+
+            if (!guild.Channels.TryGetValue(channelId, out var channel))
+                return NotFound("Channel not found.");
+
+            var message = await channel.GetMessageAsync(messageId);
+            if (message == null)
+                return NotFound("Message not found.");
+
+            try
+            {
+                await message.ModifyAsync(model.Content, model.Embed?.ToDiscord().Build());
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (UnauthorizedException e)
+            {
+                return BadRequest(e.JsonMessage);
+            }
+
+            return Ok();
         }
     }
 }
