@@ -52,12 +52,26 @@ namespace UrfRidersBot.Infrastructure
             if (voiceChannels.Count > 0)
                 throw new InvalidOperationException("Auto Voice is already enabled on this server.");
 
-            var newVoiceChannel = await guild.CreateVoiceChannelAsync(NameNew, category);
+            var guildSettings = await unitOfWork.GuildSettings.GetAsync(guild);
+            var bitrate = guildSettings?.VoiceBitrate;
+
+            var newVoiceChannel = await CreateNewChannelAsync(guild, category, bitrate);
             
             await unitOfWork.AutoVoiceChannels.AddAsync(newVoiceChannel);
             await unitOfWork.CompleteAsync();
 
             return newVoiceChannel;
+        }
+
+        private async Task<DiscordChannel> CreateNewChannelAsync(DiscordGuild guild, DiscordChannel? category, int? bitrate)
+        {
+            var overwrites = new List<DiscordOverwriteBuilder>
+            {
+                new DiscordOverwriteBuilder().For(guild.EveryoneRole).Deny(Permissions.ManageChannels),
+                new DiscordOverwriteBuilder().For(guild.CurrentMember).Allow(Permissions.ManageChannels)
+            };
+            
+            return await guild.CreateVoiceChannelAsync(NameNew, category, bitrate, overwrites: overwrites);
         }
 
         public async ValueTask<int> DisableForGuildAsync(DiscordGuild guild)
@@ -88,10 +102,13 @@ namespace UrfRidersBot.Infrastructure
 
         public async ValueTask<DiscordChannel> CreateAsync(DiscordChannel template)
         {
-            var newVoiceChannel = await template.Guild.CreateVoiceChannelAsync(NameNew, template.Parent);
-            
             await using var unitOfWork = _unitOfWorkFactory.Create();
+
+            var guildSettings = await unitOfWork.GuildSettings.GetAsync(template.Guild);
+            var bitrate = guildSettings?.VoiceBitrate;
             
+            var newVoiceChannel = await CreateNewChannelAsync(template.Guild, template, bitrate);
+
             await unitOfWork.AutoVoiceChannels.AddAsync(newVoiceChannel);
             await unitOfWork.CompleteAsync();
 
