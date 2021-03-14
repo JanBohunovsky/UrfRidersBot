@@ -23,4 +23,4 @@ Example configuration:
     }
 }
 ```
-To see more configuration options, check the [configuration models](/src/UrfRidersBot.Discord/Configuration).
+To see more configuration options, check the [configuration models](/src/UrfRidersBot.Core/Configuration).

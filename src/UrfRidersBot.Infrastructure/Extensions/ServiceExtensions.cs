@@ -2,10 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using UrfRidersBot.Core.Configuration;
 using UrfRidersBot.Core.Interfaces;
 using UrfRidersBot.Infrastructure.HostedServices;
-using DiscordConfiguration = UrfRidersBot.Core.Configuration.DiscordConfiguration;
 
 namespace UrfRidersBot.Infrastructure
 {
@@ -13,9 +13,8 @@ namespace UrfRidersBot.Infrastructure
     {
         public static IServiceCollection AddConfigurations(this IServiceCollection services, IConfiguration configuration)
         {
-            // TODO: Automate this via reflection
-            services.AddSingleton(configuration.GetSection(DiscordConfiguration.SectionName).Get<DiscordConfiguration>());
-            services.AddSingleton(configuration.GetSection(RiotGamesConfiguration.SectionName).Get<RiotGamesConfiguration>());
+            services.Configure<DiscordOptions>(configuration.GetSection(DiscordOptions.SectionName));
+            services.Configure<RiotGamesOptions>(configuration.GetSection(RiotGamesOptions.SectionName));
 
             return services;
         }
@@ -37,14 +36,14 @@ namespace UrfRidersBot.Infrastructure
             // Discord client and service
             services.AddSingleton(provider =>
             {
-                var discordConfig = provider.GetRequiredService<DiscordConfiguration>();
+                var discordOptions = provider.GetRequiredService<IOptions<DiscordOptions>>().Value;
                 var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
                 
-                var client = new DiscordClient(new DSharpPlus.DiscordConfiguration
+                var client = new DiscordClient(new DiscordConfiguration
                 {
                     Intents = DiscordIntents.All,
                     TokenType = TokenType.Bot,
-                    Token = discordConfig.Token,
+                    Token = discordOptions.Token,
                     LoggerFactory = loggerFactory,
                     AlwaysCacheMembers = true,
                 });

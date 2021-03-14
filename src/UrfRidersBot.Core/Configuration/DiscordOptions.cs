@@ -1,8 +1,6 @@
-﻿using UrfRidersBot.Core.Interfaces;
-
-namespace UrfRidersBot.Core.Configuration
+﻿namespace UrfRidersBot.Core.Configuration
 {
-    public class DiscordConfiguration : IApplicationConfiguration
+    public class DiscordOptions
     {
         public const string SectionName = "Discord";
         
