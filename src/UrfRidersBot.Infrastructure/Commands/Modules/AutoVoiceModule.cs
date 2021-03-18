@@ -13,24 +13,32 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
     [RequireGuildRank(GuildRank.Admin)]
     [Group("autoVoice")]
     [Description("Automatically create new voice channel whenever all are taken.")]
+    [ModuleLifespan(ModuleLifespan.Transient)]
     public class AutoVoiceModule : BaseCommandModule
     {
         private readonly IAutoVoiceService _autoVoiceService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AutoVoiceModule(IAutoVoiceService autoVoiceService)
+        public AutoVoiceModule(IAutoVoiceService autoVoiceService, IUnitOfWork unitOfWork)
         {
             _autoVoiceService = autoVoiceService;
+            _unitOfWork = unitOfWork;
         }
 
         [GroupCommand]
         [Description("Current Auto Voice status and more useful information.")]
         public async Task Information(CommandContext ctx)
         {
-            var channels = (await _autoVoiceService.GetByGuildAsync(ctx.Guild)).ToList();
-
-            if (!channels.Any())
+            var settings = await _unitOfWork.AutoVoiceSettings.GetAsync(ctx.Guild);
+            
+            if (settings?.ChannelCreatorId is null)
+            {
                 throw new InvalidOperationException("Auto Voice is disabled on this server.");
-
+            }
+            
+            var channels = settings.GetVoiceChannels(ctx.Guild);
+            DiscordChannel channelCreator = settings.GetChannelCreator(ctx.Guild)!;
+            
             var channelBuilder = new StringBuilder();
             foreach (var channel in channels)
             {
@@ -62,10 +70,18 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
 
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"Current auto voice channels on {ctx.Guild.Name}",
-                Color = UrfRidersColor.Blue,
-                Description = channelBuilder.ToString(),
+                Title = $"Auto Voice on {ctx.Guild.Name}",
+                Color = UrfRidersColor.Cyan
             };
+            
+            embed.AddField("Channel Creator", $"Name: `{channelCreator.Name}`\nID: `{channelCreator.Id}`", true);
+            embed.AddField("Bitrate", $"{settings.Bitrate ?? 64} Kbps", true);
+            
+            if (channels.Any())
+            {
+                embed.AddField("Channels", channelBuilder.ToString());
+            }
+            
             await ctx.RespondAsync(embed.Build());
         }
 
@@ -92,15 +108,24 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
                 throw new ArgumentException("Channel must be a category.", nameof(category));
             }
 
-            var voiceChannel = await _autoVoiceService.EnableForGuildAsync(ctx.Guild, category);
+            var settings = await _unitOfWork.AutoVoiceSettings.GetOrCreateAsync(ctx.Guild);
+            if (settings.ChannelCreatorId is not null)
+            {
+                throw new InvalidOperationException("Auto Voice is already enabled on this server.");
+            }
+
+            var voiceChannelCreator = await _autoVoiceService.CreateAsync(ctx.Guild, category, settings.Bitrate);
+
+            settings.ChannelCreatorId = voiceChannelCreator.Id;
+            await _unitOfWork.CompleteAsync();
 
             var sb = new StringBuilder();
             sb.AppendLine("Auto Voice has been enabled.");
-            sb.Append($"Created a new voice channel `{voiceChannel.Name}`");
+            sb.Append($"Created a new voice channel `{voiceChannelCreator.Name}`");
 
-            if (voiceChannel.Parent != null)
+            if (voiceChannelCreator.Parent != null)
             {
-                sb.Append($" under category `{voiceChannel.Parent.Name}`");
+                sb.Append($" under category `{voiceChannelCreator.Parent.Name}`");
             }
 
             sb.AppendLine(".");
@@ -113,7 +138,27 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         [Description("Disables the module and deletes all the voice channels created by this module.")]
         public async Task Disable(CommandContext ctx)
         {
-            var count = await _autoVoiceService.DisableForGuildAsync(ctx.Guild);
+            var settings = await _unitOfWork.AutoVoiceSettings.GetAsync(ctx.Guild);
+            if (settings?.ChannelCreatorId is null)
+            {
+                throw new InvalidOperationException("Auto Voice is already disabled on this server.");
+            }
+
+            foreach (var voiceChannel in settings.GetVoiceChannels(ctx.Guild))
+            {
+                await voiceChannel.DeleteAsync();
+            }
+            var count = settings.RemoveAllChannels();
+
+            var channelCreator = settings.GetChannelCreator(ctx.Guild);
+            if (channelCreator is not null)
+            {
+                await channelCreator.DeleteAsync();
+                count++;
+            }
+
+            settings.ChannelCreatorId = null;
+            await _unitOfWork.CompleteAsync();
 
             var embed = EmbedHelper
                 .CreateSuccess("Auto Voice has been disabled.")

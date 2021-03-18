@@ -8,7 +8,7 @@ namespace UrfRidersBot.Persistence
     {
         private readonly UrfRidersDbContext _context;
 
-        public IAutoVoiceChannelRepository AutoVoiceChannels { get; }
+        public IAutoVoiceSettingsRepository AutoVoiceSettings { get; }
         public IGuildSettingsRepository GuildSettings { get; }
         public IReactionRoleRepository ReactionRoles { get; }
         public IColorRoleRepository ColorRoles { get; }
@@ -17,7 +17,7 @@ namespace UrfRidersBot.Persistence
         {
             _context = context;
 
-            AutoVoiceChannels = new AutoVoiceChannelRepository(_context);
+            AutoVoiceSettings = new AutoVoiceSettingsRepository(_context);
             GuildSettings = new GuildSettingsRepository(_context);
             ReactionRoles = new ReactionRoleRepository(_context);
             ColorRoles = new ColorRoleRepository(_context);

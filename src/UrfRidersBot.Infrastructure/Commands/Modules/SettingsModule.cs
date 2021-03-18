@@ -24,6 +24,9 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
 
         private readonly IUnitOfWork _unitOfWork;
         private GuildSettings _settings = null!;
+        
+        // Temporary solution
+        private AutoVoiceSettings? _autoVoice;
 
         public SettingsModule(IUnitOfWork unitOfWork)
         {
@@ -33,6 +36,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         public override async Task BeforeExecutionAsync(CommandContext ctx)
         {
             _settings = await _unitOfWork.GuildSettings.GetOrCreateAsync(ctx.Guild);
+            _autoVoice = await _unitOfWork.AutoVoiceSettings.GetAsync(ctx.Guild);
         }
 
         [GroupCommand]
@@ -61,11 +65,11 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
                     true)
                 .AddField(
                     "Custom prefix",
-                    _settings.CustomPrefix != null ? Markdown.Code(_settings.CustomPrefix) : NullText,
+                    _settings.CustomPrefix is not null ? Markdown.Code(_settings.CustomPrefix) : NullText,
                     true)
                 .AddField(
                     "Bitrate",
-                    _settings.VoiceBitrate != null ? $"{_settings.VoiceBitrate} Kbps" : NullText,
+                    _autoVoice?.Bitrate is not null ? $"{_autoVoice.Bitrate} Kbps" : NullText,
                     true);
             
             await ctx.RespondAsync(embed);
@@ -143,7 +147,13 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
                 return;
             }
 
-            _settings.VoiceBitrate = bitrate;
+            if (_autoVoice is null)
+            {
+                _autoVoice = new AutoVoiceSettings(ctx.Guild.Id);
+                await _unitOfWork.AutoVoiceSettings.AddAsync(_autoVoice);
+            }
+            
+            _autoVoice.Bitrate = bitrate;
             await _unitOfWork.CompleteAsync();
 
             var embed = EmbedHelper
@@ -176,7 +186,10 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
                     key = "Admin role";
                     break;
                 case BitrateKey:
-                    _settings.VoiceBitrate = null;
+                    if (_autoVoice is not null)
+                    {
+                        _autoVoice.Bitrate = null;
+                    }
                     key = "Bitrate";
                     break;
                 default:
@@ -195,6 +208,12 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         public async Task ResetAllSettings(CommandContext ctx)
         {
             _unitOfWork.GuildSettings.Remove(_settings);
+
+            if (_autoVoice is not null)
+            {
+                _autoVoice.Bitrate = null;
+            }
+            
             await _unitOfWork.CompleteAsync();
 
             var embed = EmbedHelper.CreateSuccess($"All settings for {ctx.Guild.Name} has been reset.").Build();
@@ -204,7 +223,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Modules
         // TODO: Move this to GuildSettings
         private string? GetRoleMention(CommandContext ctx, ulong? roleId)
         {
-            return roleId == null ? null : ctx.Guild.GetRole(roleId.Value).Mention;
+            return roleId is null ? null : ctx.Guild.GetRole(roleId.Value).Mention;
         }
     }
 }
