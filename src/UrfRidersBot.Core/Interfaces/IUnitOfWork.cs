@@ -5,7 +5,7 @@ namespace UrfRidersBot.Core.Interfaces
 {
     public interface IUnitOfWork : IDisposable, IAsyncDisposable
     {
-        IAutoVoiceChannelRepository AutoVoiceChannels { get; }
+        IAutoVoiceSettingsRepository AutoVoiceSettings { get; }
         IGuildSettingsRepository GuildSettings { get; }
         IReactionRoleRepository ReactionRoles { get; }
         IColorRoleRepository ColorRoles { get; }
