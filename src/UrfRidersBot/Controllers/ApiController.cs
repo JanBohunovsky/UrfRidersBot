@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace UrfRidersBot.WebAPI.Controllers
+namespace UrfRidersBot.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

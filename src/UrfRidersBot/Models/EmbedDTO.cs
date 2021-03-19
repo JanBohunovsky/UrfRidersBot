@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DSharpPlus.Entities;
 
-namespace UrfRidersBot.WebAPI.Models
+namespace UrfRidersBot.Models
 {
     public class EmbedDTO
     {

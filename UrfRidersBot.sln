@@ -17,7 +17,7 @@ EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.Infrastructure", "src\UrfRidersBot.Infrastructure\UrfRidersBot.Infrastructure.csproj", "{8CC0D8BF-3412-4C17-A7C3-CFA6548B905F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.WebAPI", "src\UrfRidersBot.WebAPI\UrfRidersBot.WebAPI.csproj", "{938AA5D9-0C51-4A5C-BB1F-8B02F1B3C819}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot", "src\UrfRidersBot\UrfRidersBot.csproj", "{938AA5D9-0C51-4A5C-BB1F-8B02F1B3C819}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot.Persistence", "src\UrfRidersBot.Persistence\UrfRidersBot.Persistence.csproj", "{68282DF9-C3DD-4A6C-A9D6-774C360A713F}"
 EndProject

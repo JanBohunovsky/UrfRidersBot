@@ -46,10 +46,10 @@ namespace UrfRidersBot.Infrastructure.HostedServices
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            RegisterCommands();
-            RegisterInteractivity();
+            // RegisterCommands();
+            // RegisterInteractivity();
 
-            _client.GetCommandsNext().CommandErrored += OnCommandErrored;
+            // _client.GetCommandsNext().CommandErrored += OnCommandErrored;
             
             // Start discord client
             _botInfo.SetStartTime(DateTimeOffset.Now);
@@ -60,7 +60,7 @@ namespace UrfRidersBot.Infrastructure.HostedServices
         {
             await _client.DisconnectAsync();
 
-            _client.GetCommandsNext().CommandErrored -= OnCommandErrored;
+            // _client.GetCommandsNext().CommandErrored -= OnCommandErrored;
         }
         
         private void RegisterCommands()
