@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Qmmands;
 using UrfRidersBot.Commands.Parsers;
+using UrfRidersBot.Core;
 using UrfRidersBot.Core.Configuration;
 using UrfRidersBot.Core.Interfaces;
+using UrfRidersBot.Infrastructure;
 
 namespace UrfRidersBot.Commands
 {
@@ -21,6 +25,7 @@ namespace UrfRidersBot.Commands
         private readonly CommandService _commandService;
         private readonly IOptionsMonitor<DiscordOptions> _discordOptions;
         private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+        private readonly IHostEnvironment _environment;
         private readonly ILogger<CommandHandler> _logger;
         private readonly IServiceProvider _provider;
 
@@ -28,6 +33,7 @@ namespace UrfRidersBot.Commands
             CommandService commandService,
             IOptionsMonitor<DiscordOptions> discordOptions, 
             IUnitOfWorkFactory unitOfWorkFactory,
+            IHostEnvironment environment,
             ILogger<CommandHandler> logger,
             IServiceProvider provider)
         {
@@ -35,6 +41,7 @@ namespace UrfRidersBot.Commands
             _commandService = commandService;
             _discordOptions = discordOptions;
             _unitOfWorkFactory = unitOfWorkFactory;
+            _environment = environment;
             _logger = logger;
             _provider = provider;
         }
@@ -95,10 +102,31 @@ namespace UrfRidersBot.Commands
             
             // Execute command
             var context = new UrfRidersCommandContext(e.Message, sender, prefix, _provider);
-            await _commandService.ExecuteAsync(output, context);
+            var result = await _commandService.ExecuteAsync(output, context);
+
+            _logger.LogDebug("Command result: {Result}", result.GetType());
+            
+            if (result.IsSuccessful)
+            {
+                return;
+            }
+
+            switch (result)
+            {
+                case CheckResult checkResult:
+                    _logger.LogError("Checks failed: {Reason}", checkResult.Reason);
+                    break;
+                case ArgumentParseFailedResult argumentResult:
+                    _logger.LogError("Argument parsing failed: {Reason}", argumentResult.Reason);
+                    break;
+                case TypeParseFailedResult typeResult:
+                    _logger.LogError("Type parsing failed for parameter '{Type} {Parameter}': {Reason}", 
+                        typeResult.Parameter.Type.Name, typeResult.Parameter.Name, typeResult.Reason);
+                    break;
+            }
         }
 
-        private Task OnCommandExecutionFailed(CommandExecutionFailedEventArgs e)
+        private async Task OnCommandExecutionFailed(CommandExecutionFailedEventArgs e)
         {
             var commandName = e.Result.Command.Name ?? "unknown command";
             var step = e.Result.CommandExecutionStep;
@@ -108,7 +136,43 @@ namespace UrfRidersBot.Commands
             _logger.LogError(exception, "Command '{CommandName}' errored at step {Step} with reason '{Reason}'", 
                 commandName, step, reason);
 
-            return Task.CompletedTask;
+            // Send message to bot owner if in production
+            if (!_environment.IsProduction())
+            {
+                return;
+            }
+
+            var context = (UrfRidersCommandContext)e.Context;
+            var owner = await context.Guild.GetMemberAsync(context.Client.CurrentApplication.Owners.First().Id);
+
+            if (owner is null)
+            {
+                return;
+            }
+            
+            var embed = new DiscordEmbedBuilder
+            {
+                Color = UrfRidersColor.Red,
+                Author = new DiscordEmbedBuilder.EmbedAuthor
+                {
+                    Name = "An exception has occured",
+                    IconUrl = UrfRidersIcon.HighPriority,
+                },
+                Description = $"Here is the [message]({context.Message.JumpLink}) that caused this exception:\n{Markdown.CodeBlock(exception.ToString())}",
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"{context.User.Username}#{context.User.Discriminator}",
+                    IconUrl = context.User.GetAvatarUrl(ImageFormat.Auto),
+                },
+                Timestamp = context.Message.Timestamp,
+            };
+
+            embed
+                .AddField("Guild", context.Guild.Name, true)
+                .AddField("Channel", context.Channel.Name, true)
+                .AddField("Message", Markdown.Code(context.Message.Content), true);
+
+            await owner.SendMessageAsync(embed);
         }
     }
 }
