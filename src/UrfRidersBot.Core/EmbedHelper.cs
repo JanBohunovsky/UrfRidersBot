@@ -1,8 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
-using UrfRidersBot.Core;
 
-namespace UrfRidersBot.Infrastructure
+namespace UrfRidersBot.Core
 {
     public static class EmbedHelper
     {
@@ -16,7 +15,7 @@ namespace UrfRidersBot.Infrastructure
             
             return new DiscordEmbedBuilder
             {
-                Color = UrfRidersColor.Cyan,
+                Color = UrfRidersColor.Theme,
                 Author = new DiscordEmbedBuilder.EmbedAuthor
                 {
                     Name = name,

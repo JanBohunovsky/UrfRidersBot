@@ -11,15 +11,15 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Qmmands;
-using UrfRidersBot.Commands.Parsers;
 using UrfRidersBot.Core;
 using UrfRidersBot.Core.Configuration;
 using UrfRidersBot.Core.Interfaces;
-using UrfRidersBot.Infrastructure;
+using UrfRidersBot.Infrastructure.Commands;
+using UrfRidersBot.Infrastructure.Commands.Parsers;
 
-namespace UrfRidersBot.Commands
+namespace UrfRidersBot.Infrastructure.HostedServices
 {
-    public class CommandHandler : IHostedService
+    internal class CommandHandler : IHostedService
     {
         private readonly DiscordClient _client;
         private readonly CommandService _commandService;
@@ -48,7 +48,7 @@ namespace UrfRidersBot.Commands
         
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _commandService.AddModules(Assembly.GetExecutingAssembly());
+            _commandService.AddModules(Assembly.GetEntryAssembly());
             _commandService.AddTypeParser(new DiscordUserTypeParser());
             _commandService.AddTypeParser(new DiscordMemberTypeParser());
             _commandService.AddTypeParser(new DiscordRoleTypeParser());

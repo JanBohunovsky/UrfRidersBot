@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Qmmands;
 using UrfRidersBot.Core.Configuration;
 using UrfRidersBot.Core.Interfaces;
 using UrfRidersBot.Infrastructure.HostedServices;
@@ -15,6 +16,14 @@ namespace UrfRidersBot.Infrastructure
         {
             services.Configure<DiscordOptions>(configuration.GetSection(DiscordOptions.SectionName));
             services.Configure<RiotGamesOptions>(configuration.GetSection(RiotGamesOptions.SectionName));
+
+            return services;
+        }
+
+        public static IServiceCollection AddCommands(this IServiceCollection services)
+        {
+            services.AddSingleton<CommandService>();
+            services.AddHostedService<CommandHandler>();
 
             return services;
         }
@@ -48,13 +57,10 @@ namespace UrfRidersBot.Infrastructure
                     LoggerFactory = loggerFactory,
                     AlwaysCacheMembers = true,
                 });
-                
-                // TODO: Consider moving UseCommandsNext here
-                // Since this will be called only when DiscordClient is requested (which happens only in IHostedServices)
-                // then that means it can be here.
 
                 return client;
             });
+            
             services.AddHostedService<DiscordService>();
 
             return services;

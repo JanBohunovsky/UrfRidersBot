@@ -2,7 +2,7 @@
 using DSharpPlus.Entities;
 using Qmmands;
 
-namespace UrfRidersBot.Commands.Parsers
+namespace UrfRidersBot.Infrastructure.Commands.Parsers
 {
     // Inspired by:
     // https://github.com/DSharpPlus/DSharpPlus/blob/master/DSharpPlus.CommandsNext/Converters/

@@ -4,8 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Qmmands;
-using UrfRidersBot.Commands;
 using UrfRidersBot.Infrastructure;
 using UrfRidersBot.Persistence;
 
@@ -26,8 +24,7 @@ namespace UrfRidersBot
             services.AddConfigurations(Configuration);
             services.AddPersistence(Configuration.GetConnectionString("UrfRidersData"));
             services.AddDiscordBot();
-            services.AddSingleton<CommandService>();
-            services.AddHostedService<CommandHandler>();
+            services.AddCommands();
             
             services.AddControllers();
             services.AddSwaggerGen(c =>
