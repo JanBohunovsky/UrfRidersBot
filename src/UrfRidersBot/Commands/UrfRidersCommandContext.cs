@@ -11,10 +11,10 @@ namespace UrfRidersBot.Commands
         public string Prefix { get; }
         public DiscordClient Client { get; }
         public DiscordMessage Message { get; }
-        public DiscordUser Author => Message.Author;
+        public DiscordUser User => Message.Author;
         public DiscordChannel Channel => Message.Channel;
         public DiscordGuild Guild => Channel.Guild;
-        public DiscordMember Member => (DiscordMember)Author;
+        public DiscordMember Member => (DiscordMember)User;
         
         public UrfRidersCommandContext(DiscordMessage message, DiscordClient client, string prefix, IServiceProvider serviceProvider) : base(serviceProvider)
         {
