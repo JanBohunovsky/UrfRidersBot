@@ -4,9 +4,9 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using UrfRidersBot.WebAPI.Models;
+using UrfRidersBot.Models;
 
-namespace UrfRidersBot.WebAPI.Controllers
+namespace UrfRidersBot.Controllers
 {
     // TODO: Add support for message editing and deleting
     public class MessagesController : ApiController

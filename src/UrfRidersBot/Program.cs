@@ -13,7 +13,7 @@ using Serilog.Filters;
 using Serilog.Sinks.PostgreSQL;
 using UrfRidersBot.Persistence;
 
-namespace UrfRidersBot.WebAPI
+namespace UrfRidersBot
 {
     public class Program
     {
