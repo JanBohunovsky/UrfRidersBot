@@ -4,7 +4,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Qmmands;
 
-namespace UrfRidersBot.Commands
+namespace UrfRidersBot.Infrastructure.Commands
 {
     public class UrfRidersCommandContext : CommandContext
     {

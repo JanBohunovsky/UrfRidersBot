@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace UrfRidersBot.Infrastructure
+namespace UrfRidersBot.Core
 {
     public static class Markdown
     {

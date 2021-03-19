@@ -4,6 +4,7 @@ namespace UrfRidersBot.Core
 {
     public static class UrfRidersColor
     {
+        
         /// <summary>
         /// Discord's cyan, or #1ABC9C.
         /// </summary>
@@ -28,6 +29,11 @@ namespace UrfRidersBot.Core
         /// Discord's red, or #E74C3C.
         /// </summary>
         public static readonly DiscordColor Red = new DiscordColor(0xE74C3C);
+        
+        /// <summary>
+        /// Bot's theme color.
+        /// </summary>
+        public static readonly DiscordColor Theme = Cyan;
     }
 
     public static class UrfRidersIcon
