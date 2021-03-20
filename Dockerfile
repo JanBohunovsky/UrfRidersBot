@@ -2,4 +2,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:5.0
 WORKDIR /app
 EXPOSE 80
 COPY out .
-ENTRYPOINT ["dotnet", "UrfRidersBot.WebAPI.dll"]
+ENTRYPOINT ["dotnet", "UrfRidersBot.dll"]
