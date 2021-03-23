@@ -1,4 +1,5 @@
-﻿using DSharpPlus;
+﻿using System.Net.Http;
+using DSharpPlus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,7 @@ namespace UrfRidersBot.Infrastructure
         {
             services.AddSingleton<CommandService>();
             services.AddHostedService<CommandHandler>();
+            services.AddSingleton<HttpClient>();
 
             return services;
         }
@@ -61,7 +63,7 @@ namespace UrfRidersBot.Infrastructure
                 return client;
             });
             
-            services.AddHostedService<DiscordService>();
+            services.AddHostedService<DiscordBot>();
 
             return services;
         }
