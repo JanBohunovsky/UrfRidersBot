@@ -49,8 +49,9 @@ namespace UrfRidersBot
             if (!context.HostingEnvironment.IsProduction()) 
                 return;
 
+            // TODO: Move this to config, somehow
             // BaseDiscordClient is spamming Error and Fatal logs which give no value.
-            // e.g. [Fata] Connection terminated ... reconnecting -- This happens when Discord requests WebSocket restart (which is normal)
+            // e.g. [Fatal] Connection terminated ... reconnecting -- This happens when Discord requests WebSocket restart (which is normal)
             //                                                       but also when the bot gets disconnected...
             //      [Error] Rate limit hit, re-queueing request to ... -- This should've been a warning, like seriously...
             logger.Filter.ByExcluding(Matching.FromSource("DSharpPlus.BaseDiscordClient"));
