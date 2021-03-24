@@ -30,10 +30,11 @@ namespace UrfRidersBot.Infrastructure
             
             var httpClient = new HttpClient
             {
-                BaseAddress = new Uri("https://discord.com/api/v8")
+                BaseAddress = new Uri("https://discord.com/api/v8/")
             };
             services.AddSingleton(httpClient);
             services.AddSingleton<IInteractionService, InteractionService>();
+            services.AddHostedService<SlashCommandHostedService>();
 
             return services;
         }
