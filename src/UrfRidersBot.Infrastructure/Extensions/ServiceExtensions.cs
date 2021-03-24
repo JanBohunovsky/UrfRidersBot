@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using DSharpPlus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,11 +22,18 @@ namespace UrfRidersBot.Infrastructure
             return services;
         }
 
-        public static IServiceCollection AddCommands(this IServiceCollection services)
+        public static IServiceCollection AddSlashCommands(this IServiceCollection services)
         {
+            // TODO: Remove Qmmands services
             services.AddSingleton<CommandService>();
             services.AddHostedService<CommandHandler>();
-            services.AddSingleton<HttpClient>();
+            
+            var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri("https://discord.com/api/v8")
+            };
+            services.AddSingleton(httpClient);
+            services.AddSingleton<IInteractionService, InteractionService>();
 
             return services;
         }
