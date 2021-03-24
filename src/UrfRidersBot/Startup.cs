@@ -24,7 +24,7 @@ namespace UrfRidersBot
             services.AddConfigurations(Configuration);
             services.AddPersistence(Configuration.GetConnectionString("UrfRidersData"));
             services.AddDiscordBot();
-            services.AddCommands();
+            services.AddSlashCommands();
             
             services.AddControllers();
             services.AddSwaggerGen(c =>
