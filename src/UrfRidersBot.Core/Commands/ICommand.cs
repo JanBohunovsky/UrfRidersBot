@@ -10,7 +10,7 @@ namespace UrfRidersBot.Core.Commands
         Task HandleAsync(InteractionContext context);
     }
     
-    public interface ICommand<TGroup> : ICommand where TGroup : ICommandGroup
+    public interface ICommand<TParent> : ICommand where TParent : ICommandGroup
     {
     }
 }

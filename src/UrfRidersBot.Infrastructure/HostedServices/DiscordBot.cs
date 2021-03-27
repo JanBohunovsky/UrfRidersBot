@@ -70,7 +70,7 @@ namespace UrfRidersBot.Infrastructure.HostedServices
                 }
             };
 
-            if (context.Member?.Color.Value != default)
+            if (context.Member is not null && context.Member.Color.Value != default)
             {
                 embed.WithColor(context.Member.Color);
             }
