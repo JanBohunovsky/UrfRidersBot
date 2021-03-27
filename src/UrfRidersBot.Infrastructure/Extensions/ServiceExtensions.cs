@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using DSharpPlus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,17 +27,33 @@ namespace UrfRidersBot.Infrastructure
         {
             // TODO: Remove Qmmands services
             services.AddSingleton<CommandService>();
-            services.AddHostedService<CommandHandler>();
+            services.AddHostedService<HostedServices.CommandHandler>();
             
-            var httpClient = new HttpClient
-            {
-                BaseAddress = new Uri("https://discord.com/api/v8/")
-            };
-            services.AddSingleton(httpClient);
+            services.AddSingleton(CreateDiscordHttpClient);
             services.AddSingleton<IInteractionService, InteractionService>();
+            services.AddSingleton<ICommandManager, CommandManager>();
+            services.AddSingleton<ICommandHandler, CommandHandler>();
             services.AddHostedService<SlashCommandHostedService>();
 
             return services;
+        }
+
+        private static HttpClient CreateDiscordHttpClient(IServiceProvider provider)
+        {
+            var discordOptions = provider.GetRequiredService<IOptions<DiscordOptions>>().Value;
+            
+            return new HttpClient
+            {
+                BaseAddress = new Uri("https://discord.com/api/v8/"),
+                DefaultRequestHeaders =
+                {
+                    Accept =
+                    {
+                        new MediaTypeWithQualityHeaderValue("application/json")
+                    },
+                    Authorization = new AuthenticationHeaderValue("Bot", discordOptions.Token)
+                }
+            };
         }
 
         public static IServiceCollection AddDiscordBot(this IServiceCollection services)

@@ -1,26 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using UrfRidersBot.Core.Interfaces;
 
 namespace UrfRidersBot.Infrastructure.HostedServices
 {
-    public class SlashCommandHostedService : IHostedService
+    internal class SlashCommandHostedService : IHostedService
     {
         private readonly DiscordClient _client;
-        private readonly ILogger<SlashCommandHostedService> _logger;
+        private readonly ICommandManager _commandManager;
+        private readonly ICommandHandler _commandHandler;
+        private readonly IInteractionService _service;
 
-        public SlashCommandHostedService(DiscordClient client, ILogger<SlashCommandHostedService> logger)
+        public SlashCommandHostedService(
+            DiscordClient client,
+            ICommandManager commandManager,
+            ICommandHandler commandHandler,
+            IInteractionService service)
         {
             _client = client;
-            _logger = logger;
+            _commandManager = commandManager;
+            _commandHandler = commandHandler;
+            _service = service;
         }
         
         public Task StartAsync(CancellationToken cancellationToken)
@@ -41,64 +45,21 @@ namespace UrfRidersBot.Infrastructure.HostedServices
 
         private Task OnReady(DiscordClient sender, ReadyEventArgs e)
         {
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await RegisterCommandsAsync();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "An exception has occured while registering slash commands");
-                }
-            });
+            var commands = _commandManager.BuildCommands().ToList();
             
+            _commandHandler.SetCommands(commands);
+
+            _ = _service.RegisterCommandsAsync(commands, 637650172083437579);
+
             return Task.CompletedTask;
         }
 
         private Task OnInteractionCreated(DiscordClient sender, InteractionCreateEventArgs e)
         {
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await HandleInteractionAsync(e);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "An exception has occured while handling the interaction");
-                }
-            });
+            _ = _commandHandler.HandleAsync(e.Interaction);
 
             return Task.CompletedTask;
         }
-
-        private async Task RegisterCommandsAsync()
-        {
-            var assembly = Assembly.GetEntryAssembly();
-            if (assembly is null)
-            {
-                throw new InvalidOperationException("What?");
-            }
-            
-            var commandPayloads = new List<CreateCommandPayload>();
-        }
-
-        private async Task HandleInteractionAsync(InteractionCreateEventArgs e)
-        {
-            
-        }
     }
 
-    internal class CreateCommandPayload
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        
-        [JsonProperty("description")]
-        public string Description { get; set; }
-        
-        [JsonProperty("options")]
-        public List<DiscordApplicationCommandOption> Options { get; set; } = new();
-    }
 }

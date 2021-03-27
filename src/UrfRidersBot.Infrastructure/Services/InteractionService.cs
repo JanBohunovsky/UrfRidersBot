@@ -1,21 +1,21 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
+using DSharpPlus.Net;
 using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using UrfRidersBot.Core.Commands.Entities;
 using UrfRidersBot.Core.Interfaces;
+using UrfRidersBot.Infrastructure.Commands.Models;
 
 namespace UrfRidersBot.Infrastructure
 {
-    // Inspired by:
-    // https://github.com/IDoEverything/DSharpPlusSlashCommands
     public class InteractionService : IInteractionService
     {
-        private const string JsonMediaType = "application/json";
-        
         private readonly DiscordClient _client;
         private readonly HttpClient _http;
         private readonly ILogger<InteractionService> _logger;
@@ -40,55 +40,60 @@ namespace UrfRidersBot.Infrastructure
             };
 
             var endpoint = $"interactions/{interactionId}/{token}/callback";
-            var json = DiscordJson.SerializeObject(payload);
-            var content = new StringContent(json, Encoding.UTF8, JsonMediaType);
-            var response = await _http.PostAsync(endpoint, content);
-            
-            if (!response.IsSuccessStatusCode)
-            {
-                await LogHttpErrorAsync(response, "create");
-            }
+            await DoRequestAsync(endpoint, RestRequestMethod.POST, payload);
         }
 
         public async Task EditResponseAsync(string token, DiscordInteractionResponseBuilder builder)
         {
             var endpoint = $"webhooks/{_client.CurrentApplication.Id}/{token}/messages/@original";
-            var json = DiscordJson.SerializeObject(builder);
-            var content = new StringContent(json, Encoding.UTF8, JsonMediaType);
-            var response = await _http.PatchAsync(endpoint, content);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                await LogHttpErrorAsync(response, "edit");
-            }
+            await DoRequestAsync(endpoint, RestRequestMethod.PATCH, builder);
         }
 
         public async Task DeleteResponseAsync(string token)
         {
             var endpoint = $"webhooks/{_client.CurrentApplication.Id}/{token}/messages/@original";
-            var response = await _http.DeleteAsync(endpoint);
+            await DoRequestAsync(endpoint, RestRequestMethod.DELETE);
+        }
+
+        public async Task RegisterCommandsAsync(IEnumerable<SlashCommand> commands, ulong? guildId = null)
+        {
+            var endpoint = guildId is null
+                ? $"applications/{_client.CurrentApplication.Id}/commands"
+                : $"applications/{_client.CurrentApplication.Id}/guilds/{guildId}/commands";
+
+            var payload = CommandCreatePayload.FromCommands(commands.ToList());
+            await DoRequestAsync(endpoint, RestRequestMethod.PUT, payload);
+        }
+
+        private async ValueTask<HttpResponseMessage> DoRequestAsync(string endpoint, RestRequestMethod method, object? payload = null)
+        {
+            var content = payload is not null
+                ? new StringContent(DiscordJson.SerializeObject(payload), Encoding.UTF8, "application/json")
+                : null;
+
+            var requestTask = method switch
+            {
+                RestRequestMethod.GET    => _http.GetAsync(endpoint),
+                RestRequestMethod.POST   => _http.PostAsync(endpoint, content!),
+                RestRequestMethod.PUT    => _http.PutAsync(endpoint, content!),
+                RestRequestMethod.PATCH  => _http.PatchAsync(endpoint, content!),
+                RestRequestMethod.DELETE => _http.DeleteAsync(endpoint),
+                _ => throw new InvalidOperationException("Invalid request method.")
+            };
+
+            var response = await requestTask;
 
             if (!response.IsSuccessStatusCode)
             {
-                await LogHttpErrorAsync(response, "delete");
-            }
-        }
-
-        private async Task LogHttpErrorAsync(HttpResponseMessage response, string action)
-        {
-            var responseString = await response.Content.ReadAsStringAsync();
+                var responseString = await response.Content.ReadAsStringAsync();
             
-            _logger.LogError("Failed to {Action} interaction response ({StatusCode}: {StatusText}): {Response}",
-                action, (int)response.StatusCode, response.ReasonPhrase, responseString);
-        }
-    }
+                _logger.LogError("Interaction http request failed ({StatusCode}: {StatusText}): {Response}",
+                    (int)response.StatusCode, response.ReasonPhrase, responseString);
+            }
 
-    internal class InteractionCreatePayload
-    {
-        [JsonProperty("type")]
-        public DiscordInteractionResponseType Type { get; set; }
+            return response;
+        }
         
-        [JsonProperty("data")]
-        public DiscordInteractionResponseBuilder? Data { get; set; }
+        
     }
 }

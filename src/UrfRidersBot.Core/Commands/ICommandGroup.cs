@@ -6,7 +6,7 @@
         string Description { get; }
     }
     
-    public interface ICommandGroup<TGroup> : ICommandGroup where TGroup : ICommandGroup
+    public interface ICommandGroup<TParent> : ICommandGroup where TParent : ICommandGroup
     {
     }
 }
