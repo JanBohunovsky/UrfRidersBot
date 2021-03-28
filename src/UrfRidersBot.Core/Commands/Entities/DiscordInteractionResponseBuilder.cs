@@ -18,12 +18,17 @@ namespace UrfRidersBot.Core.Commands.Entities
         [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordEmbed> Embeds { get; private set; } = new List<DiscordEmbed>();
         
-        [JsonProperty("mentions", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<IMention> Mentions { get; set; } = new List<IMention>();
+        [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, List<string>> Mentions { get; set; } = new();
         
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public InteractionFlags? Flags { get; set; }
 
+        public DiscordInteractionResponseBuilder()
+        {
+            Mentions["parse"] = new List<string>();
+        }
+        
         public DiscordInteractionResponseBuilder WithEmbeds(params DiscordEmbed[] embeds)
         {
             var list = Embeds.ToList();
@@ -44,19 +49,21 @@ namespace UrfRidersBot.Core.Commands.Entities
             return this;
         }
 
-        public DiscordInteractionResponseBuilder WithMention(IMention mention)
+        public DiscordInteractionResponseBuilder AllowEveryoneMention()
         {
-            var list = Mentions.ToList();
-            list.Add(mention);
-            Mentions = list;
+            Mentions["parse"].Add("everyone");
             return this;
         }
 
-        public DiscordInteractionResponseBuilder WithMentions(IEnumerable<IMention> mentions)
+        public DiscordInteractionResponseBuilder AllowRoleMentions()
         {
-            var list = Mentions.ToList();
-            list.AddRange(mentions);
-            Mentions = list;
+            Mentions["parse"].Add("roles");
+            return this;
+        }
+
+        public DiscordInteractionResponseBuilder AllowUserMentions()
+        {
+            Mentions["parse"].Add("users");
             return this;
         }
 
