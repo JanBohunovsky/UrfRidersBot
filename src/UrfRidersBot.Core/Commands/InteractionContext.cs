@@ -44,8 +44,7 @@ namespace UrfRidersBot.Core.Commands
             DiscordInteractionResponseType type = DiscordInteractionResponseType.ChannelMessageWithSource)
         {
             var builder = new DiscordInteractionResponseBuilder()
-                .WithContent(content)
-                .WithMentions(Mentions.All);
+                .WithContent(content);
             
             await CreateResponseAsync(builder, type);
         }
@@ -64,8 +63,7 @@ namespace UrfRidersBot.Core.Commands
         {
             var builder = new DiscordInteractionResponseBuilder()
                 .WithContent(content)
-                .WithEmbeds(embed)
-                .WithMentions(Mentions.All);
+                .WithEmbeds(embed);
 
             await CreateResponseAsync(builder, type);
         }
@@ -78,8 +76,7 @@ namespace UrfRidersBot.Core.Commands
         public async Task EditResponseAsync(string content)
         {
             var builder = new DiscordInteractionResponseBuilder()
-                .WithContent(content)
-                .WithMentions(Mentions.All);
+                .WithContent(content);
 
             await EditResponseAsync(builder);
         }
@@ -96,8 +93,7 @@ namespace UrfRidersBot.Core.Commands
         {
             var builder = new DiscordInteractionResponseBuilder()
                 .WithContent(content)
-                .WithEmbeds(embed)
-                .WithMentions(Mentions.All);
+                .WithEmbeds(embed);
 
             await EditResponseAsync(builder);
         }
