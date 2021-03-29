@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
-using Qmmands;
+using UrfRidersBot.Core.Commands;
+using UrfRidersBot.Core.Commands.Attributes;
 using UrfRidersBot.Core.Entities;
 using UrfRidersBot.Core.Interfaces;
 
@@ -15,12 +17,15 @@ namespace UrfRidersBot.Infrastructure.Commands.Checks
         
         public RequireGuildRankAttribute(GuildRank rank) => _rank = rank;
         
-        public override async ValueTask<CheckResult> CheckAsync(CommandContext _)
+        public override async ValueTask<CheckResult> CheckAsync(CommandContext context, IServiceProvider provider)
         {
-            var context = (UrfRidersCommandContext)_;
+            if (context.Guild is null || context.Member is null)
+            {
+                return CheckResult.Unsuccessful("This command can be used only in a server.");
+            }
             
             // Get guild settings
-            var unitOfWorkFactory = context.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
+            var unitOfWorkFactory = provider.GetRequiredService<IUnitOfWorkFactory>();
             await using var unitOfWork = unitOfWorkFactory.Create();
             var guildSettings = await unitOfWork.GuildSettings.GetOrCreateAsync(context.Guild);
             

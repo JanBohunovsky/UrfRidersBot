@@ -7,7 +7,7 @@ namespace UrfRidersBot.Core.Commands
         string Name { get; }
         string Description { get; }
 
-        Task HandleAsync(InteractionContext context);
+        Task HandleAsync(CommandContext context);
     }
     
     public interface ICommand<TParent> : ICommand where TParent : ICommandGroup
