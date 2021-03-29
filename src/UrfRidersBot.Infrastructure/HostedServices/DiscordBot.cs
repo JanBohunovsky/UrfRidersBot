@@ -45,7 +45,7 @@ namespace UrfRidersBot.Infrastructure.HostedServices
             if (e.Interaction.Type == InteractionType.Ping)
                 return;
 
-            var context = new InteractionContext(_client, e.Interaction, _service);
+            var context = new CommandContext(_client, e.Interaction, _service);
             switch (e.Interaction.Data.Name)
             {
                 case "hello":
@@ -59,7 +59,7 @@ namespace UrfRidersBot.Infrastructure.HostedServices
             }
         }
 
-        private async Task HandleHelloCommandAsync(InteractionContext context)
+        private async Task HandleHelloCommandAsync(CommandContext context)
         {
             var embed = new DiscordEmbedBuilder
             {
@@ -78,7 +78,7 @@ namespace UrfRidersBot.Infrastructure.HostedServices
             await context.CreateResponseAsync(embed);
         }
 
-        private async Task HandleWhoisCommandAsync(InteractionContext context)
+        private async Task HandleWhoisCommandAsync(CommandContext context)
         {
             var userOption = context.Interaction.Data.Options.First(o => o.Name == "user");
             var user = context.Interaction.Data.Resolved.Members[(ulong)userOption.Value];

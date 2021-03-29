@@ -93,7 +93,7 @@ namespace UrfRidersBot.Infrastructure
                 }
             }
 
-            var context = new InteractionContext(_client, interaction, _service);
+            var context = new CommandContext(_client, interaction, _service);
 
             try
             {

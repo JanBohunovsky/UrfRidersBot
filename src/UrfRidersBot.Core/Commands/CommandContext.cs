@@ -6,9 +6,9 @@ using UrfRidersBot.Core.Interfaces;
 
 namespace UrfRidersBot.Core.Commands
 {
-    public class InteractionContext
+    public class CommandContext
     {
-        private readonly IInteractionService _service;
+        private readonly IInteractionService _interactionService;
 
         public DiscordClient Client { get; }
         public DiscordInteraction Interaction { get; }
@@ -18,9 +18,9 @@ namespace UrfRidersBot.Core.Commands
         public DiscordGuild? Guild => Interaction.Guild;
         public DiscordMember? Member => User as DiscordMember;
 
-        public InteractionContext(DiscordClient client, DiscordInteraction interaction, IInteractionService service)
+        public CommandContext(DiscordClient client, DiscordInteraction interaction, IInteractionService interactionService)
         {
-            _service = service;
+            _interactionService = interactionService;
             Client = client;
             Interaction = interaction;
         }
@@ -34,43 +34,43 @@ namespace UrfRidersBot.Core.Commands
             await CreateResponseAsync(builder);
         }
 
-        public async Task CreateResponseAsync(DiscordInteractionResponseBuilder? builder = null,
-            DiscordInteractionResponseType type = DiscordInteractionResponseType.ChannelMessageWithSource)
+        public async Task CreateResponseAsync(DiscordInteractionResponseBuilder? builder = null)
         {
-            await _service.CreateResponseAsync(Interaction.Id, Interaction.Token, type, builder);
+            await _interactionService.CreateResponseAsync(
+                Interaction.Id,
+                Interaction.Token,
+                DiscordInteractionResponseType.ChannelMessageWithSource,
+                builder);
         }
 
-        public async Task CreateResponseAsync(string content,
-            DiscordInteractionResponseType type = DiscordInteractionResponseType.ChannelMessageWithSource)
+        public async Task CreateResponseAsync(string content)
         {
             var builder = new DiscordInteractionResponseBuilder()
                 .WithContent(content);
             
-            await CreateResponseAsync(builder, type);
+            await CreateResponseAsync(builder);
         }
 
-        public async Task CreateResponseAsync(DiscordEmbed embed,
-            DiscordInteractionResponseType type = DiscordInteractionResponseType.ChannelMessageWithSource)
+        public async Task CreateResponseAsync(DiscordEmbed embed)
         {
             var builder = new DiscordInteractionResponseBuilder()
                 .WithEmbeds(embed);
 
-            await CreateResponseAsync(builder, type);
+            await CreateResponseAsync(builder);
         }
 
-        public async Task CreateResponseAsync(string content, DiscordEmbed embed,
-            DiscordInteractionResponseType type = DiscordInteractionResponseType.ChannelMessageWithSource)
+        public async Task CreateResponseAsync(string content, DiscordEmbed embed)
         {
             var builder = new DiscordInteractionResponseBuilder()
                 .WithContent(content)
                 .WithEmbeds(embed);
 
-            await CreateResponseAsync(builder, type);
+            await CreateResponseAsync(builder);
         }
 
         public async Task EditResponseAsync(DiscordInteractionResponseBuilder builder)
         {
-            await _service.EditResponseAsync(Interaction.Token, builder);
+            await _interactionService.EditResponseAsync(Interaction.Token, builder);
         }
 
         public async Task EditResponseAsync(string content)
@@ -100,7 +100,7 @@ namespace UrfRidersBot.Core.Commands
 
         public async Task DeleteResponseAsync()
         {
-            await _service.DeleteResponseAsync(Interaction.Token);
+            await _interactionService.DeleteResponseAsync(Interaction.Token);
         }
     }
 }
