@@ -33,7 +33,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Checks
             var memberRank = GetMemberRank(context.Member, context.Channel, guildSettings);
             return memberRank >= _rank
                 ? CheckResult.Successful
-                : CheckResult.Unsuccessful($"You must be at least {_rank.ToString()} to execute this command.");
+                : CheckResult.Unsuccessful($"You must be {_rank.ToString()} to execute this command.");
         }
 
         /// <summary>

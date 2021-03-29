@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using UrfRidersBot.Core.Commands;
 using UrfRidersBot.Core.Commands.Attributes;
-using UrfRidersBot.Core.Commands.Entities;
+using UrfRidersBot.Core.Commands.Built;
 using UrfRidersBot.Core.Interfaces;
 
 namespace UrfRidersBot.Infrastructure
@@ -58,8 +58,9 @@ namespace UrfRidersBot.Infrastructure
             }
             
             var parameters = CreateCommandParameters(commandClass).ToList();
+            var checks = GetChecks(commandClass).ToList();
             var parent = GetCommandParent(commandClass);
-            var command = new SlashCommand(instance.Name, instance.Description, commandClass, parameters, parent);
+            var command = new SlashCommand(instance.Name, instance.Description, commandClass, parameters, checks, parent);
 
             if (parent is not null) 
                 return command;
@@ -89,6 +90,28 @@ namespace UrfRidersBot.Infrastructure
 
                 yield return new SlashCommandParameter(attribute, propertyInfo);
             }
+        }
+
+        private IEnumerable<CheckAttribute> GetChecks(Type commandOrGroupClass)
+        {
+            var checks = new List<CheckAttribute>();
+            
+            var parentClass = commandOrGroupClass.GetTypeInfo()
+                .ImplementedInterfaces
+                .Where(t => t.IsGenericType
+                            && (t.GetGenericTypeDefinition() == typeof(ICommand<>)
+                                || t.GetGenericTypeDefinition() == typeof(ICommandGroup<>)))
+                .Select(t => t.GenericTypeArguments.First())
+                .FirstOrDefault();
+
+            if (parentClass is not null)
+            {
+                checks.AddRange(GetChecks(parentClass));
+            }
+            
+            checks.AddRange(commandOrGroupClass.GetCustomAttributes<CheckAttribute>());
+
+            return checks;
         }
 
         private SlashCommandGroup? GetCommandParent(Type commandClass)

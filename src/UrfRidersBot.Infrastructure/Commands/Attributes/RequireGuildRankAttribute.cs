@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using UrfRidersBot.Core.Entities;
 using UrfRidersBot.Core.Interfaces;
 
-namespace UrfRidersBot.Infrastructure.Commands
+namespace UrfRidersBot.Infrastructure.Commands.Attributes
 {
     /// <summary>
     /// Requires the user invoking the command to have this guild rank or higher.
@@ -19,6 +19,7 @@ namespace UrfRidersBot.Infrastructure.Commands
     /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = false)]
+    [Obsolete("CommandsNext has been replaced by Slash Commands.")]
     public class RequireGuildRankAttribute : CheckBaseAttribute
     {
         private readonly GuildRank _rank;

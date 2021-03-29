@@ -8,6 +8,7 @@ using DSharpPlus;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
+using UrfRidersBot.Core.Commands.Built;
 using UrfRidersBot.Core.Commands.Entities;
 using UrfRidersBot.Core.Interfaces;
 using UrfRidersBot.Infrastructure.Commands.Models;

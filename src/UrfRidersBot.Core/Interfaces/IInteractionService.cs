@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using UrfRidersBot.Core.Commands.Built;
 using UrfRidersBot.Core.Commands.Entities;
 
 namespace UrfRidersBot.Core.Interfaces
