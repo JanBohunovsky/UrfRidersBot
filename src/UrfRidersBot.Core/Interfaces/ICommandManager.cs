@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using UrfRidersBot.Core.Commands.Entities;
+using UrfRidersBot.Core.Commands.Built;
 
 namespace UrfRidersBot.Core.Interfaces
 {

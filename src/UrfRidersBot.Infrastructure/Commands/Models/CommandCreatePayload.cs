@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using UrfRidersBot.Core.Commands.Entities;
+using UrfRidersBot.Core.Commands.Built;
 
 namespace UrfRidersBot.Infrastructure.Commands.Models
 {
@@ -109,64 +109,5 @@ namespace UrfRidersBot.Infrastructure.Commands.Models
                 SubGroups = subGroups.ToList();
             }
         }
-
-        // private void GenerateCommandParameters(Type commandClass,
-        //     out List<CommandOptionPayload> options,
-        //     out List<SlashCommandParameter> parameters)
-        // {
-        //     options = new List<CommandOptionPayload>();
-        //     parameters = new List<SlashCommandParameter>();
-        //
-        //     var parameterProperties = commandClass.GetProperties()
-        //         .Where(p => p.CanWrite && p.GetCustomAttribute<ParameterAttribute>() is not null);
-        //
-        //     foreach (var property in parameterProperties)
-        //     {
-        //         var attribute = property.GetCustomAttribute<ParameterAttribute>();
-        //         if (attribute is null)
-        //         {
-        //             throw new InvalidOperationException("What?");
-        //         }
-        //         
-        //         var type = property.PropertyType;
-        //         ApplicationCommandOptionType parameterType;
-        //
-        //         if (type == typeof(string))
-        //             parameterType = ApplicationCommandOptionType.String;
-        //         else if (type == typeof(long))
-        //             parameterType = ApplicationCommandOptionType.Integer;
-        //         else if (type == typeof(bool))
-        //             parameterType = ApplicationCommandOptionType.Boolean;
-        //         else if (type == typeof(DiscordChannel))
-        //             parameterType = ApplicationCommandOptionType.Channel;
-        //         else if (type == typeof(DiscordUser))
-        //             parameterType = ApplicationCommandOptionType.User;
-        //         else if (type == typeof(DiscordRole))
-        //             parameterType = ApplicationCommandOptionType.Role;
-        //         else if (type.IsEnum)
-        //             parameterType = ApplicationCommandOptionType.Integer;
-        //         else
-        //             throw new ArgumentException(
-        //                 "Cannot convert type. Parameter type must be string, long, bool, DiscordChannel, DiscordUser, DiscordRole or an enum.");
-        //
-        //         List<DiscordApplicationCommandOptionChoice>? choices = null;
-        //         if (type.IsEnum)
-        //         {
-        //             choices = new List<DiscordApplicationCommandOptionChoice>();
-        //             var names = Enum.GetNames(type);
-        //             var values = Enum.GetValues(type);
-        //
-        //             for (int i = 0; i < names.Length; i++)
-        //             {
-        //                 var name = names[i];
-        //                 var value = (int)values.GetValue(i)!;
-        //                 choices.Add(new DiscordApplicationCommandOptionChoice(name, value));
-        //             }
-        //         }
-        //
-        //         options.Add(new CommandOptionPayload(attribute, parameterType, choices));
-        //         parameters.Add(new SlashCommandParameter(attribute, property));
-        //     }
-        // }
     }
 }

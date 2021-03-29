@@ -9,6 +9,7 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.Hosting;
 using UrfRidersBot.Core;
 using UrfRidersBot.Core.Interfaces;
+using UrfRidersBot.Infrastructure.Commands.Attributes;
 
 namespace UrfRidersBot.Infrastructure.Commands.Modules
 {

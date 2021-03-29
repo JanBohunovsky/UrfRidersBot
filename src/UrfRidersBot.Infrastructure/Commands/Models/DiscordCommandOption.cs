@@ -4,7 +4,7 @@ using System.Linq;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
-using UrfRidersBot.Core.Commands.Entities;
+using UrfRidersBot.Core.Commands.Built;
 
 namespace UrfRidersBot.Infrastructure.Commands.Models
 {

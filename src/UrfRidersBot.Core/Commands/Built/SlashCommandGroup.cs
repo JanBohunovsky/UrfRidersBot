@@ -1,4 +1,4 @@
-﻿namespace UrfRidersBot.Core.Commands.Entities
+﻿namespace UrfRidersBot.Core.Commands.Built
 {
     public class SlashCommandGroup
     {
