@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using UrfRidersBot.Core.Commands.Attributes;
+using UrfRidersBot.Core.Commands.Models;
 
 namespace UrfRidersBot.Core.Commands.Built
 {
@@ -52,6 +54,29 @@ namespace UrfRidersBot.Core.Commands.Built
             {
                 Checks = checks.ToList();
             }
+        }
+
+        public string GetFullName()
+        {
+            var sb = new StringBuilder();
+
+            if (Parent is not null)
+            {
+                var commandGroup = Parent;
+                if (commandGroup.Parent is not null)
+                {
+                    var groupParent = commandGroup.Parent;
+                    sb.Append(groupParent.Name);
+                    sb.Append(' ');
+                }
+
+                sb.Append(commandGroup.Name);
+                sb.Append(' ');
+            }
+
+            sb.Append(Name);
+
+            return sb.ToString();
         }
 
         public void FillParameters(ICommand instance,

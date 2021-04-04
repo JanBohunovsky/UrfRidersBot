@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using UrfRidersBot.Core.Interfaces;
-using UrfRidersBot.Persistence.Repositories;
+using UrfRidersBot.Core.AutoVoice;
+using UrfRidersBot.Core.Common;
+using UrfRidersBot.Persistence.AutoVoice;
+using UrfRidersBot.Persistence.Common;
 
 namespace UrfRidersBot.Persistence
 {

@@ -4,8 +4,9 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using UrfRidersBot.Core;
-using UrfRidersBot.Core.Entities;
-using UrfRidersBot.Core.Interfaces;
+using UrfRidersBot.Core.AutoVoice;
+using UrfRidersBot.Core.Common;
+using UrfRidersBot.Core.Settings;
 using UrfRidersBot.Infrastructure.Commands.Attributes;
 
 namespace UrfRidersBot.Infrastructure.Commands.Modules
