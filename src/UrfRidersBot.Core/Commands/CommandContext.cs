@@ -15,8 +15,8 @@ namespace UrfRidersBot.Core.Commands
 
         public DiscordChannel Channel => Interaction.Channel;
         public DiscordUser User => Interaction.User;
-        public DiscordGuild? Guild => Interaction.Guild;
-        public DiscordMember? Member => User as DiscordMember;
+        public DiscordGuild Guild => Interaction.Guild;
+        public DiscordMember Member => (DiscordMember)User;
 
         public CommandContext(DiscordClient client, DiscordInteraction interaction, IInteractionService interactionService)
         {

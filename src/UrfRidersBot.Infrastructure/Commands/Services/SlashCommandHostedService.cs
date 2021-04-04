@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using UrfRidersBot.Core.Commands.Services;
 
 namespace UrfRidersBot.Infrastructure.Commands.Services
@@ -14,17 +16,20 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
         private readonly ICommandManager _commandManager;
         private readonly ICommandHandler _commandHandler;
         private readonly IInteractionService _service;
+        private readonly ILogger<SlashCommandHostedService> _logger;
 
         public SlashCommandHostedService(
             DiscordClient client,
             ICommandManager commandManager,
             ICommandHandler commandHandler,
-            IInteractionService service)
+            IInteractionService service,
+            ILogger<SlashCommandHostedService> logger)
         {
             _client = client;
             _commandManager = commandManager;
             _commandHandler = commandHandler;
             _service = service;
+            _logger = logger;
         }
         
         public Task StartAsync(CancellationToken cancellationToken)
@@ -56,7 +61,17 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
 
         private Task OnInteractionCreated(DiscordClient sender, InteractionCreateEventArgs e)
         {
-            _ = _commandHandler.HandleAsync(e.Interaction);
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _commandHandler.HandleAsync(e.Interaction);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Handling of interaction {@Interaction} failed", e.Interaction);
+                }
+            });
 
             return Task.CompletedTask;
         }
