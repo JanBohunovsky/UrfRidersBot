@@ -7,9 +7,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Qmmands;
-using UrfRidersBot.Core.Configuration;
-using UrfRidersBot.Core.Interfaces;
-using UrfRidersBot.Infrastructure.HostedServices;
+using UrfRidersBot.Core.AutoVoice;
+using UrfRidersBot.Core.ColorRole;
+using UrfRidersBot.Core.Commands.Services;
+using UrfRidersBot.Core.Common;
+using UrfRidersBot.Core.Common.Configuration;
+using UrfRidersBot.Infrastructure.AutoVoice;
+using UrfRidersBot.Infrastructure.ColorRole;
+using UrfRidersBot.Infrastructure.Commands.Services;
+using UrfRidersBot.Infrastructure.Common;
+using UrfRidersBot.Infrastructure.ReactionRoles;
+using CommandHandler = UrfRidersBot.Infrastructure.Commands.Services.CommandHandler;
 
 namespace UrfRidersBot.Infrastructure
 {
@@ -27,7 +35,7 @@ namespace UrfRidersBot.Infrastructure
         {
             // TODO: Remove Qmmands services
             services.AddSingleton<CommandService>();
-            services.AddHostedService<HostedServices.CommandHandler>();
+            services.AddHostedService<Common.CommandHandler>();
             
             services.AddSingleton(CreateDiscordHttpClient);
             services.AddSingleton<IInteractionService, InteractionService>();

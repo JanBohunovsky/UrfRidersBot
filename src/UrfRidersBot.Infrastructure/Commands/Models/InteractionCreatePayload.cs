@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using UrfRidersBot.Core.Commands.Entities;
+using UrfRidersBot.Core.Commands.Models;
 
 namespace UrfRidersBot.Infrastructure.Commands.Models
 {

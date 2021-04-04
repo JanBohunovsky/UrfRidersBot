@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using UrfRidersBot.Core.Commands.Entities;
-using UrfRidersBot.Core.Interfaces;
+using UrfRidersBot.Core.Commands.Models;
+using UrfRidersBot.Core.Commands.Services;
 
 namespace UrfRidersBot.Core.Commands
 {

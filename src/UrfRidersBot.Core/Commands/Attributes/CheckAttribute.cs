@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using UrfRidersBot.Core.Commands.Models;
 
 namespace UrfRidersBot.Core.Commands.Attributes
 {

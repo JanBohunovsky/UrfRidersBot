@@ -2,6 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using UrfRidersBot.Persistence.Common;
 
 namespace UrfRidersBot.Persistence.Migrations
 {

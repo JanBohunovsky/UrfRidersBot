@@ -6,8 +6,8 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
-using UrfRidersBot.Core.Entities;
-using UrfRidersBot.Core.Interfaces;
+using UrfRidersBot.Core.Common;
+using UrfRidersBot.Core.Settings;
 
 namespace UrfRidersBot.Infrastructure.Commands.Attributes
 {

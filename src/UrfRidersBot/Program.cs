@@ -11,7 +11,7 @@ using NpgsqlTypes;
 using Serilog;
 using Serilog.Filters;
 using Serilog.Sinks.PostgreSQL;
-using UrfRidersBot.Persistence;
+using UrfRidersBot.Persistence.Common;
 
 namespace UrfRidersBot
 {

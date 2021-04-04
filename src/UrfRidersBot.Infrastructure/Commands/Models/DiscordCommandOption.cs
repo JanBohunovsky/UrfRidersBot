@@ -36,7 +36,13 @@ namespace UrfRidersBot.Infrastructure.Commands.Models
             
             if (type == typeof(string))
                 parameterType = ApplicationCommandOptionType.String;
+            else if (type == typeof(int))
+                parameterType = ApplicationCommandOptionType.Integer;
+            else if (type == typeof(uint))
+                parameterType = ApplicationCommandOptionType.Integer;
             else if (type == typeof(long))
+                parameterType = ApplicationCommandOptionType.Integer;
+            else if (type == typeof(ulong))
                 parameterType = ApplicationCommandOptionType.Integer;
             else if (type == typeof(bool))
                 parameterType = ApplicationCommandOptionType.Boolean;
@@ -50,7 +56,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Models
                 parameterType = ApplicationCommandOptionType.Integer;
             else
                 throw new ArgumentException(
-                    "Cannot convert type. Parameter type must be string, long, bool, DiscordChannel, DiscordUser, DiscordRole or an enum.");
+                    "Cannot convert type. Parameter type must be string, int, uint, long, ulong, bool, DiscordChannel, DiscordUser, DiscordRole or an enum.");
                 
             // Create choices for enum
             List<DiscordApplicationCommandOptionChoice>? choices = null;

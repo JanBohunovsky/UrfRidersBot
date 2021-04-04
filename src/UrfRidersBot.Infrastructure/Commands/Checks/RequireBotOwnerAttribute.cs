@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UrfRidersBot.Core.Commands;
 using UrfRidersBot.Core.Commands.Attributes;
+using UrfRidersBot.Core.Commands.Models;
 
 namespace UrfRidersBot.Infrastructure.Commands.Checks
 {

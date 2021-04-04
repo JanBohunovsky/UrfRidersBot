@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UrfRidersBot.Persistence;
+using UrfRidersBot.Persistence.Common;
 
 namespace UrfRidersBot.Persistence.Migrations
 {

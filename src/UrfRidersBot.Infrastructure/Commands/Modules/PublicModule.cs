@@ -8,7 +8,8 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Hosting;
 using UrfRidersBot.Core;
-using UrfRidersBot.Core.Interfaces;
+using UrfRidersBot.Core.ColorRole;
+using UrfRidersBot.Core.Common;
 using UrfRidersBot.Infrastructure.Commands.Attributes;
 
 namespace UrfRidersBot.Infrastructure.Commands.Modules
