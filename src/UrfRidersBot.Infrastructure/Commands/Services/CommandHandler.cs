@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using UrfRidersBot.Core;
 using UrfRidersBot.Core.Commands;
 using UrfRidersBot.Core.Commands.Built;
 using UrfRidersBot.Core.Commands.Services;
@@ -18,19 +18,16 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
         private readonly IServiceProvider _provider;
         private readonly DiscordClient _client;
         private readonly IInteractionService _interactionService;
-        private readonly ILogger<CommandHandler> _logger;
         private Dictionary<string, SlashCommand> _commands;
 
         public CommandHandler(
             IServiceProvider provider,
             DiscordClient client,
-            IInteractionService interactionService,
-            ILogger<CommandHandler> logger)
+            IInteractionService interactionService)
         {
             _provider = provider;
             _client = client;
             _interactionService = interactionService;
-            _logger = logger;
             _commands = new Dictionary<string, SlashCommand>();
         }
 
@@ -43,48 +40,75 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
         {
             var request = CommandRequest.FromInteractionData(interaction.Data);
 
-            if (!_commands.ContainsKey(request.FullName))
-            {
-                _logger.LogError("An interaction was created, but no command was registered for it: '{Command}'",
-                    request.FullName);
-                return;
-            }
+            var command = GetCommand(request);
+            
+            var instance = CreateCommandInstance(command, request, interaction.Data.Resolved);
 
-            var command = _commands[request.FullName];
+            var context = await CreateCommandContextAsync(interaction);
 
-            using var scope = _provider.CreateScope();
-            if (ActivatorUtilities.CreateInstance(scope.ServiceProvider, command.Class) is not ICommand instance)
-            {
-                _logger.LogError("Could not create an instance of a type {Type} for a command '{Command}'",
-                    command.Class, request.FullName);
-                return;
-            }
-
-            if (request.Parameters is not null)
-            {
-                command.FillParameters(instance, request.Parameters, interaction.Data.Resolved);
-            }
-
-            var context = new CommandContext(_client, interaction, _interactionService);
-
-            var checkResult = await command.RunChecksAsync(context, _provider);
-            if (!checkResult.IsSuccessful)
-            {
-                await context.CreateEphemeralResponseAsync(checkResult.Reason!);
-                _logger.LogWarning("Checks failed for command '{Command}': {Checks}", 
-                    command.Class.Name, checkResult.Reason);
-                return;
-            }
+            await RunChecksAsync(command, context);
 
             try
             {
                 await instance.HandleAsync(context);
             }
+            catch (CommandException e)
+            {
+                await context.CreateEphemeralResponseAsync($"⚠ Error: {e.Message}");
+            }
             catch (Exception e)
             {
-                await context.CreateEphemeralResponseAsync($"Command failed, please contact bot owner.\n" +
+                await context.CreateEphemeralResponseAsync($"❌ Command failed, please contact bot owner.\n" +
                                                            $"Exception: `{e.Message}`");
-                _logger.LogError(e, "Command '{Command}' threw an exception", command.Class.Name);
+                throw;
+            }
+        }
+
+        private SlashCommand GetCommand(CommandRequest request)
+        {
+            if (!_commands.ContainsKey(request.FullName))
+            {
+                throw new Exception($"An interaction was created, but no command was registered for it: '{request.FullName}'");
+            }
+
+            return _commands[request.FullName];
+        }
+
+        private ICommand CreateCommandInstance(SlashCommand command, CommandRequest request, DiscordInteractionResolvedCollection resolved)
+        {
+            using var scope = _provider.CreateScope();
+            if (ActivatorUtilities.CreateInstance(scope.ServiceProvider, command.Class) is not ICommand instance)
+            {
+                throw new Exception($"Could not create an instance of a type {command.Class} for a command '{request.FullName}'.");
+            }
+
+            if (request.Parameters is not null)
+            {
+                command.FillParameters(instance, request.Parameters, resolved);
+            }
+
+            return instance;
+        }
+
+        private async ValueTask<CommandContext> CreateCommandContextAsync(DiscordInteraction interaction)
+        {
+            var context = new CommandContext(_client, interaction, _interactionService);
+            if (interaction.Guild is null)
+            {
+                await context.CreateResponseAsync(EmbedHelper.CreateError("This command can be used only in a server."));
+                throw new Exception("User tried to execute a command in DMs, somehow.");
+            }
+
+            return context;
+        }
+
+        private async Task RunChecksAsync(SlashCommand command, CommandContext context)
+        {
+            var checkResult = await command.RunChecksAsync(context, _provider);
+            if (!checkResult.IsSuccessful)
+            {
+                await context.CreateEphemeralResponseAsync(checkResult.Reason!);
+                throw new Exception($"Checks failed for command '{command.Class.Name}': {checkResult.Reason}.");
             }
         }
     }
