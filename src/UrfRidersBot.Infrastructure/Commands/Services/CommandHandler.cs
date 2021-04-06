@@ -39,7 +39,8 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
 
             var command = GetCommand(request);
             
-            var instance = CreateCommandInstance(command, request, interaction.Data.Resolved);
+            using var scope = _provider.CreateScope();
+            var instance = CreateCommandInstance(command, request, interaction.Data.Resolved, scope);
 
             var context = await CreateCommandContextAsync(interaction);
 
@@ -56,7 +57,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             catch (Exception e)
             {
                 await context.CreateEphemeralResponseAsync($"<:high_priority:828216690164105257> Command failed, please contact bot owner.\n" +
-                                                           $"Exception: `{e.Message}`");
+                                                           $"Exception: {Markdown.Code(e.Message)}");
                 throw;
             }
         }
@@ -71,9 +72,12 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             return _commands[request.FullName];
         }
 
-        private ICommand CreateCommandInstance(SlashCommand command, CommandRequest request, DiscordInteractionResolvedCollection resolved)
+        private ICommand CreateCommandInstance(
+            SlashCommand command,
+            CommandRequest request,
+            DiscordInteractionResolvedCollection resolved,
+            IServiceScope scope)
         {
-            using var scope = _provider.CreateScope();
             if (ActivatorUtilities.CreateInstance(scope.ServiceProvider, command.Class) is not ICommand instance)
             {
                 throw new Exception($"Could not create an instance of a type {command.Class} for a command '{request.FullName}'.");
