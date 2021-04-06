@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using UrfRidersBot.Core.Commands.Helpers;
 using UrfRidersBot.Core.Commands.Services;
 
 namespace UrfRidersBot.Infrastructure.Commands.Services
@@ -52,8 +51,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             var commands = _commandManager.BuildCommands().ToList();
             _commandHandler.AddCommands(commands);
 
-            // TODO: Create these objects from our SlashCommand ones
-            List<DiscordApplicationCommand> discordCommands = null!;
+            var discordCommands = DiscordApplicationCommandHelper.FromSlashCommands(commands);
             _client.BulkOverwriteGuildApplicationCommandsAsync(637650172083437579, discordCommands);
 
             return Task.CompletedTask;
@@ -69,7 +67,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Handling of interaction {@Interaction} failed", e.Interaction);
+                    _logger.LogError(ex, "Handling of interaction {InteractionId} failed", e.Interaction.Id);
                 }
             });
 
