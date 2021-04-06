@@ -6,8 +6,8 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00822" />
-        <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-nightly-00822" />
+        <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00831" />
+        <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-nightly-00831" />
         <PackageReference Include="DSharpPlus.VoiceNext" Version="4.0.0-nightly-00822" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />

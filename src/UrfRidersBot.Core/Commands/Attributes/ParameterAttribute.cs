@@ -8,11 +8,11 @@ namespace UrfRidersBot.Core.Commands.Attributes
         public string Description { get; }
         public bool IsRequired { get; }
 
-        public ParameterAttribute(string name, string description, bool isRequired = true)
+        public ParameterAttribute(string name, string description, bool optional = false)
         {
             Name = name;
             Description = description;
-            IsRequired = isRequired;
+            IsRequired = !optional;
         }
     }
 }

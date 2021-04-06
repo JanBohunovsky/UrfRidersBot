@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.Extensions.Hosting;
-using UrfRidersBot.Core.Commands.Services;
 using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Infrastructure.Common
@@ -12,13 +11,11 @@ namespace UrfRidersBot.Infrastructure.Common
     {
         private readonly DiscordClient _client;
         private readonly IBotInformationService _botInfo;
-        private readonly IInteractionService _service;
 
-        public DiscordBot(DiscordClient client, IBotInformationService botInfo, IInteractionService service)
+        public DiscordBot(DiscordClient client, IBotInformationService botInfo)
         {
             _client = client;
             _botInfo = botInfo;
-            _service = service;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

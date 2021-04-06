@@ -38,7 +38,6 @@ namespace UrfRidersBot.Infrastructure
             services.AddHostedService<Common.CommandHandler>();
             
             services.AddSingleton(CreateDiscordHttpClient);
-            services.AddSingleton<IInteractionService, InteractionService>();
             services.AddSingleton<ICommandManager, CommandManager>();
             services.AddSingleton<ICommandHandler, CommandHandler>();
             services.AddHostedService<SlashCommandHostedService>();
