@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,20 +17,17 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
         private readonly DiscordClient _client;
         private readonly ICommandManager _commandManager;
         private readonly ICommandHandler _commandHandler;
-        private readonly IInteractionService _service;
         private readonly ILogger<SlashCommandHostedService> _logger;
 
         public SlashCommandHostedService(
             DiscordClient client,
             ICommandManager commandManager,
             ICommandHandler commandHandler,
-            IInteractionService service,
             ILogger<SlashCommandHostedService> logger)
         {
             _client = client;
             _commandManager = commandManager;
             _commandHandler = commandHandler;
-            _service = service;
             _logger = logger;
         }
         
@@ -51,10 +50,11 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
         private Task OnReady(DiscordClient sender, ReadyEventArgs e)
         {
             var commands = _commandManager.BuildCommands().ToList();
-            
-            _commandHandler.SetCommands(commands);
+            _commandHandler.AddCommands(commands);
 
-            _ = _service.RegisterCommandsAsync(commands, 637650172083437579);
+            // TODO: Create these objects from our SlashCommand ones
+            List<DiscordApplicationCommand> discordCommands = null!;
+            _client.BulkOverwriteGuildApplicationCommandsAsync(637650172083437579, discordCommands);
 
             return Task.CompletedTask;
         }

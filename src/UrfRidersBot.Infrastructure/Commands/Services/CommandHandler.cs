@@ -17,21 +17,18 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
     {
         private readonly IServiceProvider _provider;
         private readonly DiscordClient _client;
-        private readonly IInteractionService _interactionService;
         private Dictionary<string, SlashCommand> _commands;
 
         public CommandHandler(
             IServiceProvider provider,
-            DiscordClient client,
-            IInteractionService interactionService)
+            DiscordClient client)
         {
             _provider = provider;
             _client = client;
-            _interactionService = interactionService;
             _commands = new Dictionary<string, SlashCommand>();
         }
 
-        public void SetCommands(IEnumerable<SlashCommand> commands)
+        public void AddCommands(IEnumerable<SlashCommand> commands)
         {
             _commands = commands.ToDictionary(c => c.GetFullName(), c => c);
         }
@@ -92,7 +89,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
 
         private async ValueTask<CommandContext> CreateCommandContextAsync(DiscordInteraction interaction)
         {
-            var context = new CommandContext(_client, interaction, _interactionService);
+            var context = new CommandContext(_client, interaction);
             if (interaction.Guild is null)
             {
                 await context.CreateResponseAsync(EmbedHelper.CreateError("This command can be used only in a server."));

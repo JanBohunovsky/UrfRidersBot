@@ -1,15 +1,11 @@
 ﻿using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using UrfRidersBot.Core.Commands.Models;
-using UrfRidersBot.Core.Commands.Services;
 
 namespace UrfRidersBot.Core.Commands
 {
     public class CommandContext
     {
-        private readonly IInteractionService _interactionService;
-
         public DiscordClient Client { get; }
         public DiscordInteraction Interaction { get; }
 
@@ -18,9 +14,8 @@ namespace UrfRidersBot.Core.Commands
         public DiscordGuild Guild => Interaction.Guild;
         public DiscordMember Member => (DiscordMember)User;
 
-        public CommandContext(DiscordClient client, DiscordInteraction interaction, IInteractionService interactionService)
+        public CommandContext(DiscordClient client, DiscordInteraction interaction)
         {
-            _interactionService = interactionService;
             Client = client;
             Interaction = interaction;
         }
@@ -29,18 +24,14 @@ namespace UrfRidersBot.Core.Commands
         {
             var builder = new DiscordInteractionResponseBuilder()
                 .WithContent(content)
-                .WithFlags(InteractionFlags.Ephemeral);
+                .AsEphemeral(true);
 
             await CreateResponseAsync(builder);
         }
 
         public async Task CreateResponseAsync(DiscordInteractionResponseBuilder? builder = null)
         {
-            await _interactionService.CreateResponseAsync(
-                Interaction.Id,
-                Interaction.Token,
-                DiscordInteractionResponseType.ChannelMessageWithSource,
-                builder);
+            await Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
         }
 
         public async Task CreateResponseAsync(string content)
@@ -54,7 +45,7 @@ namespace UrfRidersBot.Core.Commands
         public async Task CreateResponseAsync(DiscordEmbed embed)
         {
             var builder = new DiscordInteractionResponseBuilder()
-                .WithEmbeds(embed);
+                .AddEmbed(embed);
 
             await CreateResponseAsync(builder);
         }
@@ -63,19 +54,19 @@ namespace UrfRidersBot.Core.Commands
         {
             var builder = new DiscordInteractionResponseBuilder()
                 .WithContent(content)
-                .WithEmbeds(embed);
+                .AddEmbed(embed);
 
             await CreateResponseAsync(builder);
         }
 
-        public async Task EditResponseAsync(DiscordInteractionResponseBuilder builder)
+        public async Task EditResponseAsync(DiscordWebhookBuilder builder)
         {
-            await _interactionService.EditResponseAsync(Interaction.Token, builder);
+            await Interaction.EditOriginalResponseAsync(builder);
         }
 
         public async Task EditResponseAsync(string content)
         {
-            var builder = new DiscordInteractionResponseBuilder()
+            var builder = new DiscordWebhookBuilder()
                 .WithContent(content);
 
             await EditResponseAsync(builder);
@@ -83,24 +74,24 @@ namespace UrfRidersBot.Core.Commands
 
         public async Task EditResponseAsync(DiscordEmbed embed)
         {
-            var builder = new DiscordInteractionResponseBuilder()
-                .WithEmbeds(embed);
+            var builder = new DiscordWebhookBuilder()
+                .AddEmbed(embed);
 
             await EditResponseAsync(builder);
         }
 
         public async Task EditResponseAsync(string content, DiscordEmbed embed)
         {
-            var builder = new DiscordInteractionResponseBuilder()
+            var builder = new DiscordWebhookBuilder()
                 .WithContent(content)
-                .WithEmbeds(embed);
+                .AddEmbed(embed);
 
             await EditResponseAsync(builder);
         }
 
         public async Task DeleteResponseAsync()
         {
-            await _interactionService.DeleteResponseAsync(Interaction.Token);
+            await Interaction.DeleteOriginalResponseAsync();
         }
     }
 }
