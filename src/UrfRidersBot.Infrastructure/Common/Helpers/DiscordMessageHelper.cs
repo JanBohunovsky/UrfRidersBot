@@ -29,6 +29,16 @@ namespace UrfRidersBot.Infrastructure.Common
                 return null;
             }
 
+            if (!ulong.TryParse(match.Groups["guild"].Value, out var guildId))
+            {
+                return null;
+            }
+
+            if (guild.Id != guildId)
+            {
+                return null;
+            }
+
             if (!ulong.TryParse(match.Groups["channel"].Value, out var channelId))
             {
                 return null;
