@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -56,10 +57,11 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             }
             catch (Exception e)
             {
-                await context.CreateResponseAsync(
-                    $"{UrfRidersEmotes.HighPriority} Command failed, please contact bot owner.\n" +
-                    $"Exception: {Markdown.Code(e.Message)}",
-                    true);
+                var sb = new StringBuilder();
+                sb.AppendLine($"{UrfRidersEmotes.HighPriority} Command failed, please contact bot owner.");
+                sb.AppendLine($"Exception: {Markdown.Code(e.Message)}");
+                
+                await context.CreateResponseAsync(sb.ToString(), true);
                 throw;
             }
         }
@@ -110,7 +112,11 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             var checkResult = await command.RunChecksAsync(context, _provider);
             if (!checkResult.IsSuccessful)
             {
-                await context.CreateResponseAsync($"{UrfRidersEmotes.Unavailable} You cannot execute this command:\n{checkResult.Reason}", true);
+                var sb = new StringBuilder();
+                sb.AppendLine($"{UrfRidersEmotes.Unavailable} You cannot execute this command:");
+                sb.AppendLine(checkResult.Reason);
+                
+                await context.CreateResponseAsync(sb.ToString(), true);
                 throw new Exception($"Checks failed for command '{command.Class.Name}': {checkResult.Reason}.");
             }
         }
