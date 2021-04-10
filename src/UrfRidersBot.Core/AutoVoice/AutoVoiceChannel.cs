@@ -1,4 +1,5 @@
-﻿using DSharpPlus;
+﻿using System;
+using DSharpPlus;
 using DSharpPlus.Entities;
 
 namespace UrfRidersBot.Core.AutoVoice
@@ -26,7 +27,12 @@ namespace UrfRidersBot.Core.AutoVoice
 
         public static AutoVoiceChannel FromDiscord(DiscordChannel channel)
         {
-            return new AutoVoiceChannel(channel.Id, channel.GuildId);
+            if (!channel.GuildId.HasValue)
+            {
+                throw new InvalidOperationException("Channel is not in a guild.");
+            }
+            
+            return new AutoVoiceChannel(channel.Id, channel.GuildId.Value);
         }
     }
 }

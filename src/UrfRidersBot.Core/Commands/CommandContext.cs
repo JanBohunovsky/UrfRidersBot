@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 
@@ -16,6 +17,11 @@ namespace UrfRidersBot.Core.Commands
 
         public CommandContext(DiscordClient client, DiscordInteraction interaction)
         {
+            if (interaction.Guild is null)
+            {
+                throw new ArgumentException("Only guild interactions are supported.", nameof(interaction));
+            }
+            
             Client = client;
             Interaction = interaction;
         }
