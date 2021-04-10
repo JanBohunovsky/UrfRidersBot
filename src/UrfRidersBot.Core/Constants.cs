@@ -47,4 +47,13 @@ namespace UrfRidersBot.Core
         public static readonly string Unavailable = "https://raw.githubusercontent.com/JanBohunovsky/UrfRidersBot/master/images/unavailable.png";
         public static readonly string Delete = "https://raw.githubusercontent.com/JanBohunovsky/UrfRidersBot/master/images/delete.png";
     }
+
+    public static class UrfRidersEmotes
+    {
+        public static readonly string Checkmark = "<:checkmark:791318099311329280>";
+        public static readonly string Crossmark = "<:crossmark:791318099022315561>";
+        public static readonly string Error = "<:error:828216690452987935>";
+        public static readonly string Unavailable = "<:unavailable:828216690525339658>";
+        public static readonly string HighPriority = "<:high_priority:828216690164105257>";
+    }
 }

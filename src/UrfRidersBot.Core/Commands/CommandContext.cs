@@ -26,24 +26,16 @@ namespace UrfRidersBot.Core.Commands
             Interaction = interaction;
         }
 
-        public async Task CreateEphemeralResponseAsync(string content)
-        {
-            var builder = new DiscordInteractionResponseBuilder()
-                .WithContent(content)
-                .AsEphemeral(true);
-
-            await CreateResponseAsync(builder);
-        }
-
         public async Task CreateResponseAsync(DiscordInteractionResponseBuilder? builder = null)
         {
             await Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
         }
 
-        public async Task CreateResponseAsync(string content)
+        public async Task CreateResponseAsync(string content, bool ephemeral = false)
         {
             var builder = new DiscordInteractionResponseBuilder()
-                .WithContent(content);
+                .WithContent(content)
+                .AsEphemeral(ephemeral);
             
             await CreateResponseAsync(builder);
         }
