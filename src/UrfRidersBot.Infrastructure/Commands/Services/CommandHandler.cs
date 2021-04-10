@@ -52,12 +52,14 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             }
             catch (CommandException e)
             {
-                await context.CreateEphemeralResponseAsync($"<:error:828216690452987935> Error: {e.Message}");
+                await context.CreateResponseAsync($"{UrfRidersEmotes.Error} Error: {e.Message}", true);
             }
             catch (Exception e)
             {
-                await context.CreateEphemeralResponseAsync($"<:high_priority:828216690164105257> Command failed, please contact bot owner.\n" +
-                                                           $"Exception: {Markdown.Code(e.Message)}");
+                await context.CreateResponseAsync(
+                    $"{UrfRidersEmotes.HighPriority} Command failed, please contact bot owner.\n" +
+                    $"Exception: {Markdown.Code(e.Message)}",
+                    true);
                 throw;
             }
         }
@@ -108,7 +110,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             var checkResult = await command.RunChecksAsync(context, _provider);
             if (!checkResult.IsSuccessful)
             {
-                await context.CreateEphemeralResponseAsync($"<:unavailable:828216690525339658> You cannot execute this command:\n{checkResult.Reason}");
+                await context.CreateResponseAsync($"{UrfRidersEmotes.Unavailable} You cannot execute this command:\n{checkResult.Reason}", true);
                 throw new Exception($"Checks failed for command '{command.Class.Name}': {checkResult.Reason}.");
             }
         }
