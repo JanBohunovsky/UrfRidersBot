@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using UrfRidersBot.Core.Commands.Attributes;
-using UrfRidersBot.Core.Commands.Models;
 
 namespace UrfRidersBot.Core.Commands.Built
 {
@@ -94,7 +93,7 @@ namespace UrfRidersBot.Core.Commands.Built
             }
         }
 
-        public async ValueTask<CheckResult> RunChecksAsync(CommandContext context, IServiceProvider provider)
+        public async ValueTask<CheckResult> RunChecksAsync(ICommandContext context, IServiceProvider provider)
         {
             if (Checks is null)
             {

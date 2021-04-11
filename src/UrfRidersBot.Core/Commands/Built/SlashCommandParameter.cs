@@ -33,27 +33,7 @@ namespace UrfRidersBot.Core.Commands.Built
                     result = parameter.Value.ToString();
                     break;
                 case ApplicationCommandOptionType.Integer:
-                    if (Property.PropertyType == typeof(int))
-                    {
-                        result = (int)parameter.Value;
-                    }
-                    else if (Property.PropertyType == typeof(uint))
-                    {
-                        result = (uint)parameter.Value;
-                    }
-                    else if (Property.PropertyType == typeof(long))
-                    {
-                        result = (long)parameter.Value;
-                    }
-                    else if (Property.PropertyType == typeof(ulong))
-                    {
-                        result = (ulong)parameter.Value;
-                    }
-                    else
-                    {
-                        // Should not happen
-                        throw new InvalidOperationException("Invalid integer property type. Valid types: int, uint, long, ulong");
-                    }
+                    result = (long)parameter.Value;
                     break;
                 case ApplicationCommandOptionType.Boolean:
                     result = (bool)parameter.Value;
