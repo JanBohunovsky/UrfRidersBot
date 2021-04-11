@@ -22,10 +22,6 @@ namespace UrfRidersBot.Core.Commands.Helpers
 
             if (type == typeof(string))
                 parameterType = ApplicationCommandOptionType.String;
-            else if (type == typeof(int))
-                parameterType = ApplicationCommandOptionType.Integer;
-            else if (type == typeof(uint))
-                parameterType = ApplicationCommandOptionType.Integer;
             else if (type == typeof(long))
                 parameterType = ApplicationCommandOptionType.Integer;
             else if (type == typeof(bool))
@@ -40,7 +36,7 @@ namespace UrfRidersBot.Core.Commands.Helpers
                 parameterType = ApplicationCommandOptionType.Integer;
             else
                 throw new ArgumentException($"Invalid parameter type '{type}' for parameter '{parameter.Name}'. " +
-                                            $"Valid types are string, int, uint, long, bool, DiscordChannel, DiscordUser, DiscordRole and enum.");
+                                            $"Valid types are string, long, bool, DiscordChannel, DiscordUser, DiscordRole and enum.");
                 
             // Create choices for enum
             List<DiscordApplicationCommandOptionChoice>? choices = null;

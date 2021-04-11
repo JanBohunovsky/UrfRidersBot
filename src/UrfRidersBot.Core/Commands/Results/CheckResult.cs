@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace UrfRidersBot.Core.Commands.Models
+namespace UrfRidersBot.Core.Commands
 {
     public class CheckResult
     {
