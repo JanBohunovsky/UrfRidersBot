@@ -36,33 +36,42 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
 
         public async Task HandleAsync(DiscordInteraction interaction)
         {
+            if (interaction.Guild is null)
+            {
+                throw new Exception("User tried to execute a command in DMs, somehow.");
+            }
+            
             var request = CommandRequest.FromInteractionData(interaction.Data);
 
             var command = GetCommand(request);
-            
+
             using var scope = _provider.CreateScope();
             var instance = CreateCommandInstance(command, request, interaction.Data.Resolved, scope);
+            
+            await AcknowledgeInteraction(interaction, instance.Ephemeral);
 
-            var context = await CreateCommandContextAsync(interaction);
+            var context = new CommandContext(_client, interaction, instance.Ephemeral);
 
             await RunChecksAsync(command, context);
 
+            CommandResult? result;
             try
             {
-                await instance.HandleAsync(context);
-            }
-            catch (CommandException e)
-            {
-                await context.CreateResponseAsync($"{UrfRidersEmotes.Error} Error: {e.Message}", true);
+                result = await instance.HandleAsync(context);
             }
             catch (Exception e)
             {
-                var sb = new StringBuilder();
-                sb.AppendLine($"{UrfRidersEmotes.HighPriority} Command failed, please contact bot owner.");
-                sb.AppendLine($"Exception: {Markdown.Code(e.Message)}");
-                
-                await context.CreateResponseAsync(sb.ToString(), true);
+                await SendCriticalErrorAsync(context, e);
                 throw;
+            }
+
+            if (instance.Ephemeral)
+            {
+                await RespondWithMessageAsync(context, result);
+            }
+            else
+            {
+                await RespondWithEmbedAsync(context, result);
             }
         }
 
@@ -74,6 +83,14 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             }
 
             return _commands[request.FullName];
+        }
+
+        private async Task AcknowledgeInteraction(DiscordInteraction interaction, bool ephemeral)
+        {
+            var builder = new DiscordInteractionResponseBuilder()
+                .AsEphemeral(ephemeral);
+            
+            await interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, builder);
         }
 
         private ICommand CreateCommandInstance(
@@ -95,29 +112,80 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             return instance;
         }
 
-        private async ValueTask<CommandContext> CreateCommandContextAsync(DiscordInteraction interaction)
-        {
-            var context = new CommandContext(_client, interaction);
-            if (interaction.Guild is null)
-            {
-                await context.CreateResponseAsync(EmbedHelper.CreateError("This command can be used only in a server."));
-                throw new Exception("User tried to execute a command in DMs, somehow.");
-            }
-
-            return context;
-        }
-
-        private async Task RunChecksAsync(SlashCommand command, CommandContext context)
+        private async Task RunChecksAsync(SlashCommand command, ICommandContext context)
         {
             var checkResult = await command.RunChecksAsync(context, _provider);
-            if (!checkResult.IsSuccessful)
+
+            if (checkResult.IsSuccessful)
+            {
+                return;
+            }
+            
+            if (context.IsEphemeral)
             {
                 var sb = new StringBuilder();
-                sb.AppendLine($"{UrfRidersEmotes.Unavailable} You cannot execute this command:");
+                sb.AppendLine($"{UrfRidersEmotes.Unavailable} Access Denied");
                 sb.AppendLine(checkResult.Reason);
+            
+                await context.RespondAsync(sb.ToString());
+            }
+            else
+            {
+                var embed = EmbedHelper.CreateUnavailable(checkResult.Reason, "Access Denied");
+                await context.RespondAsync(embed);
+            }
+            
+            throw new Exception($"Checks failed for command '{command.Class.Name}': {checkResult.Reason}.");
+        }
+
+        private async Task SendCriticalErrorAsync(ICommandContext context, Exception exception)
+        {
+            if (context.IsEphemeral)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine($"{UrfRidersEmotes.HighPriority} Command failed, please contact bot owner.");
+                sb.AppendLine($"Exception: {Markdown.Code(exception.Message)}");
                 
-                await context.CreateResponseAsync(sb.ToString(), true);
-                throw new Exception($"Checks failed for command '{command.Class.Name}': {checkResult.Reason}.");
+                await context.RespondAsync(sb.ToString());
+            }
+            else
+            {
+                var embed = EmbedHelper.CreateCriticalError("Please contact bot owner.", "Command failed");
+                embed.AddField("Exception", Markdown.Code(exception.Message));
+
+                await context.RespondAsync(embed);
+            }
+        }
+
+        private async Task RespondWithMessageAsync(ICommandContext context, CommandResult result)
+        {
+            string? content = result.Type switch
+            {
+                CommandResultType.Success          => $"{UrfRidersEmotes.Checkmark} {result.Message ?? "Success"}",
+                CommandResultType.InvalidOperation => $"{UrfRidersEmotes.Error} Error: {result.Message}",
+                CommandResultType.InvalidParameter => $"{UrfRidersEmotes.Error} Parameter error: {result.Message}",
+                _                                  => null
+            };
+
+            if (content is not null)
+            {
+                await context.RespondAsync(content);
+            }
+        }
+
+        private async Task RespondWithEmbedAsync(ICommandContext context, CommandResult result)
+        {
+            DiscordEmbedBuilder? embed = result.Type switch
+            {
+                CommandResultType.Success          => EmbedHelper.CreateSuccess(result.Message),
+                CommandResultType.InvalidOperation => EmbedHelper.CreateError(result.Message),
+                CommandResultType.InvalidParameter => EmbedHelper.CreateError(result.Message, "Parameter error"),
+                _                                  => null
+            };
+
+            if (embed is not null)
+            {
+                await context.RespondAsync(embed);
             }
         }
     }
