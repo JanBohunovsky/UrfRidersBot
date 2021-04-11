@@ -9,8 +9,14 @@ namespace UrfRidersBot.Core.AutoVoice
         private List<AutoVoiceChannel> _voiceChannels;
         
         public ulong GuildId { get; private set; }
+        
+        /// <summary>
+        /// Voice channel bitrate in Kbps
+        /// </summary>
         public int? Bitrate { get; set; }
+        
         public ulong? ChannelCreatorId { get; set; }
+        
         public IReadOnlyCollection<AutoVoiceChannel> VoiceChannels => _voiceChannels.AsReadOnly();
 
         public AutoVoiceSettings(ulong guildId)
