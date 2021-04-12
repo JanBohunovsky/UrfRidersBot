@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -42,7 +41,12 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             }
             
             var request = CommandRequest.FromInteractionData(interaction.Data);
-            var command = GetCommand(request);
+            
+            if (!_commands.ContainsKey(request.FullName))
+            {
+                throw new Exception($"An interaction was created, but no command was registered for it: '{request.FullName}'");
+            }
+            var command = _commands[request.FullName];
 
             using var scope = _provider.CreateScope();
             if (ActivatorUtilities.CreateInstance(scope.ServiceProvider, command.Class) is not ICommand instance)
@@ -61,13 +65,18 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
                     command.FillParameters(instance, request.Parameters, interaction.Data.Resolved);
                 }
                 
-                await RunChecksAsync(command, context);
+                var checkResult = await command.RunChecksAsync(context, _provider);
+                if (!checkResult.IsSuccessful)
+                {
+                    await context.RespondWithAccessDeniedAsync(checkResult.Reason);
+                    return;
+                }
 
                 result = await instance.HandleAsync(context);
             }
             catch (Exception e)
             {
-                await SendCriticalErrorAsync(context, e);
+                await context.RespondWithCriticalErrorAsync(e);
                 throw;
             }
 
@@ -81,65 +90,12 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             }
         }
 
-        private SlashCommand GetCommand(CommandRequest request)
-        {
-            if (!_commands.ContainsKey(request.FullName))
-            {
-                throw new Exception($"An interaction was created, but no command was registered for it: '{request.FullName}'");
-            }
-
-            return _commands[request.FullName];
-        }
-
         private async Task AcknowledgeInteraction(DiscordInteraction interaction, bool ephemeral)
         {
             var builder = new DiscordInteractionResponseBuilder()
                 .AsEphemeral(ephemeral);
             
             await interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, builder);
-        }
-
-        private async Task RunChecksAsync(SlashCommand command, ICommandContext context)
-        {
-            var checkResult = await command.RunChecksAsync(context, _provider);
-
-            if (checkResult.IsSuccessful)
-            {
-                return;
-            }
-            
-            if (context.IsEphemeral)
-            {
-                var sb = new StringBuilder();
-                sb.AppendLine($"{UrfRidersEmotes.Unavailable} Access Denied");
-                sb.AppendLine(checkResult.Reason);
-            
-                await context.RespondAsync(sb.ToString());
-            }
-            else
-            {
-                var embed = EmbedHelper.CreateUnavailable(checkResult.Reason, "Access Denied");
-                await context.RespondAsync(embed);
-            }
-        }
-
-        private async Task SendCriticalErrorAsync(ICommandContext context, Exception exception)
-        {
-            if (context.IsEphemeral)
-            {
-                var sb = new StringBuilder();
-                sb.AppendLine($"{UrfRidersEmotes.HighPriority} Command failed, please contact bot owner.");
-                sb.AppendLine($"Exception: {Markdown.Code(exception.Message)}");
-                
-                await context.RespondAsync(sb.ToString());
-            }
-            else
-            {
-                var embed = EmbedHelper.CreateCriticalError("Please contact bot owner.", "Command failed");
-                embed.AddField("Exception", Markdown.Code(exception.Message));
-
-                await context.RespondAsync(embed);
-            }
         }
 
         private async Task RespondWithMessageAsync(ICommandContext context, CommandResult result)
