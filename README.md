@@ -5,7 +5,6 @@ Example configuration:
 ```json5
 {
     "Discord": {
-        "Prefix": "!",
         "Token": "...",
         "ClientId": "...",
         "ClientSecret": "..."
