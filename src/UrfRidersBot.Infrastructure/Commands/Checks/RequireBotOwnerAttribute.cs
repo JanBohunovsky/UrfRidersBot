@@ -3,13 +3,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using UrfRidersBot.Core.Commands;
 using UrfRidersBot.Core.Commands.Attributes;
-using UrfRidersBot.Core.Commands.Models;
 
 namespace UrfRidersBot.Infrastructure.Commands.Checks
 {
     public class RequireBotOwnerAttribute : CheckAttribute
     {
-        public override ValueTask<CheckResult> CheckAsync(CommandContext context, IServiceProvider provider)
+        public override ValueTask<CheckResult> CheckAsync(ICommandContext context, IServiceProvider provider)
         {
             var owner = context.Client.CurrentApplication.Owners.First();
             return owner.Id == context.User.Id
