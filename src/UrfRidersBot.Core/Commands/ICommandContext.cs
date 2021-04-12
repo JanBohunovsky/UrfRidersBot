@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 
@@ -19,5 +20,8 @@ namespace UrfRidersBot.Core.Commands
         ValueTask<DiscordMessage> RespondAsync(string content);
         ValueTask<DiscordMessage> RespondAsync(DiscordEmbed embed);
         ValueTask<DiscordMessage> RespondAsync(string content, DiscordEmbed embed);
+
+        ValueTask<DiscordMessage> RespondWithCriticalErrorAsync(Exception exception);
+        ValueTask<DiscordMessage> RespondWithAccessDeniedAsync(string? reason = null);
     }
 }
