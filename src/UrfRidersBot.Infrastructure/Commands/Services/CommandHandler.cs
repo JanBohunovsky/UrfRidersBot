@@ -42,21 +42,27 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             }
             
             var request = CommandRequest.FromInteractionData(interaction.Data);
-
             var command = GetCommand(request);
 
             using var scope = _provider.CreateScope();
-            var instance = CreateCommandInstance(command, request, interaction.Data.Resolved, scope);
+            if (ActivatorUtilities.CreateInstance(scope.ServiceProvider, command.Class) is not ICommand instance)
+            {
+                throw new Exception($"Could not create an instance of a type {command.Class} for a command '{request.FullName}'.");
+            }
             
+            var context = new CommandContext(_client, interaction, instance.Ephemeral);
             await AcknowledgeInteraction(interaction, instance.Ephemeral);
 
-            var context = new CommandContext(_client, interaction, instance.Ephemeral);
-
-            await RunChecksAsync(command, context);
-
-            CommandResult? result;
+            CommandResult result;
             try
             {
+                if (request.Parameters is not null)
+                {
+                    command.FillParameters(instance, request.Parameters, interaction.Data.Resolved);
+                }
+                
+                await RunChecksAsync(command, context);
+
                 result = await instance.HandleAsync(context);
             }
             catch (Exception e)
@@ -93,25 +99,6 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             await interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, builder);
         }
 
-        private ICommand CreateCommandInstance(
-            SlashCommand command,
-            CommandRequest request,
-            DiscordInteractionResolvedCollection resolved,
-            IServiceScope scope)
-        {
-            if (ActivatorUtilities.CreateInstance(scope.ServiceProvider, command.Class) is not ICommand instance)
-            {
-                throw new Exception($"Could not create an instance of a type {command.Class} for a command '{request.FullName}'.");
-            }
-
-            if (request.Parameters is not null)
-            {
-                command.FillParameters(instance, request.Parameters, resolved);
-            }
-
-            return instance;
-        }
-
         private async Task RunChecksAsync(SlashCommand command, ICommandContext context)
         {
             var checkResult = await command.RunChecksAsync(context, _provider);
@@ -134,8 +121,6 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
                 var embed = EmbedHelper.CreateUnavailable(checkResult.Reason, "Access Denied");
                 await context.RespondAsync(embed);
             }
-            
-            throw new Exception($"Checks failed for command '{command.Class.Name}': {checkResult.Reason}.");
         }
 
         private async Task SendCriticalErrorAsync(ICommandContext context, Exception exception)
