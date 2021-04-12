@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UrfRidersBot.Persistence.Common;
@@ -9,9 +10,10 @@ using UrfRidersBot.Persistence.Common;
 namespace UrfRidersBot.Persistence.Migrations
 {
     [DbContext(typeof(UrfRidersDbContext))]
-    partial class UrfRidersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210412150243_RemoveCustomPrefixFromGuildSettings")]
+    partial class RemoveCustomPrefixFromGuildSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
