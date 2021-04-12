@@ -1,4 +1,4 @@
-﻿namespace UrfRidersBot.Infrastructure.Commands
+﻿namespace UrfRidersBot.Core.Commands
 {
     public enum GuildRank
     {
