@@ -30,7 +30,9 @@ namespace UrfRidersBot.Core.Commands.Built
             switch (parameter.Type)
             {
                 case ApplicationCommandOptionType.String:
-                    result = parameter.Value.ToString();
+                    result = Property.PropertyType.IsEnum 
+                        ? Enum.Parse(Property.PropertyType, parameter.Value.ToString()!) 
+                        : parameter.Value.ToString();
                     break;
                 case ApplicationCommandOptionType.Integer:
                     result = (long)parameter.Value;

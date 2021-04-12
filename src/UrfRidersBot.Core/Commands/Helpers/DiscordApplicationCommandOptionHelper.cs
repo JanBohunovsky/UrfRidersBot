@@ -33,7 +33,7 @@ namespace UrfRidersBot.Core.Commands.Helpers
             else if (type == typeof(DiscordRole))
                 parameterType = ApplicationCommandOptionType.Role;
             else if (type.IsEnum)
-                parameterType = ApplicationCommandOptionType.Integer;
+                parameterType = ApplicationCommandOptionType.String;
             else
                 throw new ArgumentException($"Invalid parameter type '{type}' for parameter '{parameter.Name}'. " +
                                             $"Valid types are string, long, bool, DiscordChannel, DiscordUser, DiscordRole and enum.");
@@ -42,16 +42,11 @@ namespace UrfRidersBot.Core.Commands.Helpers
             List<DiscordApplicationCommandOptionChoice>? choices = null;
             if (type.IsEnum)
             {
-                choices = new List<DiscordApplicationCommandOptionChoice>();
                 var names = Enum.GetNames(type);
-                var values = Enum.GetValues(type);
-                
-                for (int i = 0; i < names.Length; i++)
-                {
-                    var name = names[i];
-                    var value = (int)values.GetValue(i)!;
-                    choices.Add(new DiscordApplicationCommandOptionChoice(name, value));
-                }
+
+                choices = names
+                    .Select(name => new DiscordApplicationCommandOptionChoice(name, name))
+                    .ToList();
             }
 
             return new DiscordApplicationCommandOption(
