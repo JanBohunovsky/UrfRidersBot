@@ -4,7 +4,6 @@ namespace UrfRidersBot.Core
 {
     public static class UrfRidersColor
     {
-        
         /// <summary>
         /// Discord's cyan, or #1ABC9C.
         /// </summary>
@@ -55,5 +54,11 @@ namespace UrfRidersBot.Core
         public static readonly string Error = "<:error:828216690452987935>";
         public static readonly string Unavailable = "<:unavailable:828216690525339658>";
         public static readonly string HighPriority = "<:high_priority:828216690164105257>";
+    }
+
+    public static class UrfRidersGuilds
+    {
+        public static readonly ulong Main = 158536618750377985;
+        public static readonly ulong Dev = 637650172083437579;
     }
 }
