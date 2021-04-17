@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using UrfRidersBot.Infrastructure;
-using UrfRidersBot.Persistence;
 
 namespace UrfRidersBot
 {
@@ -21,10 +20,8 @@ namespace UrfRidersBot
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddConfigurations(Configuration);
-            services.AddPersistence(Configuration.GetConnectionString("UrfRidersData"));
-            services.AddDiscordBot();
-            services.AddSlashCommands();
+            var connectionString = Configuration.GetConnectionString("UrfRidersData");
+            services.AddInfrastructure(Configuration, connectionString);
             
             services.AddControllers();
             services.AddSwaggerGen(c =>

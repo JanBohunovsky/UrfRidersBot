@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using DSharpPlus.Entities;
+﻿using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Core.AutoVoice
 {
-    public interface IAutoVoiceSettingsRepository
+    public interface IAutoVoiceSettingsRepository : IRepository
     {
-        Task AddAsync(AutoVoiceSettings settings);
-        ValueTask<IEnumerable<AutoVoiceSettings>> GetEnabledAsync();
-        ValueTask<AutoVoiceSettings?> GetAsync(DiscordGuild guild);
-        ValueTask<AutoVoiceSettings> GetOrCreateAsync(DiscordGuild guild);
+        AutoVoiceSettings? Get();
+        AutoVoiceSettings GetOrCreate();
+        void Save(AutoVoiceSettings settings);
+        void Remove();
     }
 }

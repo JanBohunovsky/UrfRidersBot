@@ -1,12 +1,12 @@
-﻿using System.Threading.Tasks;
-using DSharpPlus.Entities;
+﻿using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Core.Settings
 {
-    public interface IGuildSettingsRepository
+    public interface IGuildSettingsRepository : IRepository
     {
-        ValueTask<Settings.GuildSettings?> GetAsync(DiscordGuild guild);
-        ValueTask<Settings.GuildSettings> GetOrCreateAsync(DiscordGuild guild);
-        void Remove(Settings.GuildSettings guildSettings);
+        GuildSettings? Get();
+        GuildSettings GetOrCreate();
+        void Save(GuildSettings settings);
+        void Remove();
     }
 }

@@ -1,12 +1,12 @@
-﻿using System.Threading.Tasks;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
+using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Core.ColorRole
 {
-    public interface IColorRoleRepository
+    public interface IColorRoleRepository : IRepository
     {
-        Task<DiscordRole?> GetByMemberAsync(DiscordMember member);
-        Task AddAsync(DiscordRole role, DiscordMember member);
-        void Remove(DiscordRole role, DiscordMember member);
+        DiscordRole? GetByUser(DiscordUser user);
+        bool Add(DiscordRole role, DiscordUser user);
+        void Remove(DiscordRole role);
     }
 }

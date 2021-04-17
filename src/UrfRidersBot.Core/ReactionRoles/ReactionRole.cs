@@ -5,14 +5,14 @@ namespace UrfRidersBot.Core.ReactionRoles
     public class ReactionRole
     {
         public DiscordMessage Message { get; }
-        public DiscordEmoji Emoji { get; }
         public DiscordRole Role { get; }
+        public DiscordEmoji Emoji { get; }
 
-        public ReactionRole(DiscordMessage message, DiscordEmoji emoji, DiscordRole role)
+        public ReactionRole(DiscordMessage message, DiscordRole role, DiscordEmoji emoji)
         {
             Message = message;
-            Emoji = emoji;
             Role = role;
+            Emoji = emoji;
         }
     }
 }

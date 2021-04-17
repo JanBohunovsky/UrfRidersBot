@@ -1,14 +1,13 @@
-﻿using System.Threading.Tasks;
-using DSharpPlus;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
+using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Core.ReactionRoles
 {
-    public interface IReactionRoleRepository
+    public interface IReactionRoleRepository : IRepository
     {
-        ValueTask<DiscordRole?> GetRoleAsync(DiscordMessage message, DiscordEmoji emoji);
-        ValueTask<DiscordEmoji?> GetEmojiAsync(DiscordClient client, DiscordMessage message, DiscordRole role);
-        Task AddAsync(ReactionRole reactionRole);
-        void Remove(ReactionRole reactionRole);
+        DiscordRole? GetRole(DiscordMessage message, DiscordEmoji emoji);
+        DiscordEmoji? GetEmoji(DiscordMessage message, DiscordRole role);
+        bool Add(ReactionRole reactionRole);
+        void Remove(DiscordMessage message, DiscordRole role);
     }
 }
