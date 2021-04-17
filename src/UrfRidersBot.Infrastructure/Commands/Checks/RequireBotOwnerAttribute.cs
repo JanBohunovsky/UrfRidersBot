@@ -6,6 +6,7 @@ using UrfRidersBot.Core.Commands.Attributes;
 
 namespace UrfRidersBot.Infrastructure.Commands.Checks
 {
+    // TODO: Move this to UrfRiders.Core/Commands/Checks
     public class RequireBotOwnerAttribute : CheckAttribute
     {
         public override ValueTask<CheckResult> CheckAsync(ICommandContext context, IServiceProvider provider)

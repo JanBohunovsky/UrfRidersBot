@@ -9,7 +9,7 @@ using UrfRidersBot.Core.AutoVoice;
 
 namespace UrfRidersBot.Infrastructure.AutoVoice
 {
-    public class AutoVoiceService : IAutoVoiceService
+    internal class AutoVoiceService : IAutoVoiceService
     {
         // Probably make these configurable
         private const string NameNew = "➕ New Voice Channel";

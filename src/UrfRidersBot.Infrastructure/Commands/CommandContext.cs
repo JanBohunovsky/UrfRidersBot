@@ -8,7 +8,7 @@ using UrfRidersBot.Core.Commands;
 
 namespace UrfRidersBot.Infrastructure.Commands
 {
-    public class CommandContext : ICommandContext
+    internal class CommandContext : ICommandContext
     {
         public DiscordClient Client { get; }
         public DiscordInteraction Interaction { get; }

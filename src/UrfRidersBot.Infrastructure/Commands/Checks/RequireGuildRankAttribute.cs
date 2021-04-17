@@ -6,11 +6,11 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using UrfRidersBot.Core.Commands;
 using UrfRidersBot.Core.Commands.Attributes;
-using UrfRidersBot.Core.Common;
 using UrfRidersBot.Core.Settings;
 
 namespace UrfRidersBot.Infrastructure.Commands.Checks
 {
+    // TODO: Move this to UrfRiders.Core/Commands/Checks
     public class RequireGuildRankAttribute : CheckAttribute
     {
         private readonly GuildRank _rank;

@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 
 namespace UrfRidersBot.Infrastructure.Common
 {
-    public static class DiscordMessageHelper
+    internal static class DiscordMessageHelper
     {
         private static readonly Regex MessageLinkRegex;
         

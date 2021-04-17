@@ -3,7 +3,7 @@ using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Infrastructure.Common
 {
-    public class BotInformationService : IBotInformationService
+    internal class BotInformationService : IBotInformationService
     {
         private DateTimeOffset _startTime;
         

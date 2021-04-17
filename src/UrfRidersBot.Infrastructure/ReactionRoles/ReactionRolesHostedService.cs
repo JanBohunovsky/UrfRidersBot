@@ -3,11 +3,10 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
-using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Infrastructure.ReactionRoles
 {
-    public class ReactionRolesHostedService : IHostedService
+    internal class ReactionRolesHostedService : IHostedService
     {
         private readonly DiscordClient _client;
         private readonly IUnitOfWorkFactory _unitOfWorkFactory;

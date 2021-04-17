@@ -4,7 +4,7 @@ using DSharpPlus.Entities;
 
 namespace UrfRidersBot.Infrastructure.Common
 {
-    public static class DiscordEmojiHelper
+    internal static class DiscordEmojiHelper
     {
         private static readonly Regex GuildEmoteRegex;
         

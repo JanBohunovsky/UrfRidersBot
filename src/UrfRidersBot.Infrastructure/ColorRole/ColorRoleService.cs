@@ -2,11 +2,10 @@
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using UrfRidersBot.Core.ColorRole;
-using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Infrastructure.ColorRole
 {
-    public class ColorRoleService : IColorRoleService
+    internal class ColorRoleService : IColorRoleService
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -17,7 +16,7 @@ namespace UrfRidersBot.Infrastructure.ColorRole
         
         public async Task SetColorRoleAsync(DiscordMember member, DiscordColor color)
         {
-            var role = await _unitOfWork.ColorRoles.GetByMemberAsync(member);
+            var role = await _unitOfWork.ColorRoles.GetByUser(member);
 
             if (role != null)
             {
@@ -29,13 +28,13 @@ namespace UrfRidersBot.Infrastructure.ColorRole
 
             await member.GrantRoleAsync(role);
             
-            await _unitOfWork.ColorRoles.AddAsync(role, member);
+            await _unitOfWork.ColorRoles.Add(role, member);
             await _unitOfWork.CompleteAsync();
         }
 
         public async ValueTask<bool> RemoveColorRoleAsync(DiscordMember member)
         {
-            var role = await _unitOfWork.ColorRoles.GetByMemberAsync(member);
+            var role = await _unitOfWork.ColorRoles.GetByUser(member);
 
             if (role == null)
             {
