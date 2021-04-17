@@ -50,6 +50,7 @@ namespace UrfRidersBot.Infrastructure
             BsonMapper.Global.UseLowerCaseDelimiter();
              
             services.AddRepositories();
+            services.AddSingleton(typeof(IRepositoryFactory<>), typeof(LiteRepositoryFactory<>));
             services.AddTransient(_ => new LiteDatabase(connectionString));
 
             return services;
