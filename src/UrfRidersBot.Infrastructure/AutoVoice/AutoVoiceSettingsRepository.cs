@@ -1,5 +1,6 @@
-﻿using DSharpPlus.Entities;
-using LiteDB;
+﻿using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using LiteDB.Async;
 using UrfRidersBot.Core.AutoVoice;
 using UrfRidersBot.Infrastructure.Common;
 
@@ -9,35 +10,35 @@ namespace UrfRidersBot.Infrastructure.AutoVoice
     {
         private readonly DiscordGuild _guild;
 
-        public AutoVoiceSettingsRepository(LiteDatabase db, DiscordGuild guild) : base(db, "auto_voice_settings")
+        public AutoVoiceSettingsRepository(ILiteDatabaseAsync db, DiscordGuild guild) : base(db, "auto_voice_settings")
         {
             _guild = guild;
         }
 
-        public AutoVoiceSettings? Get()
+        public async ValueTask<AutoVoiceSettings?> GetAsync()
         {
-            var result = Collection.FindOne(s => s.GuildId == _guild.Id);
+            var result = await Collection.FindOneAsync(s => s.GuildId == _guild.Id);
 
             return result?.ToDiscord(_guild);
         }
 
-        public AutoVoiceSettings GetOrCreate()
+        public async ValueTask<AutoVoiceSettings> GetOrCreateAsync()
         {
-            var result = Collection.FindOne(s => s.GuildId == _guild.Id)
+            var result = await Collection.FindOneAsync(s => s.GuildId == _guild.Id) 
                          ?? new AutoVoiceSettingsDTO();
 
             return result.ToDiscord(_guild);
         }
 
-        public void Save(AutoVoiceSettings settings)
+        public async Task SaveAsync(AutoVoiceSettings settings)
         {
             var dto = AutoVoiceSettingsDTO.FromDiscord(_guild.Id, settings);
-            Collection.Upsert(dto);
+            await Collection.UpsertAsync(dto);
         }
 
-        public void Remove()
+        public async Task RemoveAsync()
         {
-            Collection.DeleteMany(s => s.GuildId == _guild.Id);
+            await Collection.DeleteManyAsync(s => s.GuildId == _guild.Id);
         }
     }
 }

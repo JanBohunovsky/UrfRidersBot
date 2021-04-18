@@ -1,12 +1,13 @@
-﻿using UrfRidersBot.Core.Common;
+﻿using System.Threading.Tasks;
+using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Core.AutoVoice
 {
     public interface IAutoVoiceSettingsRepository : IRepository
     {
-        AutoVoiceSettings? Get();
-        AutoVoiceSettings GetOrCreate();
-        void Save(AutoVoiceSettings settings);
-        void Remove();
+        ValueTask<AutoVoiceSettings?> GetAsync();
+        ValueTask<AutoVoiceSettings> GetOrCreateAsync();
+        Task SaveAsync(AutoVoiceSettings settings);
+        Task RemoveAsync();
     }
 }

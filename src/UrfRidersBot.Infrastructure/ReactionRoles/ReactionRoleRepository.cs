@@ -1,6 +1,7 @@
-﻿using DSharpPlus;
+﻿using System.Threading.Tasks;
+using DSharpPlus;
 using DSharpPlus.Entities;
-using LiteDB;
+using LiteDB.Async;
 using UrfRidersBot.Core.ReactionRoles;
 using UrfRidersBot.Infrastructure.Common;
 
@@ -10,18 +11,18 @@ namespace UrfRidersBot.Infrastructure.ReactionRoles
     {
         private readonly DiscordClient _client;
 
-        public ReactionRoleRepository(LiteDatabase db, DiscordClient client) : base(db, "reaction_roles")
+        public ReactionRoleRepository(ILiteDatabaseAsync db, DiscordClient client) : base(db, "reaction_roles")
         {
             _client = client;
         }
         
-        public DiscordRole? GetRole(DiscordMessage message, DiscordEmoji emoji)
+        public async ValueTask<DiscordRole?> GetRoleAsync(DiscordMessage message, DiscordEmoji emoji)
         {
             var rawEmoji = emoji.ToString();
-            var roleId = Collection.Query()
+            var roleId = await Collection.Query()
                 .Where(x => x.MessageId == message.Id && x.Emoji == rawEmoji)
                 .Select(x => x.RoleId)
-                .SingleOrDefault();
+                .SingleOrDefaultAsync();
 
             if (roleId == default)
             {
@@ -32,12 +33,12 @@ namespace UrfRidersBot.Infrastructure.ReactionRoles
             return guild.GetRole(roleId);
         }
 
-        public DiscordEmoji? GetEmoji(DiscordMessage message, DiscordRole role)
+        public async ValueTask<DiscordEmoji?> GetEmojiAsync(DiscordMessage message, DiscordRole role)
         {
-            var rawEmoji = Collection.Query()
+            var rawEmoji = await Collection.Query()
                 .Where(x => x.MessageId == message.Id && x.RoleId == role.Id)
                 .Select(x => x.Emoji)
-                .SingleOrDefault();
+                .SingleOrDefaultAsync();
 
             if (rawEmoji == null)
             {
@@ -47,29 +48,29 @@ namespace UrfRidersBot.Infrastructure.ReactionRoles
             return DiscordEmojiHelper.Parse(_client, rawEmoji);
         }
 
-        public bool Add(ReactionRole reactionRole)
+        public async ValueTask<bool> AddAsync(ReactionRole reactionRole)
         {
             var collection = Collection;
-            collection.EnsureIndex(x => x.MessageId);
+            await collection.EnsureIndexAsync(x => x.MessageId);
 
             var dto = ReactionRoleDTO.FromDiscord(reactionRole);
             
             // Message cannot have duplicate role or emoji
-            var exists = collection.Exists(x => x.MessageId == dto.MessageId
-                                                && (x.RoleId == dto.RoleId || x.Emoji == dto.Emoji));
+            var exists = await collection.ExistsAsync(x => x.MessageId == dto.MessageId
+                                                           && (x.RoleId == dto.RoleId || x.Emoji == dto.Emoji));
 
             if (exists)
             {
                 return false;
             }
             
-            collection.Insert(dto);
+            await collection.InsertAsync(dto);
             return true;
         }
 
-        public void Remove(DiscordMessage message, DiscordRole role)
+        public async Task RemoveAsync(DiscordMessage message, DiscordRole role)
         {
-            Collection.DeleteMany(x => x.MessageId == message.Id && x.RoleId == role.Id);
+            await Collection.DeleteManyAsync(x => x.MessageId == message.Id && x.RoleId == role.Id);
         }
     }
 }

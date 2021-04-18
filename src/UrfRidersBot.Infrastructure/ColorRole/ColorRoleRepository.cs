@@ -1,5 +1,6 @@
-﻿using DSharpPlus.Entities;
-using LiteDB;
+﻿using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using LiteDB.Async;
 using UrfRidersBot.Core.ColorRole;
 using UrfRidersBot.Infrastructure.Common;
 
@@ -9,17 +10,17 @@ namespace UrfRidersBot.Infrastructure.ColorRole
     {
         private readonly DiscordGuild _guild;
 
-        public ColorRoleRepository(LiteDatabase db, DiscordGuild guild) : base(db, "color_roles")
+        public ColorRoleRepository(ILiteDatabaseAsync db, DiscordGuild guild) : base(db, "color_roles")
         {
             _guild = guild;
         }
         
-        public DiscordRole? GetByUser(DiscordUser user)
+        public async ValueTask<DiscordRole?> GetByUserAsync(DiscordUser user)
         {
-            var roleId = Collection.Query()
+            var roleId = await Collection.Query()
                 .Where(x => x.GuildId == _guild.Id && x.UserId == user.Id)
                 .Select(x => x.RoleId)
-                .SingleOrDefault();
+                .SingleOrDefaultAsync();
 
             if (roleId == default)
             {
@@ -29,29 +30,29 @@ namespace UrfRidersBot.Infrastructure.ColorRole
             return _guild.GetRole(roleId);
         }
 
-        public bool Add(DiscordRole role, DiscordUser user)
+        public async ValueTask<bool> AddAsync(DiscordRole role, DiscordUser user)
         {
             var collection = Collection;
-            collection.EnsureIndex(x => x.GuildId);
+            await collection.EnsureIndexAsync(x => x.GuildId);
 
             var dto = ColorRoleDTO.FromDiscord(role, _guild, user);
             
             // Users can only have one color role for each guild (and role can only have one user per guild)
-            var exists = collection.Exists(x => x.GuildId == dto.GuildId
-                                                && (x.RoleId == dto.RoleId || x.UserId == dto.UserId));
+            var exists = await collection.ExistsAsync(x => x.GuildId == dto.GuildId
+                                                           && (x.RoleId == dto.RoleId || x.UserId == dto.UserId));
 
             if (exists)
             {
                 return false;
             }
 
-            collection.Insert(dto);
+            await collection.InsertAsync(dto);
             return true;
         }
 
-        public void Remove(DiscordRole role)
+        public async Task RemoveAsync(DiscordRole role)
         {
-            Collection.DeleteMany(x => x.RoleId == role.Id);
+            await Collection.DeleteManyAsync(x => x.RoleId == role.Id);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using LiteDB;
+using LiteDB.Async;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -51,7 +52,7 @@ namespace UrfRidersBot.Infrastructure
              
             services.AddRepositories();
             services.AddSingleton(typeof(IRepositoryFactory<>), typeof(LiteRepositoryFactory<>));
-            services.AddTransient(_ => new LiteDatabase(connectionString));
+            services.AddTransient<ILiteDatabaseAsync>(_ => new LiteDatabaseAsync(connectionString));
 
             return services;
         }

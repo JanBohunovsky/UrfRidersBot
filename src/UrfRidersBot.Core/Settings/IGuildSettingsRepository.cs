@@ -1,12 +1,13 @@
-﻿using UrfRidersBot.Core.Common;
+﻿using System.Threading.Tasks;
+using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Core.Settings
 {
     public interface IGuildSettingsRepository : IRepository
     {
-        GuildSettings? Get();
-        GuildSettings GetOrCreate();
-        void Save(GuildSettings settings);
-        void Remove();
+        ValueTask<GuildSettings?> GetAsync();
+        ValueTask<GuildSettings> GetOrCreateAsync();
+        Task SaveAsync(GuildSettings settings);
+        Task RemoveAsync();
     }
 }

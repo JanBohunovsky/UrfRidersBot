@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using LiteDB.Async;
 using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Infrastructure.Common
@@ -7,11 +8,11 @@ namespace UrfRidersBot.Infrastructure.Common
     {
         private readonly string _collectionName;
         
-        protected readonly LiteDatabase Database;
+        protected readonly ILiteDatabaseAsync Database;
         
-        protected ILiteCollection<T> Collection => Database.GetCollection<T>(_collectionName);
+        protected ILiteCollectionAsync<T> Collection => Database.GetCollection<T>(_collectionName);
 
-        public LiteRepository(LiteDatabase db, string collectionName)
+        public LiteRepository(ILiteDatabaseAsync db, string collectionName)
         {
             Database = db;
             _collectionName = collectionName;
