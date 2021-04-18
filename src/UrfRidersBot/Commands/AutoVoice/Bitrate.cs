@@ -1,15 +1,15 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
+using UrfRidersBot.Core.AutoVoice;
 using UrfRidersBot.Core.Commands;
 using UrfRidersBot.Core.Commands.Attributes;
-using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Commands.AutoVoice
 {
     public class Bitrate : ICommand<AutoVoiceGroup>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAutoVoiceSettingsRepository _repository;
 
         public bool Ephemeral => true;
         public string Name => "bitrate";
@@ -18,9 +18,9 @@ namespace UrfRidersBot.Commands.AutoVoice
         [Parameter("value", "The target bitrate in Kbps.")]
         public long Value { get; set; }
 
-        public Bitrate(IUnitOfWork unitOfWork)
+        public Bitrate(IAutoVoiceSettingsRepository repository)
         {
-            _unitOfWork = unitOfWork;
+            _repository = repository;
         }
         
         public async ValueTask<CommandResult> HandleAsync(ICommandContext context)
@@ -40,9 +40,9 @@ namespace UrfRidersBot.Commands.AutoVoice
                 return CommandResult.InvalidParameter($"Bitrate must be between {minBitrate} and {maxBitrate} Kbps.");
             }
 
-            var settings = await _unitOfWork.AutoVoiceSettings.GetOrCreateAsync(context.Guild);
+            var settings = await _repository.GetOrCreateAsync();
             settings.Bitrate = (int)Value;
-            await _unitOfWork.CompleteAsync();
+            await _repository.SaveAsync(settings);
 
             var sb = new StringBuilder();
             sb.AppendLine($"Auto Voice channel's bitrate has been set to {Value} Kbps.");

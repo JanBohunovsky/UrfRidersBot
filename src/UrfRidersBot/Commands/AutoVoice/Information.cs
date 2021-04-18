@@ -4,29 +4,29 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using UrfRidersBot.Core;
+using UrfRidersBot.Core.AutoVoice;
 using UrfRidersBot.Core.Commands;
-using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Commands.AutoVoice
 {
     public class Information : ICommand<AutoVoiceGroup>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAutoVoiceSettingsRepository _repository;
 
         public bool Ephemeral => false;
         public string Name => "info";
         public string Description => "Lists current auto voice channels on this server and the users in them.";
 
-        public Information(IUnitOfWork unitOfWork)
+        public Information(IAutoVoiceSettingsRepository repository)
         {
-            _unitOfWork = unitOfWork;
+            _repository = repository;
         }
         
         public async ValueTask<CommandResult> HandleAsync(ICommandContext context)
         {
-            var settings = await _unitOfWork.AutoVoiceSettings.GetAsync(context.Guild);
+            var settings = await _repository.GetAsync();
             
-            if (settings?.ChannelCreatorId is null)
+            if (settings?.ChannelCreator is null)
             {
                 return CommandResult.InvalidOperation("Auto Voice is disabled on this server.");
             }
@@ -36,16 +36,15 @@ namespace UrfRidersBot.Commands.AutoVoice
                 Title = $"Auto Voice on {context.Guild.Name}",
                 Color = UrfRidersColor.Cyan
             };
-            
-            var channelCreator = settings.GetChannelCreator(context.Guild)!;
-            embed.AddField("Channel Creator", $"Name: `{channelCreator.Name}`\nID: `{channelCreator.Id}`", true);
+
+            embed.AddField("Channel Creator", $"Name: `{settings.ChannelCreator.Name}`\n"
+                                              + $"ID: `{settings.ChannelCreator.Id}`", true);
             
             embed.AddField("Bitrate", $"{settings.Bitrate ?? 64} Kbps", true);
             
-            var channels = settings.GetVoiceChannels(context.Guild);
-            if (channels.Any())
+            if (settings.VoiceChannels.Any())
             {
-                embed.AddField("Channels", CreateChannelList(channels));
+                embed.AddField("Channels", CreateChannelList(settings.VoiceChannels));
             }
             
             await context.RespondAsync(embed);

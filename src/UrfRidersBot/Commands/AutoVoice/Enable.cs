@@ -4,13 +4,12 @@ using DSharpPlus.Entities;
 using UrfRidersBot.Core.AutoVoice;
 using UrfRidersBot.Core.Commands;
 using UrfRidersBot.Core.Commands.Attributes;
-using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Commands.AutoVoice
 {
     public class Enable : ICommand<AutoVoiceGroup>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAutoVoiceSettingsRepository _repository;
         private readonly IAutoVoiceService _service;
 
         public bool Ephemeral => true;
@@ -20,9 +19,9 @@ namespace UrfRidersBot.Commands.AutoVoice
         [Parameter("category", "Under which category should the voice channel be created.", true)]
         public DiscordChannel? Category { get; set; }
 
-        public Enable(IUnitOfWork unitOfWork, IAutoVoiceService service)
+        public Enable(IAutoVoiceSettingsRepository repository, IAutoVoiceService service)
         {
-            _unitOfWork = unitOfWork;
+            _repository = repository;
             _service = service;
         }
         
@@ -33,16 +32,16 @@ namespace UrfRidersBot.Commands.AutoVoice
                 return CommandResult.InvalidParameter("Channel must be a category.");
             }
 
-            var settings = await _unitOfWork.AutoVoiceSettings.GetOrCreateAsync(context.Guild);
-            if (settings.ChannelCreatorId is not null)
+            var settings = await _repository.GetOrCreateAsync();
+            if (settings.ChannelCreator is not null)
             {
                 return CommandResult.InvalidOperation("Auto Voice is already enabled on this server.");
             }
 
             var voiceChannelCreator = await _service.CreateAsync(context.Guild, Category, settings.Bitrate);
 
-            settings.ChannelCreatorId = voiceChannelCreator.Id;
-            await _unitOfWork.CompleteAsync();
+            settings.ChannelCreator = voiceChannelCreator;
+            await _repository.SaveAsync(settings);
 
             var sb = new StringBuilder();
             sb.AppendLine("Auto Voice has been enabled.");

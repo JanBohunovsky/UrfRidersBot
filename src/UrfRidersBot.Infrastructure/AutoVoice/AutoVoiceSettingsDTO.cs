@@ -16,7 +16,9 @@ namespace UrfRidersBot.Infrastructure.AutoVoice
 
         public AutoVoiceSettings ToDiscord(DiscordGuild guild)
         {
-            var voiceChannels = VoiceChannels.Select(guild.GetChannel);
+            var voiceChannels = VoiceChannels
+                .Select(guild.GetChannel)
+                .Where(x => x is not null);
             
             var channelCreator = ChannelCreatorId is null
                 ? null

@@ -1,46 +1,45 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
+using UrfRidersBot.Core.AutoVoice;
 using UrfRidersBot.Core.Commands;
-using UrfRidersBot.Core.Common;
 
 namespace UrfRidersBot.Commands.AutoVoice
 {
     public class Disable : ICommand<AutoVoiceGroup>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAutoVoiceSettingsRepository _repository;
 
         public bool Ephemeral => true;
         public string Name => "disable";
         public string Description => "Disables the module and deletes all the voice channels created by this module.";
 
-        public Disable(IUnitOfWork unitOfWork)
+        public Disable(IAutoVoiceSettingsRepository repository)
         {
-            _unitOfWork = unitOfWork;
+            _repository = repository;
         }
         
         public async ValueTask<CommandResult> HandleAsync(ICommandContext context)
         {
-            var settings = await _unitOfWork.AutoVoiceSettings.GetAsync(context.Guild);
-            if (settings?.ChannelCreatorId is null)
+            var settings = await _repository.GetAsync();
+            if (settings?.ChannelCreator is null)
             {
                 return CommandResult.InvalidOperation("Auto Voice is already disabled on this server.");
             }
 
-            foreach (var voiceChannel in settings.GetVoiceChannels(context.Guild))
+            foreach (var voiceChannel in settings.VoiceChannels)
             {
                 await voiceChannel.DeleteAsync();
             }
             var count = settings.RemoveAllChannels();
 
-            var channelCreator = settings.GetChannelCreator(context.Guild);
-            if (channelCreator is not null)
+            if (settings.ChannelCreator is not null)
             {
-                await channelCreator.DeleteAsync();
+                await settings.ChannelCreator.DeleteAsync();
+                settings.ChannelCreator = null;
                 count++;
             }
 
-            settings.ChannelCreatorId = null;
-            await _unitOfWork.CompleteAsync();
+            await _repository.SaveAsync(settings);
 
             var sb = new StringBuilder();
             sb.AppendLine("Auto Voice has been disabled.");

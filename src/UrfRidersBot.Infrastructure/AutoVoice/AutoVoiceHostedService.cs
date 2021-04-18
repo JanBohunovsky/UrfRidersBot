@@ -5,25 +5,30 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using UrfRidersBot.Core.AutoVoice;
 using UrfRidersBot.Core.Common;
+using UrfRidersBot.Core.Common.Configuration;
 
 namespace UrfRidersBot.Infrastructure.AutoVoice
 {
     internal class AutoVoiceHostedService : IHostedService
     {
         private readonly DiscordClient _client;
+        private readonly IOptionsMonitor<DiscordOptions> _options;
         private readonly IAutoVoiceService _autoVoiceService;
-        private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+        private readonly IRepositoryFactory<IAutoVoiceSettingsRepository> _factory;
 
         public AutoVoiceHostedService(
-            DiscordClient client, 
+            DiscordClient client,
+            IOptionsMonitor<DiscordOptions> options,
             IAutoVoiceService autoVoiceService,
-            IUnitOfWorkFactory unitOfWorkFactory)
+            IRepositoryFactory<IAutoVoiceSettingsRepository> factory)
         {
             _client = client;
+            _options = options;
             _autoVoiceService = autoVoiceService;
-            _unitOfWorkFactory = unitOfWorkFactory;
+            _factory = factory;
         }
         
         public Task StartAsync(CancellationToken cancellationToken)
@@ -60,18 +65,17 @@ namespace UrfRidersBot.Infrastructure.AutoVoice
         /// </summary>
         private async Task OnChannelDeleted(DiscordClient sender, ChannelDeleteEventArgs e)
         {
-            // TODO: Potential use of cache
-            await using var unitOfWork = _unitOfWorkFactory.Create();
-            var settings = await unitOfWork.AutoVoiceSettings.GetAsync(e.Guild);
+            using var repository = _factory.Create();
+            var settings = await repository.GetAsync();
 
-            if (settings?.ChannelCreatorId is null)
+            if (settings?.ChannelCreator is null)
             {
                 return;
             }
 
             if (settings.RemoveChannel(e.Channel))
             {
-                await unitOfWork.CompleteAsync();
+                await repository.SaveAsync(settings);
             }
         }
 
@@ -93,21 +97,23 @@ namespace UrfRidersBot.Infrastructure.AutoVoice
             if (e.Before?.Channel == e.After?.Channel)
                 return;
 
-            await using var unitOfWork = _unitOfWorkFactory.Create();
-            var settings = await unitOfWork.AutoVoiceSettings.GetAsync(e.Guild);
+            // Only do work in configured guild
+            if (_options.CurrentValue.GuildId != e.Guild.Id)
+                return;
 
-            if (settings?.ChannelCreatorId is null)
+            using var repository = _factory.Create();
+            var settings = await repository.GetAsync();
+
+            if (settings?.ChannelCreator is null)
             {
                 return;
             }
 
-            await OnUserJoin(e.After?.Channel, settings);
-            await OnUserLeft(e.Before?.Channel, settings);
-
-            await unitOfWork.CompleteAsync();
+            await OnUserJoin(e.After?.Channel, settings, repository);
+            await OnUserLeft(e.Before?.Channel, settings, repository);
         }
 
-        private async Task OnUserJoin(DiscordChannel? voiceChannel, AutoVoiceSettings settings)
+        private async Task OnUserJoin(DiscordChannel? voiceChannel, AutoVoiceSettings settings, IAutoVoiceSettingsRepository repository)
         {
             if (voiceChannel is null)
             {
@@ -118,16 +124,18 @@ namespace UrfRidersBot.Infrastructure.AutoVoice
             {
                 await _autoVoiceService.UpdateNameAsync(voiceChannel);
             }
-            else if (settings.ChannelCreatorId == voiceChannel.Id)
+            else if (settings.ChannelCreator == voiceChannel)
             {
                 await _autoVoiceService.UpdateNameAsync(voiceChannel);
                 
                 var newVoiceChannel = await _autoVoiceService.CreateAsync(voiceChannel.Guild, voiceChannel.Parent, settings.Bitrate);
+                
                 settings.AddChannel(newVoiceChannel);
+                await repository.SaveAsync(settings);
             }
         }
 
-        private async Task OnUserLeft(DiscordChannel? voiceChannel, AutoVoiceSettings settings)
+        private async Task OnUserLeft(DiscordChannel? voiceChannel, AutoVoiceSettings settings, IAutoVoiceSettingsRepository repository)
         {
             if (voiceChannel is null)
             {
@@ -149,6 +157,7 @@ namespace UrfRidersBot.Infrastructure.AutoVoice
             if (settings.RemoveChannel(voiceChannel))
             {
                 await voiceChannel.DeleteAsync();
+                await repository.SaveAsync(settings);
             }
         }
         
@@ -157,94 +166,66 @@ namespace UrfRidersBot.Infrastructure.AutoVoice
             if (user.IsBot)
                 return null;
             
-            // TODO: Potential use of cache
-            await using var unitOfWork = _unitOfWorkFactory.Create();
-            var guilds = await unitOfWork.AutoVoiceSettings.GetEnabledAsync();
+            using var repository = _factory.Create();
+            var settings = await repository.GetAsync();
 
-            foreach (var settings in guilds)
+            // AutoVoice is disabled
+            if (settings?.ChannelCreator is null)
             {
-                var guild = _client.Guilds[settings.GuildId];
-                var member = await guild.GetMemberAsync(user.Id);
-                var memberVoiceChannel = member.VoiceState?.Channel;
-                
-                // User is not connected to any voice channel
-                if (memberVoiceChannel is null)
-                    continue;
-
-                // User is connected to an auto voice channel
-                if (settings.ContainsChannel(memberVoiceChannel))
-                    return memberVoiceChannel;
+                return null;
             }
+
+            var guild = _client.Guilds[_options.CurrentValue.GuildId];
+            var member = await guild.GetMemberAsync(user.Id);
+            var memberVoiceChannel = member?.VoiceState?.Channel;
+                
+            // User is not connected to any voice channel
+            if (memberVoiceChannel is null)
+                return null;
+
+            // User is connected to an auto voice channel
+            if (settings.ContainsChannel(memberVoiceChannel))
+                return memberVoiceChannel;
 
             return null;
         }
         
         private async Task CatchUpAsync()
         {
-            // Warning: This method is ugly, when I have more time I will refactor this but now I won't bother.
+            using var repository = _factory.Create();
             
-            await using var unitOfWork = _unitOfWorkFactory.Create();
-            var guilds = await unitOfWork.AutoVoiceSettings.GetEnabledAsync();
+            await repository.CleanupAsync();
+            var settings = await repository.GetAsync();
 
-            foreach (var settings in guilds)
+            if (settings?.ChannelCreator is null)
             {
-                var guild = _client.Guilds[settings.GuildId];
-                var channelCreator = settings.GetChannelCreator(guild);
-
-                // If the voice channel creator was deleted, then disable auto voice for the guild (by deleting all channels).
-                if (channelCreator is null)
-                {
-                    await DisableModuleAsync(guild, settings);
-                    continue;
-                }
-
-                // Channel creator is not empty, that means we have to create new channel.
-                if (channelCreator.Users.Any())
-                {
-                    await _autoVoiceService.UpdateNameAsync(channelCreator);
-                    var newVoiceChannel = await _autoVoiceService.CreateAsync(guild, channelCreator.Parent, settings.Bitrate);
-                    settings.AddChannel(newVoiceChannel);
-                }
-
-                // Update all channels
-                await UpdateAutoVoiceChannels(guild, settings);
+                return;
             }
 
-            await unitOfWork.CompleteAsync();
-        }
-
-        private async Task DisableModuleAsync(DiscordGuild guild, AutoVoiceSettings settings)
-        {
-            foreach (var voiceChannelId in settings.VoiceChannels.Select(v => v.VoiceChannelId))
+            var guild = _client.Guilds[_options.CurrentValue.GuildId];
+            
+            // Channel creator is not empty, that means we have to create new channel.
+            if (settings.ChannelCreator.Users.Any())
             {
-                var voiceChannel = guild.GetChannel(voiceChannelId);
-                if (voiceChannel is not null)
-                {
-                    await voiceChannel.DeleteAsync();
-                }
-            }
-
-            settings.ChannelCreatorId = null;
-            settings.RemoveAllChannels();
-        }
-
-        private async Task UpdateAutoVoiceChannels(DiscordGuild guild, AutoVoiceSettings settings)
-        {
-            var voiceChannelIds = settings.VoiceChannels
-                .Select(v => v.VoiceChannelId)
-                .ToList();
+                await _autoVoiceService.UpdateNameAsync(settings.ChannelCreator);
+                var newVoiceChannel = await _autoVoiceService.CreateAsync(guild, settings.ChannelCreator.Parent, settings.Bitrate);
                 
-            foreach (var voiceChannelId in voiceChannelIds)
-            {
-                var voiceChannel = guild.GetChannel(voiceChannelId);
+                settings.AddChannel(newVoiceChannel);
+            }
 
-                if (voiceChannel is null)
+            // Update all channels
+            await UpdateAutoVoiceChannels(settings);
+            
+            await repository.SaveAsync(settings);
+        }
+
+        private async Task UpdateAutoVoiceChannels(AutoVoiceSettings settings)
+        { 
+            foreach (var voiceChannel in settings.VoiceChannels)
+            {
+                if (!voiceChannel.Users.Any())
                 {
-                    settings.RemoveChannel(voiceChannelId);
-                } 
-                else if (!voiceChannel.Users.Any())
-                {
-                    settings.RemoveChannel(voiceChannelId);
+                    settings.RemoveChannel(voiceChannel);
                     await voiceChannel.DeleteAsync();
                 }
                 else
