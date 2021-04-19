@@ -2,13 +2,13 @@
 using DSharpPlus.Entities;
 using UrfRidersBot.Core.Commands;
 using UrfRidersBot.Core.Commands.Attributes;
-using UrfRidersBot.Core.Common;
+using UrfRidersBot.Core.Settings;
 
 namespace UrfRidersBot.Commands.Settings
 {
     public class RankRole : ICommand<SettingsGroup>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IGuildSettingsRepository _repository;
         
         public bool Ephemeral => false;
         public string Name => "rank-role";
@@ -20,29 +20,29 @@ namespace UrfRidersBot.Commands.Settings
         [Parameter("role", "Target role for selected guild rank. Leave empty to reset back to default.", true)]
         public DiscordRole? Role { get; set; }
 
-        public RankRole(IUnitOfWork unitOfWork)
+        public RankRole(IGuildSettingsRepository repository)
         {
-            _unitOfWork = unitOfWork;
+            _repository = repository;
         }
         
         public async ValueTask<CommandResult> HandleAsync(ICommandContext context)
         {
-            var settings = await _unitOfWork.GuildSettings.GetOrCreateAsync(context.Guild);
+            var settings = await _repository.GetOrCreateAsync();
 
             switch (GuildRank)
             {
                 case GuildRankRole.Member:
-                    settings.MemberRoleId = Role?.Id;
+                    settings.MemberRole = Role;
                     break;
                 case GuildRankRole.Moderator:
-                    settings.ModeratorRoleId = Role?.Id;
+                    settings.ModeratorRole = Role;
                     break;
                 case GuildRankRole.Admin:
-                    settings.AdminRoleId = Role?.Id;
+                    settings.AdminRole = Role;
                     break;
             }
 
-            await _unitOfWork.CompleteAsync();
+            await _repository.SaveAsync(settings);
 
             return CommandResult.Success($"{GuildRank.ToString()} role has been set to {Role?.Mention ?? "default"}.");
         }

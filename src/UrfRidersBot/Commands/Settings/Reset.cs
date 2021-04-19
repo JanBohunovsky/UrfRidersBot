@@ -1,30 +1,29 @@
 ﻿using System.Threading.Tasks;
 using UrfRidersBot.Core.Commands;
-using UrfRidersBot.Core.Common;
+using UrfRidersBot.Core.Settings;
 
 namespace UrfRidersBot.Commands.Settings
 {
     public class Reset : ICommand<SettingsGroup>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IGuildSettingsRepository _repository;
         
         public bool Ephemeral => false;
         public string Name => "reset";
         public string Description => "Resets this server's settings back to default values.";
 
-        public Reset(IUnitOfWork unitOfWork)
+        public Reset(IGuildSettingsRepository repository)
         {
-            _unitOfWork = unitOfWork;
+            _repository = repository;
         }
         
         public async ValueTask<CommandResult> HandleAsync(ICommandContext context)
         {
-            var settings = await _unitOfWork.GuildSettings.GetAsync(context.Guild);
+            var settings = await _repository.GetAsync();
 
             if (settings is not null)
             {
-                _unitOfWork.GuildSettings.Remove(settings);
-                await _unitOfWork.CompleteAsync();
+                await _repository.RemoveAsync();
             }
             
             return CommandResult.Success($"All settings for {context.Guild.Name} has been reset.");

@@ -2,22 +2,22 @@
 using DSharpPlus.Entities;
 using UrfRidersBot.Core;
 using UrfRidersBot.Core.Commands;
-using UrfRidersBot.Core.Common;
+using UrfRidersBot.Core.Settings;
 
 namespace UrfRidersBot.Commands.Settings
 {
     public class List : ICommand<SettingsGroup>
     {
         private const string NullText = "*null*";
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IGuildSettingsRepository _repository;
         
         public bool Ephemeral => false;
         public string Name => "list";
         public string Description => "Shows current settings for this server.";
 
-        public List(IUnitOfWork unitOfWork)
+        public List(IGuildSettingsRepository repository)
         {
-            _unitOfWork = unitOfWork;
+            _repository = repository;
         }
         
         public async ValueTask<CommandResult> HandleAsync(ICommandContext context)
@@ -29,20 +29,20 @@ namespace UrfRidersBot.Commands.Settings
                 Description = $"Current settings for {context.Guild.Name}.",
             };
 
-            var settings = await _unitOfWork.GuildSettings.GetOrCreateAsync(context.Guild);
+            var settings = await _repository.GetOrCreateAsync();
 
             embed
                 .AddField(
                     "Member role",
-                    settings.GetMemberRole(context.Guild)?.Mention ?? NullText,
+                    settings.MemberRole?.Mention ?? NullText,
                     true)
                 .AddField(
                     "Moderator role",
-                    settings.GetModeratorRole(context.Guild)?.Mention ?? NullText,
+                    settings.ModeratorRole?.Mention ?? NullText,
                     true)
                 .AddField(
                     "Admin role",
-                    settings.GetAdminRole(context.Guild)?.Mention ?? NullText,
+                    settings.AdminRole?.Mention ?? NullText,
                     true);
             
             await context.RespondAsync(embed);
