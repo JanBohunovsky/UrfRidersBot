@@ -5,13 +5,12 @@ using UrfRidersBot.Core.Commands;
 using UrfRidersBot.Core.Commands.Attributes;
 using UrfRidersBot.Core.Common;
 using UrfRidersBot.Core.ReactionRoles;
-using UrfRidersBot.Infrastructure.Common;
 
 namespace UrfRidersBot.Commands.ReactionRoles
 {
     public class Add : ICommand<ReactionRolesGroup>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IReactionRoleRepository _repository;
 
         public bool Ephemeral => true;
         public string Name => "add";
@@ -26,9 +25,9 @@ namespace UrfRidersBot.Commands.ReactionRoles
         [Parameter("role", "The role you wish to be self-assignable.")]
         public DiscordRole Role { get; set; } = null!;
 
-        public Add(IUnitOfWork unitOfWork)
+        public Add(IReactionRoleRepository repository)
         {
-            _unitOfWork = unitOfWork;
+            _repository = repository;
         }
         
         public async ValueTask<CommandResult> HandleAsync(ICommandContext context)
@@ -45,12 +44,15 @@ namespace UrfRidersBot.Commands.ReactionRoles
                 return CommandResult.InvalidParameter("Invalid emoji.");
             }
             
-            // TODO: Check if there will be collision in db and show the user nice error message.
-            var reactionRole = new ReactionRole(message, emoji, Role);
-            await _unitOfWork.ReactionRoles.AddAsync(reactionRole);
+            var reactionRole = new ReactionRole(message, Role, emoji);
+            var result = await _repository.AddAsync(reactionRole);
+
+            if (!result)
+            {
+                return CommandResult.InvalidOperation("This message already has this role or emoji.");
+            }
             
             await message.CreateReactionAsync(emoji);
-            await _unitOfWork.CompleteAsync();
             
             var messageLink = Markdown.Link("message", message.JumpLink.ToString());
             return CommandResult.Success($"Added self-assignable role {Role.Mention} with emoji {emoji} to {messageLink}.");

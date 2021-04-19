@@ -3,18 +3,20 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
+using UrfRidersBot.Core.Common;
+using UrfRidersBot.Core.ReactionRoles;
 
 namespace UrfRidersBot.Infrastructure.ReactionRoles
 {
     internal class ReactionRolesHostedService : IHostedService
     {
         private readonly DiscordClient _client;
-        private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+        private readonly IRepositoryFactory<IReactionRoleRepository> _factory;
 
-        public ReactionRolesHostedService(DiscordClient client, IUnitOfWorkFactory unitOfWorkFactory)
+        public ReactionRolesHostedService(DiscordClient client,IRepositoryFactory<IReactionRoleRepository> factory)
         {
             _client = client;
-            _unitOfWorkFactory = unitOfWorkFactory;
+            _factory = factory;
         }
         
         public Task StartAsync(CancellationToken cancellationToken)
@@ -41,8 +43,8 @@ namespace UrfRidersBot.Infrastructure.ReactionRoles
             if (e.Guild == null)
                 return;
 
-            await using var unitOfWork = _unitOfWorkFactory.Create();
-            var role = await unitOfWork.ReactionRoles.GetRoleAsync(e.Message, e.Emoji);
+            using var repository = _factory.Create();
+            var role = await repository.GetRoleAsync(e.Message, e.Emoji);
 
             if (role == null)
                 return;
@@ -59,8 +61,8 @@ namespace UrfRidersBot.Infrastructure.ReactionRoles
             if (e.Guild == null)
                 return;
 
-            await using var unitOfWork = _unitOfWorkFactory.Create();
-            var role = await unitOfWork.ReactionRoles.GetRoleAsync(e.Message, e.Emoji);
+            using var repository = _factory.Create();
+            var role = await repository.GetRoleAsync(e.Message, e.Emoji);
 
             if (role == null)
                 return;

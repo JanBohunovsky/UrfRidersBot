@@ -2,8 +2,8 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 using LiteDB;
+using UrfRidersBot.Core.Common;
 using UrfRidersBot.Core.ReactionRoles;
-using UrfRidersBot.Infrastructure.Common;
 
 namespace UrfRidersBot.Infrastructure.ReactionRoles
 {

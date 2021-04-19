@@ -5,13 +5,12 @@ using UrfRidersBot.Core.Commands;
 using UrfRidersBot.Core.Commands.Attributes;
 using UrfRidersBot.Core.Common;
 using UrfRidersBot.Core.ReactionRoles;
-using UrfRidersBot.Infrastructure.Common;
 
 namespace UrfRidersBot.Commands.ReactionRoles
 {
     public class Remove : ICommand<ReactionRolesGroup>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IReactionRoleRepository _repository;
 
         public bool Ephemeral => true;
         public string Name => "remove";
@@ -23,9 +22,9 @@ namespace UrfRidersBot.Commands.ReactionRoles
         [Parameter("role", "The role you wish to remove from being self-assignable in a message.")]
         public DiscordRole Role { get; set; } = null!;
 
-        public Remove(IUnitOfWork unitOfWork)
+        public Remove(IReactionRoleRepository repository)
         {
-            _unitOfWork = unitOfWork;
+            _repository = repository;
         }
         
         public async ValueTask<CommandResult> HandleAsync(ICommandContext context)
@@ -36,7 +35,7 @@ namespace UrfRidersBot.Commands.ReactionRoles
                 return CommandResult.InvalidParameter("Invalid message link.");
             }
             
-            var emoji = await _unitOfWork.ReactionRoles.GetEmojiAsync(context.Client, message, Role);
+            var emoji = await _repository.GetEmojiAsync(message, Role);
             var messageLink = Markdown.Link("message", message.JumpLink.ToString());
             
             if (emoji == null)
@@ -45,10 +44,7 @@ namespace UrfRidersBot.Commands.ReactionRoles
             }
             
             await message.DeleteReactionsEmojiAsync(emoji);
-
-            var reactionRole = new ReactionRole(message, emoji, Role);
-            _unitOfWork.ReactionRoles.Remove(reactionRole);
-            await _unitOfWork.CompleteAsync();
+            await _repository.RemoveAsync(message, Role);
 
             return CommandResult.Success($"Removed self-assignable role {Role.Mention} from {messageLink}.");
         }
