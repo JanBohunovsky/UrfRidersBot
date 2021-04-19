@@ -7,16 +7,16 @@ namespace UrfRidersBot.Infrastructure.ColorRole
 {
     internal class ColorRoleService : IColorRoleService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IColorRoleRepository _repository;
 
-        public ColorRoleService(IUnitOfWork unitOfWork)
+        public ColorRoleService(IColorRoleRepository repository)
         {
-            _unitOfWork = unitOfWork;
+            _repository = repository;
         }
         
         public async Task SetColorRoleAsync(DiscordMember member, DiscordColor color)
         {
-            var role = await _unitOfWork.ColorRoles.GetByUser(member);
+            var role = await _repository.GetByUserAsync(member);
 
             if (role != null)
             {
@@ -24,29 +24,26 @@ namespace UrfRidersBot.Infrastructure.ColorRole
                 return;
             }
             
+            // Create color role and save it to the database
             role = await CreateColorRoleAsync(member, color);
-
             await member.GrantRoleAsync(role);
             
-            await _unitOfWork.ColorRoles.Add(role, member);
-            await _unitOfWork.CompleteAsync();
+            await _repository.AddAsync(role, member);
         }
 
         public async ValueTask<bool> RemoveColorRoleAsync(DiscordMember member)
         {
-            var role = await _unitOfWork.ColorRoles.GetByUser(member);
+            var role = await _repository.GetByUserAsync(member);
 
             if (role == null)
             {
                 return false;
             }
 
-            _unitOfWork.ColorRoles.Remove(role, member);
+            await _repository.RemoveAsync(role);
             
             await member.RevokeRoleAsync(role);
             await role.DeleteAsync();
-            
-            await _unitOfWork.CompleteAsync();
             
             return true;
         }

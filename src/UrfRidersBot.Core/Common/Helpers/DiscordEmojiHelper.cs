@@ -2,9 +2,9 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 
-namespace UrfRidersBot.Infrastructure.Common
+namespace UrfRidersBot.Core.Common
 {
-    internal static class DiscordEmojiHelper
+    public static class DiscordEmojiHelper
     {
         private static readonly Regex GuildEmoteRegex;
         

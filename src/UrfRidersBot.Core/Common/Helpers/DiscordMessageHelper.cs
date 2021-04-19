@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace UrfRidersBot.Infrastructure.Common
+namespace UrfRidersBot.Core.Common
 {
-    internal static class DiscordMessageHelper
+    public static class DiscordMessageHelper
     {
         private static readonly Regex MessageLinkRegex;
         
