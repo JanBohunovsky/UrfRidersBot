@@ -5,12 +5,10 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using UrfRidersBot.Core.Commands;
-using UrfRidersBot.Core.Commands.Attributes;
 using UrfRidersBot.Core.Settings;
 
 namespace UrfRidersBot.Infrastructure.Commands.Checks
 {
-    // TODO: Move this to UrfRiders.Core/Commands/Checks
     public class RequireGuildRankAttribute : CheckAttribute
     {
         private readonly GuildRank _rank;
@@ -20,9 +18,8 @@ namespace UrfRidersBot.Infrastructure.Commands.Checks
         public override async ValueTask<CheckResult> CheckAsync(ICommandContext context, IServiceProvider provider)
         {
             // Get guild settings
-            var unitOfWorkFactory = provider.GetRequiredService<IUnitOfWorkFactory>();
-            await using var unitOfWork = unitOfWorkFactory.Create();
-            var guildSettings = await unitOfWork.GuildSettings.GetOrCreateAsync(context.Guild);
+            using var repository = provider.GetRequiredService<IGuildSettingsRepository>();
+            var guildSettings = await repository.GetOrCreateAsync();
             
             // Check member's rank
             var memberRank = GetMemberRank(context.Member, context.Channel, guildSettings);
@@ -37,12 +34,12 @@ namespace UrfRidersBot.Infrastructure.Commands.Checks
         private static GuildRank GetMemberRank(DiscordMember member, DiscordChannel channel, GuildSettings guildSettings)
         {
             var rank = GuildRank.Everyone;
-            if (MemberHasRole(member, guildSettings.MemberRoleId) ?? true)
+            if (MemberHasRole(member, guildSettings.MemberRole) ?? true)
                 rank = GuildRank.Member;
-            if (MemberHasRole(member, guildSettings.ModeratorRoleId) ??
+            if (MemberHasRole(member, guildSettings.ModeratorRole) ??
                 member.PermissionsIn(channel).HasPermission(Permissions.ManageChannels))
                 rank = GuildRank.Moderator;
-            if (MemberHasRole(member, guildSettings.AdminRoleId) ??
+            if (MemberHasRole(member, guildSettings.AdminRole) ??
                 member.PermissionsIn(channel).HasPermission(Permissions.Administrator))
                 rank = GuildRank.Admin;
             if (member.Guild.OwnerId == member.Id)
@@ -52,18 +49,18 @@ namespace UrfRidersBot.Infrastructure.Commands.Checks
         }
         
         /// <summary>
-        /// Checks if user has a role. If <see cref="roleId"/> is null then this method also returns null.
+        /// Checks if user has a role. If <see cref="role"/> is null then this method also returns null.
         /// <para>
-        /// This is a little helper method so I don't have to check if <see cref="roleId"/> is null, or I don't have to use it twice.
+        /// This is a little helper method so I don't have to check if <see cref="role"/> is null, or I don't have to use it twice.
         /// With this I can use the null coalescing operator (the double question mark).
         /// </para>
         /// </summary>
-        private static bool? MemberHasRole(DiscordMember member, ulong? roleId)
+        private static bool? MemberHasRole(DiscordMember member, DiscordRole? role)
         {
-            if (roleId == null)
+            if (role == null)
                 return null;
             
-            return member.Roles.Any(r => r.Id == roleId);
+            return member.Roles.Contains(role);
         }
     }
 }

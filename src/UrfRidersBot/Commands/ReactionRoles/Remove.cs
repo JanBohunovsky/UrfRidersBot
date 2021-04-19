@@ -2,7 +2,6 @@
 using DSharpPlus.Entities;
 using UrfRidersBot.Core;
 using UrfRidersBot.Core.Commands;
-using UrfRidersBot.Core.Commands.Attributes;
 using UrfRidersBot.Core.Common;
 using UrfRidersBot.Core.ReactionRoles;
 

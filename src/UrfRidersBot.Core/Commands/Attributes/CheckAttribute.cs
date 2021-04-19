@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace UrfRidersBot.Core.Commands.Attributes
+namespace UrfRidersBot.Core.Commands
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
     public abstract class CheckAttribute : Attribute

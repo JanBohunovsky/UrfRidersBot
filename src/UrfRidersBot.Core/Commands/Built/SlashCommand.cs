@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-using UrfRidersBot.Core.Commands.Attributes;
 
 namespace UrfRidersBot.Core.Commands.Built
 {

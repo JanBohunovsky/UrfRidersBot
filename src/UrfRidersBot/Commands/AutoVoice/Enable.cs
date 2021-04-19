@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using UrfRidersBot.Core.AutoVoice;
 using UrfRidersBot.Core.Commands;
-using UrfRidersBot.Core.Commands.Attributes;
 
 namespace UrfRidersBot.Commands.AutoVoice
 {

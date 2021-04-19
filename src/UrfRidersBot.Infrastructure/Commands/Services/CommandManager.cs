@@ -5,7 +5,6 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using UrfRidersBot.Core.Commands;
-using UrfRidersBot.Core.Commands.Attributes;
 using UrfRidersBot.Core.Commands.Built;
 using UrfRidersBot.Core.Commands.Services;
 

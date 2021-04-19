@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace UrfRidersBot.Core.Commands.Attributes
+namespace UrfRidersBot.Core.Commands
 {
     public class ParameterAttribute : Attribute
     {

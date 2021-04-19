@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using UrfRidersBot.Core.Commands;
-using UrfRidersBot.Core.Commands.Attributes;
 using UrfRidersBot.Core.Settings;
 
 namespace UrfRidersBot.Commands.Settings

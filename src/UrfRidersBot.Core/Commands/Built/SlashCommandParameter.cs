@@ -2,7 +2,6 @@
 using System.Reflection;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using UrfRidersBot.Core.Commands.Attributes;
 
 namespace UrfRidersBot.Core.Commands.Built
 {
