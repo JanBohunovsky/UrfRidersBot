@@ -15,7 +15,7 @@ namespace UrfRidersBot.Core.Commands.Helpers
         // 
         // All this method does is it converts my style into the discord style, that's why we need the list of commands
         // instead of a single command (because we need to figure out it's parent group and add commands to them).
-        public static IEnumerable<DiscordApplicationCommand> FromSlashCommands(List<SlashCommand> commands)
+        public static IEnumerable<DiscordApplicationCommand> FromSlashCommands(List<SlashCommandDefinition> commands)
         {
             var result = new List<DiscordApplicationCommand>();
             
@@ -45,7 +45,7 @@ namespace UrfRidersBot.Core.Commands.Helpers
             return result;
         }
 
-        private static IEnumerable<DiscordApplicationCommand> FromBaseCommands(IEnumerable<SlashCommand> baseCommands)
+        private static IEnumerable<DiscordApplicationCommand> FromBaseCommands(IEnumerable<SlashCommandDefinition> baseCommands)
         {
             return baseCommands.Select(c =>
                 new DiscordApplicationCommand(
@@ -91,9 +91,9 @@ namespace UrfRidersBot.Core.Commands.Helpers
         {
             public string Name { get; }
             public string Description { get; }
-            public List<SlashCommand> SubCommands { get; }
+            public List<SlashCommandDefinition> SubCommands { get; }
 
-            public CommandGroup(SlashCommandGroup group, IEnumerable<SlashCommand> subCommands)
+            public CommandGroup(SlashCommandGroup group, IEnumerable<SlashCommandDefinition> subCommands)
             {
                 Name = group.Name;
                 Description = group.Description;

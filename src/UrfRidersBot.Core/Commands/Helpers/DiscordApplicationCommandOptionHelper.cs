@@ -58,7 +58,7 @@ namespace UrfRidersBot.Core.Commands.Helpers
             );
         }
 
-        public static DiscordApplicationCommandOption FromSlashSubCommand(SlashCommand command)
+        public static DiscordApplicationCommandOption FromSlashSubCommand(SlashCommandDefinition command)
         {
             return new DiscordApplicationCommandOption(
                 command.Name,
@@ -71,7 +71,7 @@ namespace UrfRidersBot.Core.Commands.Helpers
         public static DiscordApplicationCommandOption FromSlashSubCommandGroup(
             string name, 
             string description,
-            IEnumerable<SlashCommand> subCommands)
+            IEnumerable<SlashCommandDefinition> subCommands)
         {
             return new DiscordApplicationCommandOption(
                 name,

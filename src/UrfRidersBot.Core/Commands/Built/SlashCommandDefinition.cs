@@ -7,7 +7,7 @@ using DSharpPlus.Entities;
 
 namespace UrfRidersBot.Core.Commands.Built
 {
-    public class SlashCommand
+    public class SlashCommandDefinition
     {
         public SlashCommandGroup? Parent { get; }
         
@@ -22,6 +22,11 @@ namespace UrfRidersBot.Core.Commands.Built
         public string Description { get; }
         
         /// <summary>
+        /// Whether the command responds in ephemeral (private) messages or not.
+        /// </summary>
+        public bool Ephemeral { get; }
+        
+        /// <summary>
         /// The command class that implements <see cref="ICommand"/>.
         /// </summary>
         public Type Class { get; }
@@ -30,17 +35,16 @@ namespace UrfRidersBot.Core.Commands.Built
         
         public List<CheckAttribute>? Checks { get; }
 
-        public SlashCommand(
-            string name,
-            string description,
-            Type @class,
+        public SlashCommandDefinition(
+            ICommand command,
             ICollection<SlashCommandParameter>? parameters = null,
             ICollection<CheckAttribute>? checks = null,
             SlashCommandGroup? parent = null)
         {
-            Name = name;
-            Description = description;
-            Class = @class;
+            Name = command.Name;
+            Description = command.Description;
+            Ephemeral = command.Ephemeral;
+            Class = command.GetType();
             Parent = parent;
             
             if (parameters?.Any() == true)

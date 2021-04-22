@@ -17,7 +17,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
     {
         private readonly IServiceProvider _provider;
         private readonly DiscordClient _client;
-        private Dictionary<string, SlashCommand> _commands;
+        private Dictionary<string, SlashCommandDefinition> _commands;
 
         public CommandHandler(
             IServiceProvider provider,
@@ -25,10 +25,10 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
         {
             _provider = provider;
             _client = client;
-            _commands = new Dictionary<string, SlashCommand>();
+            _commands = new Dictionary<string, SlashCommandDefinition>();
         }
 
-        public void AddCommands(IEnumerable<SlashCommand> commands)
+        public void AddCommands(IEnumerable<SlashCommandDefinition> commands)
         {
             _commands = commands.ToDictionary(c => c.GetFullName(), c => c);
         }
@@ -46,33 +46,35 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             {
                 throw new Exception($"An interaction was created, but no command was registered for it: '{request.FullName}'");
             }
-            var command = _commands[request.FullName];
+            var definition = _commands[request.FullName];
+            
+            var context = new CommandContext(_client, interaction, definition.Ephemeral);
+            await AcknowledgeInteraction(interaction, definition.Ephemeral);
 
             using var scope = _provider.CreateScope();
-            if (ActivatorUtilities.CreateInstance(scope.ServiceProvider, command.Class) is not ICommand instance)
+            if (ActivatorUtilities.CreateInstance(scope.ServiceProvider, definition.Class) is not ICommand command)
             {
-                throw new Exception($"Could not create an instance of a type {command.Class} for a command '{request.FullName}'.");
+                var exception = new Exception($"Could not create an instance of a type {definition.Class} for a command '{request.FullName}'.");
+                await context.RespondWithCriticalErrorAsync(exception);
+                throw exception;
             }
-            
-            var context = new CommandContext(_client, interaction, instance.Ephemeral);
-            await AcknowledgeInteraction(interaction, instance.Ephemeral);
 
             CommandResult result;
             try
             {
                 if (request.Parameters is not null)
                 {
-                    command.FillParameters(instance, request.Parameters, interaction.Data.Resolved);
+                    definition.FillParameters(command, request.Parameters, interaction.Data.Resolved);
                 }
                 
-                var checkResult = await command.RunChecksAsync(context, _provider);
+                var checkResult = await definition.RunChecksAsync(context, _provider);
                 if (!checkResult.IsSuccessful)
                 {
                     await context.RespondWithAccessDeniedAsync(checkResult.Reason);
                     return;
                 }
 
-                result = await instance.HandleAsync(context);
+                result = await command.HandleAsync(context);
             }
             catch (Exception e)
             {
@@ -80,7 +82,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
                 throw;
             }
 
-            if (instance.Ephemeral)
+            if (command.Ephemeral)
             {
                 await RespondWithMessageAsync(context, result);
             }

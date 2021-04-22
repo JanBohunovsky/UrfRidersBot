@@ -29,7 +29,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             _subGroups = new Dictionary<string, Dictionary<string, SlashCommandGroup>>();
         }
 
-        public IEnumerable<SlashCommand> BuildCommands()
+        public IEnumerable<SlashCommandDefinition> BuildCommands()
         {
             _commands.Clear();
             _groups.Clear();
@@ -49,9 +49,9 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
                 .Where(t => typeof(ICommand).IsAssignableFrom(t) && !t.IsInterface);
         }
 
-        private SlashCommand CreateCommand(Type commandClass)
+        private SlashCommandDefinition CreateCommand(Type commandClass)
         {
-            if (ActivatorUtilities.CreateInstance(_provider, commandClass) is not ICommand instance)
+            if (ActivatorUtilities.CreateInstance(_provider, commandClass) is not ICommand command)
             {
                 throw new Exception("Could not create ICommand instance");
             }
@@ -59,19 +59,19 @@ namespace UrfRidersBot.Infrastructure.Commands.Services
             var parameters = CreateCommandParameters(commandClass).ToList();
             var checks = GetChecks(commandClass).ToList();
             var parent = GetCommandParent(commandClass);
-            var command = new SlashCommand(instance.Name, instance.Description, commandClass, parameters, checks, parent);
+            var definition = new SlashCommandDefinition(command, parameters, checks, parent);
 
             if (parent is not null) 
-                return command;
+                return definition;
             
             // This is a root command, so we need to check for name collisions and add it to the hashset.
-            if (_commands.Contains(instance.Name) || _groups.ContainsKey(instance.Name))
+            if (_commands.Contains(command.Name) || _groups.ContainsKey(command.Name))
             {
-                throw new Exception($"A command or a command group already exists with this name: '{instance.Name}'");
+                throw new Exception($"A command or a command group already exists with this name: '{command.Name}'");
             }
-            _commands.Add(command.Name);
+            _commands.Add(definition.Name);
 
-            return command;
+            return definition;
         }
 
         private IEnumerable<SlashCommandParameter> CreateCommandParameters(Type commandClass)

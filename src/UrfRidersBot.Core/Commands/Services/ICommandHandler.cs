@@ -7,7 +7,7 @@ namespace UrfRidersBot.Core.Commands.Services
 {
     public interface ICommandHandler
     {
-        void AddCommands(IEnumerable<SlashCommand> commands);
+        void AddCommands(IEnumerable<SlashCommandDefinition> commands);
         
         Task HandleAsync(DiscordInteraction interaction);
     }

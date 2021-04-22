@@ -5,6 +5,6 @@ namespace UrfRidersBot.Core.Commands.Services
 {
     public interface ICommandManager
     {
-        IEnumerable<SlashCommand> BuildCommands();
+        IEnumerable<SlashCommandDefinition> BuildCommands();
     }
 }
