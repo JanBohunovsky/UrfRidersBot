@@ -43,7 +43,7 @@ namespace UrfRidersBot.Infrastructure.ReactionRoles
             if (e.Guild == null)
                 return;
 
-            using var repository = _factory.Create();
+            await using var repository = _factory.Create();
             var role = await repository.GetRoleAsync(e.Message, e.Emoji);
 
             if (role == null)
@@ -61,7 +61,7 @@ namespace UrfRidersBot.Infrastructure.ReactionRoles
             if (e.Guild == null)
                 return;
 
-            using var repository = _factory.Create();
+            await using var repository = _factory.Create();
             var role = await repository.GetRoleAsync(e.Message, e.Emoji);
 
             if (role == null)

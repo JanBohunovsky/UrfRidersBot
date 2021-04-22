@@ -1,4 +1,5 @@
-﻿using LiteDB;
+﻿using System.Threading.Tasks;
+using LiteDB;
 using LiteDB.Async;
 using UrfRidersBot.Core.Common;
 
@@ -18,9 +19,9 @@ namespace UrfRidersBot.Infrastructure.Common
             _collectionName = collectionName;
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
-            Database.Dispose();
+            await Database.CheckpointAsync();
         }
     }
 }

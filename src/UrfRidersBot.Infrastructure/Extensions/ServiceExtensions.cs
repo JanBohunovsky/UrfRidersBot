@@ -52,7 +52,7 @@ namespace UrfRidersBot.Infrastructure
              
             services.AddRepositories();
             services.AddSingleton(typeof(IRepositoryFactory<>), typeof(LiteRepositoryFactory<>));
-            services.AddTransient<ILiteDatabaseAsync>(_ => new LiteDatabaseAsync(connectionString));
+            services.AddSingleton<ILiteDatabaseAsync>(new LiteDatabaseAsync(connectionString));
 
             return services;
         }

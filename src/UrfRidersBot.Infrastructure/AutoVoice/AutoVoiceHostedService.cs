@@ -65,7 +65,7 @@ namespace UrfRidersBot.Infrastructure.AutoVoice
         /// </summary>
         private async Task OnChannelDeleted(DiscordClient sender, ChannelDeleteEventArgs e)
         {
-            using var repository = _factory.Create();
+            await using var repository = _factory.Create();
             var settings = await repository.GetAsync();
 
             if (settings?.ChannelCreator is null)
@@ -101,7 +101,7 @@ namespace UrfRidersBot.Infrastructure.AutoVoice
             if (_options.CurrentValue.GuildId != e.Guild.Id)
                 return;
 
-            using var repository = _factory.Create();
+            await using var repository = _factory.Create();
             var settings = await repository.GetAsync();
 
             if (settings?.ChannelCreator is null)
@@ -166,7 +166,7 @@ namespace UrfRidersBot.Infrastructure.AutoVoice
             if (user.IsBot)
                 return null;
             
-            using var repository = _factory.Create();
+            await using var repository = _factory.Create();
             var settings = await repository.GetAsync();
 
             // AutoVoice is disabled
@@ -192,7 +192,7 @@ namespace UrfRidersBot.Infrastructure.AutoVoice
         
         private async Task CatchUpAsync()
         {
-            using var repository = _factory.Create();
+            await using var repository = _factory.Create();
             
             await repository.CleanupAsync();
             var settings = await repository.GetAsync();

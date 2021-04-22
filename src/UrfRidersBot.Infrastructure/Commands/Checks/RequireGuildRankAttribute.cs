@@ -18,7 +18,7 @@ namespace UrfRidersBot.Infrastructure.Commands.Checks
         public override async ValueTask<CheckResult> CheckAsync(ICommandContext context, IServiceProvider provider)
         {
             // Get guild settings
-            using var repository = provider.GetRequiredService<IGuildSettingsRepository>();
+            await using var repository = provider.GetRequiredService<IGuildSettingsRepository>();
             var guildSettings = await repository.GetOrCreateAsync();
             
             // Check member's rank

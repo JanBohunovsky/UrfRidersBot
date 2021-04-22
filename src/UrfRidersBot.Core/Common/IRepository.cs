@@ -2,7 +2,7 @@
 
 namespace UrfRidersBot.Core.Common
 {
-    public interface IRepository : IDisposable
+    public interface IRepository : IAsyncDisposable
     {
         
     }
