@@ -3,9 +3,9 @@ using System.Linq;
 using DSharpPlus.Entities;
 using UrfRidersBot.Core.Commands.Built;
 
-namespace UrfRidersBot.Core.Commands.Helpers
+namespace UrfRidersBot.Infrastructure.Commands.Helpers
 {
-    public static class DiscordApplicationCommandHelper
+    internal static class SlashCommandExtensions
     {
         // NOTE: This code IS ugly and will probably stay ugly.
         // 
@@ -15,7 +15,7 @@ namespace UrfRidersBot.Core.Commands.Helpers
         // 
         // All this method does is it converts my style into the discord style, that's why we need the list of commands
         // instead of a single command (because we need to figure out it's parent group and add commands to them).
-        public static IEnumerable<DiscordApplicationCommand> FromSlashCommands(List<SlashCommandDefinition> commands)
+        public static IEnumerable<DiscordApplicationCommand> ToDiscord(this List<SlashCommandDefinition> commands)
         {
             var result = new List<DiscordApplicationCommand>();
             

@@ -5,9 +5,9 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using UrfRidersBot.Core.Commands.Built;
 
-namespace UrfRidersBot.Core.Commands.Helpers
+namespace UrfRidersBot.Infrastructure.Commands.Helpers
 {
-    public static class DiscordApplicationCommandOptionHelper
+    internal static class DiscordApplicationCommandOptionHelper
     {
         public static DiscordApplicationCommandOption FromSlashCommandParameter(SlashCommandParameter parameter)
         {
