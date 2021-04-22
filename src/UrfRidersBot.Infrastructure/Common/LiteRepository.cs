@@ -19,6 +19,11 @@ namespace UrfRidersBot.Infrastructure.Common
             _collectionName = collectionName;
         }
 
+        public void Dispose()
+        {
+            Database.UnderlyingDatabase.Checkpoint();
+        }
+
         public async ValueTask DisposeAsync()
         {
             await Database.CheckpointAsync();
