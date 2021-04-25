@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Events;
 
 namespace UrfRidersBot
 {
@@ -47,7 +48,7 @@ namespace UrfRidersBot
             if (!context.HostingEnvironment.IsProduction()) 
                 return;
 
-            logger.WriteTo.LiteDB("log.db");
+            logger.WriteTo.LiteDB("log.db", restrictedToMinimumLevel: LogEventLevel.Warning);
         }
     }
 }
