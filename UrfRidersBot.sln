@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrfRidersBot", "src\UrfRidersBot.csproj", "{B89EE232-E5F7-417A-AAE7-21734EB9CEDD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B89EE232-E5F7-417A-AAE7-21734EB9CEDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B89EE232-E5F7-417A-AAE7-21734EB9CEDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B89EE232-E5F7-417A-AAE7-21734EB9CEDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B89EE232-E5F7-417A-AAE7-21734EB9CEDD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
