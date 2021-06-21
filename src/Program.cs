@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using UrfRidersBot.Common;
+using UrfRidersBot.Common.Configuration;
 using UrfRidersBot.Common.Services;
 
 namespace UrfRidersBot
@@ -21,9 +23,14 @@ namespace UrfRidersBot
                 {
                     logger.ReadFrom.Configuration(context.Configuration);
                 })
+                .ConfigureDiscord()
                 .ConfigureServices((context, services) =>
                 {
-                    services.AddHostedService<DummyService>();
+                    var configuration = context.Configuration;
+                    
+                    services.AddHostedService<DiscordService>()
+                        .AddHostedService<DummyService>()
+                        .ConfigureSection<Discord>(configuration);
                 });
         }
     }

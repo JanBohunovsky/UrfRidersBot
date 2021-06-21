@@ -8,7 +8,7 @@ namespace UrfRidersBot.Common.Logging
     // Inspired by: https://github.com/k-boyle/Espeon/tree/v4/src/Logging
     public class ClassNameEnricher : ILogEventEnricher
     {
-        private const int Padding = 18;
+        private const int Padding = 20;
 
         private readonly ConcurrentDictionary<string, LogEventProperty> _classNameCache;
         
