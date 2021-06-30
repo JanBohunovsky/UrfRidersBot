@@ -26,10 +26,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Common\Commands" />
+        <Content Include="appsettings*.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="appsettings*.json" CopyToOutputDirectory="PreserveNewest" />
+      <Folder Include="Modules" />
     </ItemGroup>
 </Project>
