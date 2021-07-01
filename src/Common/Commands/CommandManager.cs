@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
-using UrfRidersBot.Common.Commands.Built;
+using UrfRidersBot.Common.Commands.Entities;
 
 namespace UrfRidersBot.Common.Commands
 {

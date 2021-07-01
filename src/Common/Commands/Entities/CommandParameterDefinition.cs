@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace UrfRidersBot.Common.Commands.Built
+namespace UrfRidersBot.Common.Commands.Entities
 {
     public class CommandParameterDefinition
     {
