@@ -2,7 +2,7 @@
 
 namespace UrfRidersBot.Common.Commands
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
     public class ParameterAttribute : Attribute
     {
         public string Name { get; }
