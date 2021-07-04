@@ -16,8 +16,8 @@ namespace UrfRidersBot.Common.Commands.Entities
         
         public string FullName { get; }
         public Type Type { get; }
-        public CommandGroupDefinition? Parent { get; }
-        public IReadOnlyDictionary<string, CommandParameterDefinition>? Parameters { get; }
+        public GroupDefinition? Parent { get; }
+        public IReadOnlyDictionary<string, ParameterDefinition>? Parameters { get; }
 
         public CommandDefinition(Type commandType)
         {
@@ -28,12 +28,12 @@ namespace UrfRidersBot.Common.Commands.Entities
 
             Parameters = Type.GetProperties()
                 .Where(p => p.CanWrite && p.GetCustomAttribute<ParameterAttribute>() is not null)
-                .Select(p => new CommandParameterDefinition(p))
+                .Select(p => new ParameterDefinition(p))
                 .ToDictionary(d => d.Name, d => d);
 
             if (_attribute.ParentType is not null)
             {
-                Parent = new CommandGroupDefinition(_attribute.ParentType);
+                Parent = new GroupDefinition(_attribute.ParentType);
                 ValidateParent();
             }
 
@@ -65,12 +65,12 @@ namespace UrfRidersBot.Common.Commands.Entities
 
             if (Type.GetInterfaces().Any(t => t == typeof(ICommand)))
             {
-                throw new InvalidOperationException($"Command type must implement ICommand interface: {Type}");
+                throw new InvalidOperationException($"Command type must implement {nameof(ICommand)} interface: {Type}");
             }
 
             if (Type.GetCustomAttribute<CommandAttribute>() is null)
             {
-                throw new InvalidOperationException($"Command type must have CommandAttribute: {Type}");
+                throw new InvalidOperationException($"Command type must have {nameof(CommandAttribute)}: {Type}");
             }
         }
 

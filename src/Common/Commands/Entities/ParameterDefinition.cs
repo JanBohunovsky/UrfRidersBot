@@ -5,7 +5,7 @@ using DSharpPlus.Entities;
 
 namespace UrfRidersBot.Common.Commands.Entities
 {
-    public class CommandParameterDefinition
+    public class ParameterDefinition
     {
         private readonly ParameterAttribute _attribute;
 
@@ -15,12 +15,12 @@ namespace UrfRidersBot.Common.Commands.Entities
         
         public PropertyInfo Property { get; }
         
-        public CommandParameterDefinition(PropertyInfo property)
+        public ParameterDefinition(PropertyInfo property)
         {
             Property = property;
 
             _attribute = property.GetCustomAttribute<ParameterAttribute>()
-                         ?? throw new InvalidOperationException($"Parameter property does not have ParameterAttribute: {property}");
+                         ?? throw new InvalidOperationException($"Parameter property does not have {nameof(ParameterAttribute)}: {property}");
         }
         
         public void SetValue(

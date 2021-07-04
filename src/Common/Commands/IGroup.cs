@@ -1,6 +1,6 @@
 ﻿namespace UrfRidersBot.Common.Commands
 {
-    public interface ICommandGroup
+    public interface IGroup
     {
     }
 }
