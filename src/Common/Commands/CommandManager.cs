@@ -27,14 +27,6 @@ namespace UrfRidersBot.Common.Commands
             return BuildCommands(commandTypes);
         }
 
-        /// <summary>
-        /// Builds the specified commands.
-        /// </summary>
-        public IEnumerable<CommandDefinition> BuildCommands(params ICommand[] commands)
-        {
-            return BuildCommands(commands.Select(c => c.GetType()));
-        }
-
         private IEnumerable<CommandDefinition> BuildCommands(IEnumerable<Type> commandTypes)
         {
             return commandTypes.Select(commandType => new CommandDefinition(commandType));

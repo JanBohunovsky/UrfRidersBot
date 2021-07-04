@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DSharpPlus.Entities;
 
 namespace UrfRidersBot.Common.Commands.Entities
 {
@@ -11,7 +12,7 @@ namespace UrfRidersBot.Common.Commands.Entities
 
         public string Name => _attribute.Name;
         public string Description => _attribute.Description;
-        public bool EphemeralResponse => _attribute.PrivateResponse;
+        public bool PrivateResponse => _attribute.PrivateResponse;
         
         public string FullName { get; }
         public Type Type { get; }
@@ -39,7 +40,21 @@ namespace UrfRidersBot.Common.Commands.Entities
             FullName = $"{Parent?.FullName} {Name}".Trim();
         }
 
-        // public void SetParameters(ICommand commandInstance, discordOptions, discordResolvedCollection)
+        public void SetParameters(
+            ICommand commandInstance, 
+            IEnumerable<DiscordInteractionDataOption> parameterOptions,
+            DiscordInteractionResolvedCollection data)
+        {
+            if (Parameters is null)
+            {
+                return;
+            }
+
+            foreach (var parameterOption in parameterOptions)
+            {
+                Parameters[parameterOption.Name].SetValue(commandInstance, parameterOption, data);
+            }
+        }
 
         private void ValidateType()
         {
