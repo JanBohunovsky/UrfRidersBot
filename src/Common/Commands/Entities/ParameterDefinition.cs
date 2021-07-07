@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -62,6 +63,39 @@ namespace UrfRidersBot.Common.Commands.Entities
             }
 
             Property.SetValue(commandInstance, value);
+        }
+
+        public DiscordApplicationCommandOption ToDiscord()
+        {
+            var type = Property.PropertyType;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                type = type.GenericTypeArguments.First();
+            }
+
+            ApplicationCommandOptionType optionType;
+            if (type == typeof(string))
+                optionType = ApplicationCommandOptionType.String;
+            else if (type == typeof(long))
+                optionType = ApplicationCommandOptionType.Integer;
+            else if (type == typeof(bool))
+                optionType = ApplicationCommandOptionType.Boolean;
+            else if (type == typeof(DiscordChannel))
+                optionType = ApplicationCommandOptionType.Channel;
+            else if (type == typeof(DiscordUser))
+                optionType = ApplicationCommandOptionType.User;
+            else if (type == typeof(DiscordRole))
+                optionType = ApplicationCommandOptionType.Role;
+            else if (type.IsEnum)
+                optionType = ApplicationCommandOptionType.String;
+            else
+                throw new ArgumentException("Unsupported parameter type.", type.FullName);
+
+            var choices = type.IsEnum
+                ? Enum.GetNames(type).Select(n => new DiscordApplicationCommandOptionChoice(n, n))
+                : null;
+
+            return new DiscordApplicationCommandOption(Name, Description, optionType, !IsOptional, choices);
         }
     }
 }

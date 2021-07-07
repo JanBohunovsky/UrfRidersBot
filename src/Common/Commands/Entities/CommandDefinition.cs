@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DSharpPlus;
 using DSharpPlus.Entities;
 
 namespace UrfRidersBot.Common.Commands.Entities
 {
-    public class CommandDefinition
+    public class CommandDefinition : IEquatable<CommandDefinition>
     {
         private readonly CommandAttribute _attribute;
 
@@ -31,13 +32,24 @@ namespace UrfRidersBot.Common.Commands.Entities
                 .Select(p => new ParameterDefinition(p))
                 .ToDictionary(d => d.Name, d => d);
 
-            if (_attribute.ParentType is not null)
+            if (_attribute.ParentType is null)
+            {
+                FullName = Name;
+                return;
+            }
+
+            if (GroupDefinition.Cache.TryGetValue(_attribute.ParentType, out var parent))
+            {
+                Parent = parent;
+            }
+            else
             {
                 Parent = new GroupDefinition(_attribute.ParentType);
                 ValidateParent();
+                GroupDefinition.Cache[_attribute.ParentType] = Parent;
             }
 
-            FullName = $"{Parent?.FullName} {Name}".Trim();
+            FullName = $"{Parent.FullName} {Name}";
         }
 
         public void SetParameters(
@@ -63,7 +75,7 @@ namespace UrfRidersBot.Common.Commands.Entities
                 throw new InvalidOperationException($"Command type must not be an interface or an abstract class: {Type}");
             }
 
-            if (Type.GetInterfaces().Any(t => t == typeof(ICommand)))
+            if (Type.GetInterfaces().All(t => t != typeof(ICommand)))
             {
                 throw new InvalidOperationException($"Command type must implement {nameof(ICommand)} interface: {Type}");
             }
@@ -80,6 +92,41 @@ namespace UrfRidersBot.Common.Commands.Entities
             {
                 throw new InvalidOperationException($"Command can only be nested up to 2 levels (Group > Group > Command): {Type}");
             }
+        }
+
+        public DiscordApplicationCommandOption ToDiscordSubCommand()
+        {
+            return new(
+                Name,
+                Description,
+                ApplicationCommandOptionType.SubCommand,
+                options: Parameters?.Values.Select(p => p.ToDiscord())
+            );
+        }
+
+        public bool Equals(CommandDefinition? other)
+        {
+            if (ReferenceEquals(null, other))
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
+            return FullName == other.FullName;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj))
+                return false;
+            if (ReferenceEquals(this, obj))
+                return true;
+            if (obj.GetType() != this.GetType())
+                return false;
+            return Equals((CommandDefinition)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return FullName.GetHashCode();
         }
     }
 }
